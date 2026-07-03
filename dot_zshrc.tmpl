@@ -222,7 +222,6 @@ command -v bw    &>/dev/null && _lazyload bw    'source <(bw completion --shell 
 command -v jj    &>/dev/null && _lazyload jj    'source <(jj util completion zsh)'
 command -v ngrok &>/dev/null && _lazyload ngrok 'source <(ngrok completion)'
 command -v sem   &>/dev/null && _lazyload sem   'source <(sem completions zsh)'
-command -v omp  &>/dev/null && _lazyload omp  'source <(omp completions zsh)'
 
 # Kubectl — lazy load (saves ~200ms on startup), re-alias to kubecolor if present
 if command -v kubectl &>/dev/null; then

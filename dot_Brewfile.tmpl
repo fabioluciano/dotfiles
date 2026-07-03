@@ -182,6 +182,7 @@ brew "glab"
 brew "lazygit"
 brew "mimo-code"
 brew "ollama", restart_service: :changed
+brew "pi-coding-agent"
 brew "rtk"
 brew "anomalyco/tap/opencode", trusted: true
 brew "argoproj/tap/kubectl-argo-rollouts", trusted: true
@@ -226,7 +227,6 @@ cask "ghostty"
 cask "gitbutler"
 cask "github"
 cask "ngrok"
-cask "nikitabobko/tap/aerospace", trusted: true
 cask "obsidian"
 cask "podman-desktop"
 cask "proxyman"
@@ -279,6 +279,7 @@ cask "vlc"
 # =============================================================================
 # DESKTOP APPS — SYSTEM, DEVICE & VIRTUALIZATION
 # =============================================================================
+cask "amethyst"
 cask "betterdisplay"
 cask "fliqlo"
 cask "flux-app"
@@ -289,6 +290,7 @@ cask "mac-mouse-fix"
 #cask "macfuse"
 cask "mos"
 cask "parallels"
+cask "rectangle-pro"
 cask "rustdesk"
 cask "vagrant"
 cask "virtualbox"
@@ -319,10 +321,3 @@ cask "microsoft-auto-update"
 cask "slack"
 cask "zoom"
 {{- end }}
-
-# =============================================================================
-# MAC APP STORE (mas)
-# =============================================================================
-mas "Bitwarden", id: 1352778147
-# legacy — consider Rectangle Pro or similar
-mas "Magnet", id: 441258766
