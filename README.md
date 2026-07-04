@@ -54,7 +54,7 @@ mise run update-full    # full update: packages + dotfiles + krew + nvim + tmux
 - `dot_zshrc.tmpl`, `private_dot_zshenv.tmpl`, `dot_zsh_plugins*.txt.tmpl` — zsh
   (antidote static bundle, cached completions, lazy tool init).
 - `private_dot_config/` — app configs (nvim/AstroNvim, tmux, ghostty, k9s, jj,
-  starship, mise, aerospace, espanso, …).
+  starship, mise, espanso, …).
 - `private_dot_config/git/`, `private_dot_gnupg/`, `private_dot_ssh/` — git
   identity + SSH-based commit signing via YubiKey.
 - `.chezmoiscripts/` — `run_before_*` (YubiKey key material) and

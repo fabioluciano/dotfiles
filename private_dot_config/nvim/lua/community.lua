@@ -225,7 +225,7 @@ return {
   -- │                    Split and Window                    │
   -- ╰──────────────────────────────────────────────────────╯
   { import = "astrocommunity.split-and-window.neominimap-nvim" },
-  { "Isrothy/neominimap.nvim", opts = { auto_enable = false } },
+  { "Isrothy/neominimap.nvim", opts = { auto_enable = true } },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Utility                             │

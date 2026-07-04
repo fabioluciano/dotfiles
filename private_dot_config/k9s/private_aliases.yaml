@@ -1,9 +1,26 @@
+# k9s resource aliases
+# Reference: https://k9scli.io/topics/aliases/
 aliases:
+  # Workloads
   dp: deployments
-  sec: v1/secrets
+  sts: statefulsets
+  ds: daemonsets
   jo: jobs
+  # Access Control
   cr: clusterroles
   crb: clusterrolebindings
   ro: roles
   rb: rolebindings
+  # Networking
+  ing: ingresses
+  ep: endpoints
   np: networkpolicies
+  netpol: networkpolicies
+  # Storage
+  pvc: persistentvolumeclaims
+  # Config
+  cm: configmaps
+  sec: secrets
+  # Autoscaling
+  hpa: horizontalpodautoscalers
+  pdb: poddisruptionbudgets

@@ -216,4 +216,49 @@ return {
     "rcarriga/nvim-notify",
     opts = { stages = "static" },
   },
+
+  -- VSCode-like sidebar layout manager
+  {
+    "folke/edgy.nvim",
+    event = "VeryLazy",
+    opts = {
+      left = {
+        {
+          title = "Neo-Tree",
+          ft = "neo-tree",
+          filter = function(buf) return vim.b[buf].neo_tree_source == "filesystem" end,
+          size = { height = 0.5 },
+        },
+        {
+          title = "Neo-Tree Symbols",
+          ft = "neo-tree",
+          filter = function(buf) return vim.b[buf].neo_tree_source == "document_symbols" end,
+          pinned = true,
+          open = "Neotree position=right document_symbols",
+        },
+      },
+      bottom = {
+        { ft = "qf", title = "QuickFix" },
+        {
+          ft = "help",
+          size = { height = 20 },
+          filter = function(buf) return vim.bo[buf].buftype == "help" end,
+        },
+      },
+      animate = { enabled = false },
+    },
+  },
+
+  -- Session persistence (auto-save/restore like VSCode workspaces)
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre",
+    opts = { options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" } },
+    keys = {
+      { "<leader>Ss", function() require("persistence").save() end, desc = "Save session" },
+      { "<leader>Sl", function() require("persistence").load() end, desc = "Load session (cwd)" },
+      { "<leader>SL", function() require("persistence").load { last = true } end, desc = "Load last session" },
+      { "<leader>Sd", function() require("persistence").stop() end, desc = "Don't save session on exit" },
+    },
+  },
 }

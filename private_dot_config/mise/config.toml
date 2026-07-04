@@ -33,6 +33,9 @@ pnpm = "latest"
 pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:typescript" = "latest"
 
+# MCP servers (float at latest)
+codebase-memory-mcp = "latest"
+
 # Language servers / editor tooling (float at latest)
 "npm:typescript-language-server" = "latest"
 "npm:vscode-langservers-extracted" = "latest"

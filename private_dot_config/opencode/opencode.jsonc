@@ -14,6 +14,50 @@
         ".md",
         ".markdown"
       ]
+    },
+    // yaml-language-server: found at /Users/fabioluciano/.local/share/mise/shims/yaml-language-server
+    "yaml-language-server": {
+      "command": ["yaml-language-server", "--stdio"],
+      "extensions": [".yaml", ".yml"]
+    },
+    // dockerfile-language-server: found at /Users/fabioluciano/.local/share/mise/shims/docker-langserver
+    "dockerfile-language-server": {
+      "command": ["docker-langserver", "--stdio"],
+      "extensions": [".dockerfile"]
+    },
+    // helm-ls: found at /Users/fabioluciano/.local/share/mise/shims/helm_ls
+    "helm-ls": {
+      "command": ["helm_ls", "serve"],
+      "extensions": [".yaml", ".yml"]
+    },
+    // sqls: MISSING binary, skipped
+    // tailwindcss-language-server: found at /Users/fabioluciano/.local/share/mise/shims/tailwindcss-language-server
+    "tailwindcss-language-server": {
+      "command": ["tailwindcss-language-server", "--stdio"],
+      "extensions": [".html", ".css", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"]
+    },
+    // vue-language-server: found at /Users/fabioluciano/.local/share/mise/shims/vue-language-server
+    "vue-language-server": {
+      "command": ["vue-language-server", "--stdio"],
+      "extensions": [".vue"]
+    },
+    // neocmakelsp: MISSING binary, skipped
+    // zls: found at /Users/fabioluciano/.local/share/mise/shims/zls
+    "zls": {
+      "command": ["zls"],
+      "extensions": [".zig", ".zon"]
+    },
+    // tinymist: found at /Users/fabioluciano/.local/share/mise/shims/tinymist
+    "tinymist": {
+      "command": ["tinymist", "lsp"],
+      "extensions": [".typ"]
+    },
+    "pyright": {
+      "disabled": true
+    },
+    "basedpyright": {
+      "command": ["uvx", "--from", "basedpyright", "basedpyright-langserver", "--stdio"],
+      "extensions": [".py", ".pyi"]
     }
   },
   "enabled_providers": [
@@ -41,7 +85,9 @@
     ]
   },
   "instructions": [
-    "~/.config/opencode/AGENTS.md"
+    "~/.config/opencode/AGENTS.md",
+    "AGENTS.md",
+    ".github/AGENTS.md"
   ],
   "provider": {
     "xiaomi": {
@@ -459,6 +505,17 @@
       "type": "local",
       "command": [
         "codebase-memory-mcp"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    },
+    "kubernetes": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "kubernetes-mcp-server@latest",
+        "--read-only"
       ],
       "enabled": true,
       "timeout": 15000
