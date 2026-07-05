@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROVIDERS=(bedrock-claude bedrock-mixed anthropic xiaomi openai github-copilot opencode opencode-free google bifrost)
+# Extract providers dynamically from chezmoi data (opencode_providers.toml)
+# falls back to a hardcoded list if chezmoi is unavailable or parsing fails.
+_PROVIDERS_FROM_TOML=$(chezmoi data --format=json 2>/dev/null \
+  | jq -r '.opencode.models | keys[]' 2>/dev/null | sort) || true
+if [[ -n "$_PROVIDERS_FROM_TOML" ]]; then
+  mapfile -t PROVIDERS <<< "$_PROVIDERS_FROM_TOML"
+else
+  PROVIDERS=(bedrock-claude bedrock-mixed anthropic xiaomi openai github-copilot opencode opencode-free google bifrost)
+fi
+unset _PROVIDERS_FROM_TOML
+
 PROFILES=(optimized moderate super ultra recommended)
 DEFAULT_PROVIDER="xiaomi"
 DEFAULT_PROFILE="moderate"
@@ -81,6 +91,7 @@ write_state() {
 provider:${provider}
 profile:${profile}
 EOF
+  chmod 600 "$STATE_FILE"
 }
 
 apply_target() {

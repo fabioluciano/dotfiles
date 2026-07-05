@@ -68,15 +68,17 @@ end
 
 return {
   "folke/snacks.nvim",
-  opts = {
-    dashboard = {
+  -- NOTE: use opts function to merge with AstroNvim's built-in snacks config
+  -- (AstroNvim v6 ships snacks.nvim core; a flat `opts = {}` would override it)
+  opts = function(_, opts)
+    opts.dashboard = vim.tbl_deep_extend("force", opts.dashboard or {}, {
       sections = {
         { section = "header" },
         { section = "keys", gap = 1, padding = 1 },
         function()
           local bookmarks = load_bookmarks()
           if #bookmarks == 0 then return nil end
-          
+
           local items = {}
           for _, dir in ipairs(bookmarks) do
             table.insert(items, {
@@ -88,7 +90,7 @@ return {
               end,
             })
           end
-          
+
           return {
             title = "Bookmarks",
             padding = 1,
@@ -97,8 +99,9 @@ return {
         end,
         { section = "startup" },
       },
-    },
-  },
+    })
+    return opts
+  end,
   keys = {
     { "<leader>Ba", add_bookmark, desc = "Add Bookmark" },
     { "<leader>Br", remove_bookmark, desc = "Remove Bookmark" },

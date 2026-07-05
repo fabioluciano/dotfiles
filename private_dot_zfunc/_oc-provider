@@ -8,6 +8,9 @@ commands=(
   'dry-run:mostrar mudança sem aplicar'
 )
 
+# NOTE: Keep this list in sync with oc-provider script. The script extracts
+# providers dynamically from chezmoi data via jq. Adding a new provider in
+# opencode_providers.toml requires updating both places.
 providers=(
   'bedrock-claude:Bedrock Claude (Anthropic via AWS)'
   'bedrock-mixed:Bedrock mixed (non-Anthropic via AWS)'

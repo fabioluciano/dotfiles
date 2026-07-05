@@ -37,7 +37,7 @@ export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-abbr/
 
 ANTIDOTE_DIR="${ZDOTDIR:-$HOME}/.antidote"
 if [[ ! -e $ANTIDOTE_DIR/antidote.zsh ]]; then
-    git clone --depth=1 https://github.com/mattmc3/antidote "$ANTIDOTE_DIR"
+    git clone --depth=1 --branch=v2.1.0 https://github.com/mattmc3/antidote "$ANTIDOTE_DIR"
 fi
 source "$ANTIDOTE_DIR/antidote.zsh"
 
@@ -52,9 +52,12 @@ source "$_zpre_zsh"
 # Extra fpath entries (also before compinit).
 fpath+=~/.zfunc
 {{- if eq .chezmoi.os "darwin" }}
-if command -v brew &>/dev/null; then
-    BREW_PREFIX="$(brew --prefix)"
-    FPATH="${BREW_PREFIX}/share/zsh/site-functions:${FPATH}"
+# Avoid `brew --prefix` subprocess on every startup — test paths directly.
+# Apple Silicon installs to /opt/homebrew; Intel to /usr/local.
+if [[ -d /opt/homebrew/share/zsh/site-functions ]]; then
+    FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
+elif [[ -d /usr/local/share/zsh/site-functions ]]; then
+    FPATH="/usr/local/share/zsh/site-functions:${FPATH}"
 fi
 {{- end }}
 
@@ -171,17 +174,21 @@ _cache_eval() {
 }
 
 # _lazyload <cmd> <init>: defer a tool's completion/init until first use.
+# <init> runs once (first invocation), then `cmd "$@"` is called (respects any
+# alias reassignment done inside <init>, e.g. kubecolor for kubectl).
 _lazyload() {
     local cmd=$1 init=$2
     eval "$cmd() { unfunction $cmd; $init; $cmd \"\$@\"; }"
 }
 
 # FZF — keybindings + completion (fzf >= 0.48 ships `fzf --zsh`)
+# Skip the `fzf --zsh` probe subprocess: _cache_eval runs fzf --zsh once and
+# caches the output; on stale fzf versions that don't support --zsh the cache
+# stays empty and the static fallbacks below are used instead.
 if command -v fzf &>/dev/null; then
-    if fzf --zsh &>/dev/null; then
-        _cache_eval fzf fzf --zsh
-    else
+    _cache_eval fzf fzf --zsh
 {{- if eq .chezmoi.os "linux" }}
+    if [[ ! -s "$ZSH_CACHE_DIR/fzf.zsh" ]]; then
 {{-   if eq .chezmoi.osRelease.id "arch" }}
         [[ -f /usr/share/fzf/completion.zsh ]]   && source /usr/share/fzf/completion.zsh
         [[ -f /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
@@ -189,8 +196,8 @@ if command -v fzf &>/dev/null; then
         [[ -f /usr/share/doc/fzf/examples/completion.zsh ]]   && source /usr/share/doc/fzf/examples/completion.zsh
         [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
 {{-   end }}
-{{- end }}
     fi
+{{- end }}
 fi
 
 export FZF_TMUX_OPTS="-p"
@@ -225,35 +232,23 @@ command -v sem   &>/dev/null && _lazyload sem   'source <(sem completions zsh)'
 
 # Kubectl — lazy load (saves ~200ms on startup), re-alias to kubecolor if present
 if command -v kubectl &>/dev/null; then
-    kubectl() {
-        unfunction kubectl
+    _lazyload kubectl '
         source <(command kubectl completion zsh)
         if command -v kubecolor &>/dev/null; then
             alias kubectl=kubecolor
             compdef kubecolor=kubectl
         fi
-        kubectl "$@"
-    }
+    '
 fi
 
 # Helm — lazy load
-if command -v helm &>/dev/null; then
-    helm() {
-        unfunction helm
-        source <(command helm completion zsh)
-        helm "$@"
-    }
-fi
+command -v helm &>/dev/null && _lazyload helm 'source <(command helm completion zsh)'
 
 # =============================================================================
 # Shell modules
 # =============================================================================
 
-{{- if eq .chezmoi.os "linux" }}
-[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh"
-{{- else }}
-[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh"
-{{- end }}
+[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh" ]]  && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh"
 

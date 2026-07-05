@@ -10,7 +10,7 @@
   "plugin": [
     "oh-my-openagent",
     "./node_modules/opencode-subagent-statusline",
-    "@tarquinen/opencode-dcp@latest",
+    "@tarquinen/opencode-dcp@3.1.13",
     "@slkiser/opencode-quota"
   ]
 }

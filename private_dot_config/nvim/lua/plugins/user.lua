@@ -151,6 +151,8 @@ return {
       vim.o.foldlevel = 99
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
+      vim.o.foldmethod = "expr"
+      vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
     end,
     keys = {
       {
@@ -242,5 +244,20 @@ return {
       { "<leader>SL", function() require("persistence").load { last = true } end, desc = "Load last session" },
       { "<leader>Sd", function() require("persistence").stop() end, desc = "Don't save session on exit" },
     },
+  },
+
+  -- Formatters per filetype
+  {
+    "stevearc/conform.nvim",
+    opts = function(_, opts)
+      opts.formatters_by_ft = opts.formatters_by_ft or {}
+      opts.formatters_by_ft.go = { "gofumpt", "goimports" }
+      opts.formatters_by_ft.python = { "ruff_format" }
+      opts.formatters_by_ft.javascript = { "biome" }
+      opts.formatters_by_ft.javascriptreact = { "biome" }
+      opts.formatters_by_ft.typescript = { "biome" }
+      opts.formatters_by_ft.typescriptreact = { "biome" }
+      opts.formatters_by_ft.lua = { "stylua" }
+    end,
   },
 }

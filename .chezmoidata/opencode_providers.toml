@@ -721,89 +721,12 @@ ultrabrain = "high"
 ultrawork = "high"
 
 # =============================================================================
-# VARIANTS MODERATE (mesmo que optimized)
+# VARIANTS MODERATE
 # =============================================================================
-
-[opencode.variants.bedrock-claude-moderate]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.bedrock-mixed-moderate]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.anthropic-moderate]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.openai-moderate]
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.github-copilot-moderate]
-orchestrator = "medium"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "medium"
-vision = "high"
-review = "medium"
-long_running = "medium"
-quick = "medium"
-standard = "medium"
-complex = "high"
-visual = "high"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.opencode-moderate]
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.opencode-free-moderate]
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.xiaomi-moderate]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
+# "moderate" is an alias for "optimized" — the template
+# (oh-my-openagent.jsonc.tmpl) rewrites `moderate` → `optimized` before looking
+# up variants, so no `-moderate` blocks exist here. This keeps the dedup real
+# (no copy-pasted data) instead of relying on the template's missing-key fallback.
 
 # =============================================================================
 # VARIANTS RECOMMENDED (tiers alinhados ao Oh My OpenAgent)
@@ -849,6 +772,100 @@ architecture = "high"
 visual = "high"
 ultrabrain = "xhigh"
 ultrawork = "max"
+
+# google: variants aligned with Gemini thinking levels
+[opencode.variants.google]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.google-optimized]
+orchestrator = "low"
+implementation = "medium"
+architecture = "medium"
+review = "medium"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.google-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.google-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
+
+[opencode.variants.google-ultra]
+orchestrator = "none"
+implementation = "none"
+architecture = "none"
+review = "none"
+visual = "none"
+deep = "none"
+ultrabrain = "none"
+ultrawork = "none"
+
+# bifrost: minimal variants (single "auto" model — effort is determined by gateway)
+[opencode.variants.bifrost]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "medium"
+review = "medium"
+visual = "medium"
+deep = "medium"
+ultrabrain = "medium"
+ultrawork = "medium"
+
+[opencode.variants.bifrost-optimized]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.bifrost-super]
+orchestrator = "none"
+implementation = "none"
+architecture = "none"
+review = "none"
+visual = "none"
+deep = "none"
+ultrabrain = "none"
+ultrawork = "none"
+
+[opencode.variants.bifrost-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.bifrost-ultra]
+orchestrator = "none"
+implementation = "none"
+architecture = "none"
+review = "none"
+visual = "none"
+deep = "none"
+ultrabrain = "none"
+ultrawork = "none"
 
 [opencode.variants.xiaomi-recommended]
 orchestrator = "high"

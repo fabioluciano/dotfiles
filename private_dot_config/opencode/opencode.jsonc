@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  // NOTE: The effective model is controlled by oh-my-openagent (rendered from
+  // opencode_providers.toml via oh-my-openagent.jsonc.tmpl). This field is only
+  // used when oh-my-openagent is disabled.
   "model": "amazon-bedrock/us.anthropic.claude-opus-4-8",
   "small_model": "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
   "default_agent": "atlas",
@@ -30,7 +33,6 @@
       "command": ["helm_ls", "serve"],
       "extensions": [".yaml", ".yml"]
     },
-    // sqls: MISSING binary, skipped
     // tailwindcss-language-server: found at /Users/fabioluciano/.local/share/mise/shims/tailwindcss-language-server
     "tailwindcss-language-server": {
       "command": ["tailwindcss-language-server", "--stdio"],
@@ -41,7 +43,6 @@
       "command": ["vue-language-server", "--stdio"],
       "extensions": [".vue"]
     },
-    // neocmakelsp: MISSING binary, skipped
     // zls: found at /Users/fabioluciano/.local/share/mise/shims/zls
     "zls": {
       "command": ["zls"],
@@ -108,6 +109,8 @@
       "models": {
         "gpt-5.5": {},
         "gpt-5.4-mini": {},
+        // gpt-5.4-nano: available for manual selection; not assigned to any tier
+        // in opencode_providers.toml (openai section uses gpt-5.5 / gpt-5.4-mini).
         "gpt-5.4-nano": {}
       }
     },
@@ -519,6 +522,15 @@
       ],
       "enabled": true,
       "timeout": 15000
+    },
+    // Headroom MCP — compression, retrieval, and stats tools.
+    // OpenCode spawns this process automatically (stdio, no proxy needed).
+    // Install: mise install (pipx:headroom-ai[mcp] in mise config)
+    "headroom": {
+      "type": "local",
+      "command": ["headroom", "mcp", "serve"],
+      "enabled": true,
+      "timeout": 10000
     }
   }
 }

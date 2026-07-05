@@ -4,7 +4,7 @@ return {
   opts = {
     features = {
       large_buf = { size = 1024 * 500, lines = 10000 },
-        autopairs = false,
+      autopairs = false,
       diagnostics_mode = 3,
       highlighturl = true,
       notifications = true,
@@ -92,6 +92,9 @@ return {
         ["<S-C-d>"]    = { function() require("opencode").command("session.half.page.down") end,       desc = "OpenCode scroll down" },
 
         -- Operator (go / goo) — motion e line
+        -- <Leader>or enters operator-pending mode: wait for a motion/text-object.
+        -- <Leader>oo does the same but pre-sends "_" (current line) as the motion,
+        -- so it acts on the line under the cursor in one keystroke.
         ["<Leader>or"] = { function() return require("opencode").operator("@this ") end, expr = true, desc = "Send range to OpenCode" },
         ["<Leader>oo"] = { function() return require("opencode").operator("@this ") .. "_" end, expr = true, desc = "Send line to OpenCode" },
 
@@ -100,11 +103,11 @@ return {
         ["<Leader>Rr"] = { "<cmd>OverseerRun<cr>", desc = "Run task" },
         ["<Leader>Rt"] = { "<cmd>OverseerToggle<cr>", desc = "Toggle task list" },
 
-        -- Test (neotest)
-        ["<Leader>T"] = { desc = "󰙨 Test" },
-        ["<Leader>Tt"] = { function() require("neotest").run.run(vim.fn.expand "%") end, desc = "Test file" },
-        ["<Leader>Tn"] = { function() require("neotest").run.run() end, desc = "Test nearest" },
-        ["<Leader>Ts"] = { function() require("neotest").summary.toggle() end, desc = "Toggle summary" },
+        -- Test (neotest) — under <Leader>t to avoid collision with AstroNvim v6 terminal prefix
+        ["<Leader>tT"] = { desc = "󰙨 Test" },
+        ["<Leader>tTt"] = { function() require("neotest").run.run(vim.fn.expand "%") end, desc = "Test file" },
+        ["<Leader>tTn"] = { function() require("neotest").run.run() end, desc = "Test nearest" },
+        ["<Leader>tTs"] = { function() require("neotest").summary.toggle() end, desc = "Toggle summary" },
 
         -- Git extras (diffview / codediff / octo)
         ["<Leader>gD"] = { "<cmd>DiffviewOpen<cr>",  desc = "Diffview open" },
@@ -113,7 +116,9 @@ return {
 
         -- Misc
         ["<Leader>z"] = { "<cmd>ZenMode<cr>", desc = "Zen mode" },
-        ["<Leader>ts"] = { "<cmd>Telescope toggleterm_manager<cr>", desc = "Search Toggleterms" },
+        ["<Leader>tM"] = { "<cmd>Telescope toggleterm_manager<cr>", desc = "Search Toggleterms" },
+        -- Disable community pack's <Leader>ts (toggleterm-manager) — we use <Leader>tM instead
+        ["<Leader>ts"] = false,
         ["<Leader>uo"] = { "<cmd>Neotree document_symbols<cr>", desc = "Outline (document symbols)" },
       },
     },

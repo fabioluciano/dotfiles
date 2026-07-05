@@ -207,9 +207,9 @@ package.
 
 ## Managing opencode skills
 
-opencode skills are **not** tracked by chezmoi. They are managed exclusively by the [`skills` CLI](https://skills.sh) and installed directly to `~/.config/opencode/skills/`.
+The opencode skills lock file (`~/.agents/.skill-lock.json`) **is** tracked by chezmoi and versioned in git. The actual skill files (in `~/.config/opencode/skills/`) are **not** tracked.
 
-opencode discovers skills automatically at startup — no config entry needed.
+When you run `chezmoi apply`, the `.chezmoiscripts/run_onchange_after_60-skills.sh.tmpl` script automatically reinstalls skills whenever the lock file changes. This ensures all machines stay in sync with the same skill versions.
 
 ### Install a skill
 
@@ -232,6 +232,10 @@ npx skills update -g                   # update all global skills
 npx skills remove <skill> -a opencode  # remove a specific skill
 ```
 
-### Why not chezmoi?
+### How it works
 
-Skills are community-maintained and updated frequently. Tracking them in chezmoi would require manual commits on every update. The `skills` CLI handles versioning and updates independently.
+1. The `skills` CLI manages skill installation and updates.
+2. When you add/remove/update a skill, the lock file (`~/.agents/.skill-lock.json`) changes.
+3. `chezmoi apply` detects the lock file change and runs the sync script.
+4. The sync script reinstalls all skills listed in the lock file.
+5. Commit the lock file to git so other machines pull the same skill versions.
