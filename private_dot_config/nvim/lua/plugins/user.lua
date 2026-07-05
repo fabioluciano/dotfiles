@@ -22,6 +22,13 @@ return {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
       sources = { "document_symbols", "filesystem" },
+      window = {
+        width = 40,
+        mappings = {
+          ["<ScrollWheelLeft>"] = "noop",
+          ["<ScrollWheelRight>"] = "noop",
+        },
+      },
       default_component_configs = {
         indent = {
           with_expanders = true,
@@ -59,6 +66,7 @@ return {
         follow_current_file = {
           enabled = false,
         },
+        hijack_netrw_behavior = "disabled",
       },
     },
   },
@@ -166,11 +174,17 @@ return {
   {
     "akinsho/toggleterm.nvim",
     opts = {
-      size = 15,
+      size = function(term)
+        if term.direction == "horizontal" then
+          return math.floor(vim.o.lines * 0.25)
+        elseif term.direction == "vertical" then
+          return math.floor(vim.o.columns * 0.4)
+        end
+      end,
       direction = "horizontal",
       shell = vim.o.shell,
       float_opts = { border = "rounded" },
-      persist_size = true,
+      persist_size = false,
     },
   },
 
@@ -217,43 +231,11 @@ return {
     opts = { stages = "static" },
   },
 
-  -- VSCode-like sidebar layout manager
-  {
-    "folke/edgy.nvim",
-    event = "VeryLazy",
-    opts = {
-      left = {
-        {
-          title = "Neo-Tree",
-          ft = "neo-tree",
-          filter = function(buf) return vim.b[buf].neo_tree_source == "filesystem" end,
-          size = { height = 0.5 },
-        },
-        {
-          title = "Neo-Tree Symbols",
-          ft = "neo-tree",
-          filter = function(buf) return vim.b[buf].neo_tree_source == "document_symbols" end,
-          pinned = true,
-          open = "Neotree position=right document_symbols",
-        },
-      },
-      bottom = {
-        { ft = "qf", title = "QuickFix" },
-        {
-          ft = "help",
-          size = { height = 20 },
-          filter = function(buf) return vim.bo[buf].buftype == "help" end,
-        },
-      },
-      animate = { enabled = false },
-    },
-  },
-
   -- Session persistence (auto-save/restore like VSCode workspaces)
   {
     "folke/persistence.nvim",
     event = "BufReadPre",
-    opts = { options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" } },
+    opts = { options = { "buffers", "curdir", "tabpages", "help", "globals", "skiprtp" } },
     keys = {
       { "<leader>Ss", function() require("persistence").save() end, desc = "Save session" },
       { "<leader>Sl", function() require("persistence").load() end, desc = "Load session (cwd)" },

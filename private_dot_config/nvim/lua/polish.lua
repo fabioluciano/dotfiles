@@ -52,6 +52,15 @@ vim.filetype.add {
   },
 }
 
+-- Disable horizontal scroll in Neo-tree
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "neo-tree",
+  callback = function()
+    vim.wo.wrap = false
+    vim.wo.sidescrolloff = 0
+  end,
+})
+
 -- Diagnostic signs with icons
 vim.diagnostic.config {
   signs = {

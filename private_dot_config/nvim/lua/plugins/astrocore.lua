@@ -145,6 +145,28 @@ return {
           desc = "Enable spell checking only in comments for code files",
         },
       },
+      -- VSCode-like layout: neo-tree left | empty buffer center | terminal bottom
+      vscode_layout = {
+        {
+          event = "VimEnter",
+          desc = "VSCode-like layout when a directory is passed as argument",
+          nested = true,
+          callback = function()
+            if vim.fn.argc(-1) == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+              vim.schedule(function()
+                vim.cmd.cd(vim.fn.argv(0))
+                -- enew first: replaces any netrw/directory buffer so neo-tree
+                -- opens as a narrow left split instead of filling the whole screen
+                vim.cmd("enew")
+                vim.cmd("Neotree filesystem left")
+                vim.cmd("wincmd l")
+                vim.cmd("ToggleTerm direction=horizontal")
+                vim.cmd("wincmd p")
+              end)
+            end
+          end,
+        },
+      },
     },
   },
 }

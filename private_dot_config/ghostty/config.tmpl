@@ -84,7 +84,7 @@ mouse-hide-while-typing = true
 
 shell-integration = zsh
 shell-integration-features = cursor,sudo,title
-command = /bin/zsh -l -c "if tmux has-session 2>/dev/null; then tmux attach; else smug start main 2>/dev/null || tmux new-session; fi"
+command = /bin/zsh -l -c "smug start main 2>/dev/null; tmux attach 2>/dev/null"
 
 # ╭──────────────────────────────────────────────────────────╮
 # │                    Scrollback                             │
