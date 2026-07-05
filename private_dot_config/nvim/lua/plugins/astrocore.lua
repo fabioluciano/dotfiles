@@ -9,6 +9,13 @@ return {
       highlighturl = true,
       notifications = true,
     },
+    sessions = {
+      autosave = { last = true, cwd = true },
+      ignore = {
+        filetypes = { "gitcommit", "gitrebase" },
+        buftypes = { "terminal" },
+      },
+    },
     diagnostics = {
       virtual_text = true,
       underline = true,
@@ -120,6 +127,11 @@ return {
         -- Disable community pack's <Leader>ts (toggleterm-manager) — we use <Leader>tM instead
         ["<Leader>ts"] = false,
         ["<Leader>uo"] = { "<cmd>Neotree document_symbols<cr>", desc = "Outline (document symbols)" },
+
+        ["<Leader>Ss"] = { function() require("resession").save() end,   desc = "Save session" },
+        ["<Leader>Sl"] = { function() require("resession").load() end,   desc = "Load session (cwd)" },
+        ["<Leader>SL"] = { function() require("resession").load("last") end, desc = "Load last session" },
+        ["<Leader>Sd"] = { function() require("resession").detach() end, desc = "Detach session (stop auto-save)" },
       },
     },
     autocmds = {

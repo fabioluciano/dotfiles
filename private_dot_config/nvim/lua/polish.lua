@@ -99,3 +99,17 @@ vim.defer_fn(function()
     ensure_spell_file(lang)
   end
 end, 500)
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "AstroBufsUpdated",
+  callback = function()
+    if not vim.t.bufs then return end
+    local filtered = vim.tbl_filter(function(bufnr)
+      return vim.api.nvim_buf_is_valid(bufnr)
+        and vim.api.nvim_buf_get_name(bufnr) ~= ""
+    end, vim.t.bufs)
+    if #filtered ~= #vim.t.bufs then
+      vim.t.bufs = filtered
+    end
+  end,
+})

@@ -225,7 +225,35 @@ return {
   -- │                    Split and Window                    │
   -- ╰──────────────────────────────────────────────────────╯
   { import = "astrocommunity.split-and-window.neominimap-nvim" },
-  { "Isrothy/neominimap.nvim", opts = { auto_enable = true } },
+  {
+    "Isrothy/neominimap.nvim",
+    opts = {
+      auto_enable = true,
+      click = { enabled = true },
+      exclude_filetypes = {
+        "help",
+        "bigfile",
+        "neo-tree",
+        "TelescopePrompt",
+        "lazy",
+        "mason",
+        "toggleterm",
+      },
+      exclude_buftypes = {
+        "nofile",
+        "nowrite",
+        "quickfix",
+        "terminal",
+        "prompt",
+      },
+      buf_filter = function(bufnr)
+        if vim.api.nvim_buf_get_name(bufnr) == "" then return false end
+        if vim.bo[bufnr].buftype ~= "" then return false end
+        return vim.api.nvim_buf_line_count(bufnr) > 1
+          or (vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] or "") ~= ""
+      end,
+    },
+  },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Utility                             │

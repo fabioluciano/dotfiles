@@ -25,6 +25,11 @@
 {{- $providerVariants := ternary (get $.opencode.variants $variantKey) (get $.opencode.variants $variantProvider | default dict) (hasKey $.opencode.variants $variantKey) -}}
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+  "tui": {
+    "sidebar": {
+      "enabled": false
+    }
+  },
   "team_mode": {
     "enabled": true,
     "max_parallel_members": 3,

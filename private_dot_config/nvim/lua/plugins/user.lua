@@ -233,19 +233,6 @@ return {
     opts = { stages = "static" },
   },
 
-  -- Session persistence (auto-save/restore like VSCode workspaces)
-  {
-    "folke/persistence.nvim",
-    event = "BufReadPre",
-    opts = { options = { "buffers", "curdir", "tabpages", "help", "globals", "skiprtp" } },
-    keys = {
-      { "<leader>Ss", function() require("persistence").save() end, desc = "Save session" },
-      { "<leader>Sl", function() require("persistence").load() end, desc = "Load session (cwd)" },
-      { "<leader>SL", function() require("persistence").load { last = true } end, desc = "Load last session" },
-      { "<leader>Sd", function() require("persistence").stop() end, desc = "Don't save session on exit" },
-    },
-  },
-
   -- Formatters per filetype
   {
     "stevearc/conform.nvim",
