@@ -109,8 +109,6 @@
       "models": {
         "gpt-5.5": {},
         "gpt-5.4-mini": {},
-        // gpt-5.4-nano: available for manual selection; not assigned to any tier
-        // in opencode_providers.toml (openai section uses gpt-5.5 / gpt-5.4-mini).
         "gpt-5.4-nano": {}
       }
     },
@@ -405,8 +403,7 @@
     "@tarquinen/opencode-dcp@3.1.13",
     "opencode-claude-auth@latest",
     "opencode-notify",
-    "@slkiser/opencode-quota"
-  ],
+    "@slkiser/opencode-quota"],
   "permission": {
     "bash": "allow",
     "edit": "allow",
