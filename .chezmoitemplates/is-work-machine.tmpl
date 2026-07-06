@@ -1,0 +1,2 @@
+{{- $machineName := default .chezmoi.hostname (index . "machineName") -}}
+{{- if not (has $machineName .personal_machines) -}}true{{- end -}}

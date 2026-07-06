@@ -40,6 +40,7 @@
   default = current
   followTags = true
   autoSetupRemote = true
+  useForceIfIncludes = true
 
 [pull]
   rebase = true
@@ -108,10 +109,7 @@
   unstage = reset HEAD --
   contributors = shortlog --summary --numbered
 
-  fix-fetch = "!git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
-
-[gitflow "branch"]
-  develop = development
+   fix-fetch = "!git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
 
 [interactive]
     diffFilter = delta --color-only --features=interactive
@@ -121,7 +119,8 @@
     whitespace-error-style = 22 reverse
 
 [merge]
-    conflictstyle = diff3
+    conflictstyle = zdiff3
+    driver = mergiraf %O %A %B -l %L
 
 [status]
     submoduleSummary = true
@@ -162,6 +161,7 @@
 [rebase]
   autoStash = true
   autoSquash = true
+  updateRefs = true
 
 [rerere]
   enabled = true
