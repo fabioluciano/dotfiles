@@ -56,7 +56,7 @@ set-option -g allow-passthrough on  # Allow terminal escape sequences (images in
 
 # Ensure Homebrew bash (4+) is found before system bash (3.2) for plugins
 # Uses run-shell so $(brew --prefix) is expanded by the user's shell (zsh)
-if-shell 'command -v brew && [ "$(brew --prefix bash)" != "/bin/bash" ]' {
+if-shell 'command -v brew' {
     run-shell 'brew_prefix=$(brew --prefix); tmux set-environment -g PATH "${brew_prefix}/bin:${PATH}"'
 }
 

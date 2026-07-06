@@ -84,7 +84,7 @@ mouse-hide-while-typing = true
 
 shell-integration = zsh
 shell-integration-features = cursor,sudo,title
-command = /bin/zsh -l -c "smug start main 2>/dev/null; tmux attach 2>/dev/null"
+command = /bin/zsh -l -c "smug start main 2>/dev/null; tmux new-session -A -s main"
 
 # ╭──────────────────────────────────────────────────────────╮
 # │                    Scrollback                             │
