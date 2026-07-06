@@ -53,7 +53,6 @@ dockutil --add /Applications/Visual\ Studio\ Code.app --no-restart
 dockutil --add /Applications/Zed.app --no-restart
 dockutil --add /Applications/DBeaver.app --no-restart
 dockutil --add /Applications/Parallels\ Desktop.app --no-restart
-dockutil --add /Applications/Rancher\ Desktop.app --no-restart
 dockutil --add /Applications/Podman\ Desktop.app --no-restart
 
 dockutil --add '' --type small-spacer --section apps --no-restart
