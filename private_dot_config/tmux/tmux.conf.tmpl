@@ -146,21 +146,12 @@ set -g @plugin 'azorng/tmux-smooth-scroll'
 
 # Status bar
 set -g @plugin 'fabioluciano/tmux-powerkit'
-set -g @plugin 'tmux-plugins/tmux-resurrect'   # Session save/restore (prefix+C-s/C-r)
-set -g @plugin 'tmux-plugins/tmux-continuum'   # Auto-save every 15min
 
 # -----------------------------------------------------------------------------
 #  TPM Settings
 # -----------------------------------------------------------------------------
 set -g @tpm-install "C-i"
 set -g @tpm-update "C-u"
-
-# -----------------------------------------------------------------------------
-#  Resurrect & Continuum Settings
-# -----------------------------------------------------------------------------
-set -g @resurrect-capture-pane-contents 'on'
-set -g @continuum-restore 'on'
-set -g @continuum-save-interval '15'
 
 # -----------------------------------------------------------------------------
 #  Floax Settings

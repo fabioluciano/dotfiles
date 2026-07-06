@@ -1,7 +1,21 @@
 # Externally-managed dependencies fetched by chezmoi.
 # Refreshed at most weekly; run `chezmoi --refresh-externals apply` to force.
 
+{{- $antidoteVersion := (gitHubLatestRelease "mattmc3/antidote").TagName | toString }}
+{{- $antidoteURL := printf "https://github.com/mattmc3/antidote/archive/refs/tags/%s.tar.gz" $antidoteVersion }}
+{{- $antidoteDir := printf "antidote-%s" (trimPrefix "v" $antidoteVersion) }}
+
 [".antidote"]
     type = "archive"
-    url = "https://github.com/mattmc3/antidote/archive/refs/tags/v2.1.0.tar.gz"
+    url = {{ $antidoteURL | quote }}
     stripComponents = 1
+    include = ["*/antidote.zsh", "*/functions/**"]
+    exclude = ["*/antidote"]
+    refreshPeriod = "168h"
+
+[".antidote/antidote"]
+    type = "archive-file"
+    url = {{ $antidoteURL | quote }}
+    executable = true
+    path = {{ printf "%s/antidote" $antidoteDir | quote }}
+    refreshPeriod = "168h"

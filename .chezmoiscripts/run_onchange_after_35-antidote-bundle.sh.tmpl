@@ -1,0 +1,21 @@
+#!/usr/bin/env zsh
+# Popula o cache de plugins do antidote.
+# Re-executa quando a lista de plugins ou o external do antidote mudar.
+# .chezmoiexternal hash: {{ include ".chezmoiexternal.toml" | sha256sum }}
+# zsh_plugins_pre hash:  {{ include "dot_zsh_plugins_pre.txt.tmpl" | sha256sum }}
+# zsh_plugins hash:      {{ include "dot_zsh_plugins.txt.tmpl" | sha256sum }}
+set -euo pipefail
+
+ANTIDOTE_BIN="${HOME}/.antidote/antidote"
+
+if [[ ! -f "${ANTIDOTE_BIN}" ]]; then
+    echo ":: antidote não encontrado; execute: chezmoi --refresh-externals apply" >&2
+    exit 1
+fi
+
+[[ -x "${ANTIDOTE_BIN}" ]] || chmod +x "${ANTIDOTE_BIN}"
+
+echo ":: antidote bundle (lista de plugins mudou)"
+"${ANTIDOTE_BIN}" bundle <"${HOME}/.zsh_plugins_pre.txt" >"${HOME}/.zsh_plugins_pre.zsh"
+"${ANTIDOTE_BIN}" bundle <"${HOME}/.zsh_plugins.txt"     >"${HOME}/.zsh_plugins.zsh"
+echo ":: antidote bundle concluído"
