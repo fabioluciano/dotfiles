@@ -50,6 +50,8 @@ termshark
 tldr
 tmux
 tmux-plugin-manager
+tmux-floax # AUR
+tmux-thumbs # AUR
 topgrade-bin
 tree
 viddy
@@ -58,6 +60,7 @@ xh
 xsel
 yazi
 zoxide
+sesh # AUR
 
 # =============================================================================
 # TERMINAL EMULATOR
@@ -85,6 +88,7 @@ visual-studio-code-bin
 # BUILD, LANGUAGE & PROJECT TOOLING
 # =============================================================================
 act
+beads
 cmake
 devtools
 git-cliff
@@ -131,12 +135,17 @@ virt-manager
 # =============================================================================
 # GIT, REVIEW & AGENT WORKFLOW
 # =============================================================================
+git-absorb
 gitbutler-bin
 git-delta
+gh-dash
+gh-poi
 github-cli
 git-lfs
 gitu
 lazygit
+mergiraf
+navi
 
 # =============================================================================
 # DESKTOP APPS — PRODUCTIVITY & COMMUNICATION
@@ -230,6 +239,7 @@ thunar-media-tags-plugin
 thunar-volman
 tlp
 ttf-cascadia-code-nerd
+ttf-maple # AUR
 ventoy-bin
 virtualbox
 virtualbox-ext-oracle
