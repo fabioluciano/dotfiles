@@ -134,6 +134,11 @@ return {
         ["<Leader>SL"] = { function() require("resession").load("last") end, desc = "Load last session" },
         ["<Leader>Sd"] = { function() require("resession").detach() end, desc = "Detach session (stop auto-save)" },
       },
+      v = {
+        -- OpenCode prompts (visual mode — operate on selection)
+        ["<Leader>ope"] = { function() require("opencode").prompt("explain") end,  desc = "Explain selection" },
+        ["<Leader>opr"] = { function() require("opencode").prompt("review") end,   desc = "Review selection" },
+      },
     },
     autocmds = {
       -- Enable spell only for text files (markdown, text, gitcommit, etc.)
