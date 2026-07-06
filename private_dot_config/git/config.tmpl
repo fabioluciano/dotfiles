@@ -3,8 +3,7 @@
         do WORK_MAIL ou do Bitwarden (campo work_mail). Personal: e-mail do data.
         Em máquina pessoal o Bitwarden nem é consultado (branch não avaliado). */ -}}
 {{- $email := .email -}}
-{{- $machineName := default .chezmoi.hostname (index . "machineName") -}}
-{{- if not (has $machineName .personal_machines) -}}
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" -}}
 {{-   if env "WORK_MAIL" -}}
 {{-     $email = env "WORK_MAIL" -}}
 {{-   else -}}
@@ -32,6 +31,7 @@
   pager = delta
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
   excludesfile = ~/.gitignore
+  attributesfile = ~/.config/git/attributes
 
 [web]
   browser = firefox
@@ -109,7 +109,7 @@
   unstage = reset HEAD --
   contributors = shortlog --summary --numbered
 
-   fix-fetch = "!git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
+  fix-fetch = "!git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
 
 [interactive]
     diffFilter = delta --color-only --features=interactive
@@ -120,7 +120,12 @@
 
 [merge]
     conflictstyle = zdiff3
-    driver = mergiraf %O %A %B -l %L
+
+# mergiraf: merge driver sintatico. Ativado via ~/.config/git/attributes
+# (* merge=mergiraf); faz fallback para o merge normal em formatos nao suportados.
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 
 [status]
     submoduleSummary = true

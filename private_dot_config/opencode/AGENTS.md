@@ -12,7 +12,7 @@ Use `question` when facing a user decision: trade-offs, approach choices, confli
 
 ## Do not hallucinate!
 
-**Do not hallucinate!** Never invent APIs, functions, file paths, or commands without verification. Look up via MCP tools (`codebase-memory`, `codegraph`, `context7`) or say "I don't know." Ground every claim in evidence — agents that hallucinate waste time and erode trust.
+**Do not hallucinate!** Never invent APIs, functions, file paths, or commands without verification. Look up via MCP tools (`codebase-memory`, `context7`) or say "I don't know." Ground every claim in evidence — agents that hallucinate waste time and erode trust.
 
 ## MCP-FIRST (mandatory, no exceptions for delegated work)
 
@@ -22,13 +22,12 @@ Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, cur
 
 | Domain | Required MCP |
 |--------|-------------|
-| Code / symbols / impact analysis | `codebase-memory` or `codegraph` — index first if missing |
+| Code / symbols / impact analysis | `codebase-memory` — index first if missing |
 | External docs / libraries | `context7` (`resolve-library-id` → `query-docs`) |
 | GitHub / public code examples | `github` (ops) / `gh_grep` (public examples) |
 | Browser / UI / E2E / screenshots | `playwright` — never replace with curl |
 | Large output / logs / reusable docs | `context-mode` (`ctx_batch_execute`, `ctx_execute`, `ctx_search`) |
 | LSP / diagnostics / rename symbols | `lsp` — run `lsp_diagnostics` after editing |
-| Complex multi-step reasoning | `sequential-thinking` |
 | Prior sessions / recall | `session` |
 | Media / PDFs / diagrams | `look_at` |
 | Orchestration / delegation / tasks | `skill`, `task_*`, `team_*` |

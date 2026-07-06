@@ -75,8 +75,6 @@ brew "tailspin"
 brew "termshark"
 brew "tldr"
 brew "tmux"
-brew "tmux-floax"
-brew "tmux-thumbs"
 brew "topgrade"
 brew "tpm"
 brew "sesh"
@@ -93,7 +91,7 @@ brew "zoxide"
 # =============================================================================
 brew "asciidoctor"
 brew "chafa"
-brew "code-minimap"                                                              # required by neominimap.nvim
+brew "code-minimap"
 brew "d2"
 brew "duckdb"
 brew "graphviz"
@@ -184,8 +182,6 @@ brew "yubico-piv-tool"
 # GIT, REVIEW & AGENT WORKFLOW
 # =============================================================================
 brew "gh"
-brew "gh-dash"
-brew "gh-poi"
 brew "git-absorb"
 brew "git-delta"
 brew "git-lfs"
@@ -320,8 +316,7 @@ cask "font-symbols-only-nerd-font"
 cask "onlyoffice"
 
 {{- /* chezmoi:template:missing-key=zero */ -}}
-{{- $machineName := default .chezmoi.hostname (index . "machineName") -}}
-{{- if not (has $machineName .personal_machines) }}
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 
 cask "microsoft-outlook"
 cask "microsoft-teams"

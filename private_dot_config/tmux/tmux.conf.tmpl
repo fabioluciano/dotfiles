@@ -137,6 +137,8 @@ set -g @plugin 'tmux-plugins/tmux-pain-control'  # Pane management bindings
 # Search and extraction
 set -g @plugin 'sainnhe/tmux-fzf'                # FZF integration
 set -g @plugin 'laktak/extrakto'                 # Extract text from panes
+set -g @plugin 'fcsonline/tmux-thumbs'           # Hint-based copy (prefix+space... default: prefix+F)
+set -g @plugin 'omerxx/tmux-floax'               # Floating scratch pane
 
 # Mouse enhancements
 set -g @plugin 'nhdaly/tmux-better-mouse-mode'
@@ -159,6 +161,13 @@ set -g @tpm-update "C-u"
 set -g @resurrect-capture-pane-contents 'on'
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
+
+# -----------------------------------------------------------------------------
+#  Floax Settings
+# -----------------------------------------------------------------------------
+set -g @floax-bind 'p'
+set -g @floax-width '80%'
+set -g @floax-height '80%'
 
 # -----------------------------------------------------------------------------
 #  Better Mouse Mode Settings

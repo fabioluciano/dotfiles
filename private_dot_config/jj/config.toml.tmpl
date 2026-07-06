@@ -2,7 +2,8 @@
 name = "{{ .name }}"
 email = "{{ .email }}"
 
-# Override email for work repositories
+# Override email for work repositories (Bitwarden so e consultado em maquina de trabalho)
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 [[--scope]]
 --when.repositories = ["/mnt/srv/work"{{ if eq .chezmoi.os "darwin" }}, "~/Projects/work"{{ end }}]
 {{- if env "WORK_MAIL" }}
@@ -12,6 +13,7 @@ email = "{{ env "WORK_MAIL" }}"
 {{- $fields := bitwardenFields "item" "dotfiles-tokens" }}
 [--scope.user]
 email = "{{ $fields.work_mail.value }}"
+{{- end }}
 {{- end }}
 
 [ui]

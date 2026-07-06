@@ -41,7 +41,3 @@ k9s:
     memory:
       critical: 90
       warn: 70
-
-  # Plugins configuration
-  plugins:
-    dir: ~/.config/k9s/plugins.yaml

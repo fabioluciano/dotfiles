@@ -440,7 +440,7 @@
     "playwright": {
       "type": "local",
       "command": [
-        "mcp-server-playwright"
+        "playwright-mcp"
       ],
       "enabled": true,
       "timeout": 10000
@@ -489,15 +489,15 @@
     },
     // mcp-atlassian (Jira/Confluence) — disabled until runtime tokens are set.
     // Required env vars: JIRA_DOMAIN (e.g. company.atlassian.net), JIRA_EMAIL, JIRA_TOKEN
-    // Install: mise install (uvx:mcp-atlassian in mise config)
+    // Install: mise install (pipx:mcp-atlassian in mise config)
     "mcp-atlassian": {
       "type": "local",
-      "command": ["uvx", "mcp-atlassian"],
+      "command": ["mcp-atlassian"],
       "enabled": false,
       "env": {
-        "ATLASSIAN_URL": "https://{env:JIRA_DOMAIN}",
-        "ATLASSIAN_EMAIL": "{env:JIRA_EMAIL}",
-        "ATLASSIAN_TOKEN": "{env:JIRA_TOKEN}"
+        "JIRA_URL": "https://{env:JIRA_DOMAIN}",
+        "JIRA_USERNAME": "{env:JIRA_EMAIL}",
+        "JIRA_API_TOKEN": "{env:JIRA_TOKEN}"
       },
       "timeout": 10000
     },
@@ -511,10 +511,10 @@
     },
     // mcp-grafana (Grafana) — disabled until runtime tokens are set.
     // Required env vars: GRAFANA_URL (e.g. https://grafana.example.com), GRAFANA_SERVICE_ACCOUNT_TOKEN
-    // Install: mise install (uvx:mcp-grafana in mise config)
+    // Install: mise install (pipx:mcp-grafana in mise config)
     "grafana": {
       "type": "local",
-      "command": ["uvx", "mcp-grafana"],
+      "command": ["mcp-grafana"],
       "enabled": false,
       "env": {
         "GRAFANA_URL": "{env:GRAFANA_URL}",
@@ -523,14 +523,14 @@
       "timeout": 10000
     },
     // postgres-mcp (PostgreSQL) — disabled until runtime token is set.
-    // Required env vars: DATABASE_URL (e.g. postgresql://user:pass@host:5432/db)
-    // Install: mise install (uvx:postgres-mcp in mise config)
+    // Required env vars: DATABASE_URI (e.g. postgresql://user:pass@host:5432/db)
+    // Install: mise install (pipx:postgres-mcp in mise config)
     "postgres": {
       "type": "local",
-      "command": ["uvx", "postgres-mcp"],
+      "command": ["postgres-mcp"],
       "enabled": false,
       "env": {
-        "DATABASE_URL": "{env:DATABASE_URL}"
+        "DATABASE_URI": "{env:DATABASE_URI}"
       },
       "timeout": 10000
     },
@@ -539,20 +539,20 @@
     // Install: mise install (npm:@modelcontextprotocol/server-gitlab in mise config)
     "gitlab": {
       "type": "local",
-      "command": ["gitlab-mcp"],
+      "command": ["mcp-server-gitlab"],
       "enabled": false,
       "env": {
-        "GITLAB_TOKEN": "{env:GITLAB_TOKEN}",
-        "GITLAB_URL": "{env:GITLAB_URL:https://gitlab.com}"
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "{env:GITLAB_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4"
       },
       "timeout": 10000
     },
     // aws-api-mcp (AWS API) — disabled until runtime credentials are set.
     // Required env vars: AWS_PROFILE (AWS profile name), AWS_REGION (e.g. us-east-1)
-    // Install: mise install (uvx:awslabs-aws-api-mcp-server in mise config)
+    // Install: mise install (pipx:awslabs-aws-api-mcp-server in mise config)
     "aws": {
       "type": "local",
-      "command": ["uvx", "awslabs-aws-api-mcp-server"],
+      "command": ["awslabs.aws-api-mcp-server"],
       "enabled": false,
       "env": {
         "AWS_PROFILE": "{env:AWS_PROFILE}",

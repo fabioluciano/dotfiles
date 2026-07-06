@@ -42,7 +42,7 @@ procs
 ripgrep
 rsync
 shellcheck
-smug # AUR
+smug
 starship
 strace
 tailspin
@@ -50,8 +50,6 @@ termshark
 tldr
 tmux
 tmux-plugin-manager
-tmux-floax # AUR
-tmux-thumbs # AUR
 topgrade-bin
 tree
 viddy
@@ -60,7 +58,7 @@ xh
 xsel
 yazi
 zoxide
-sesh # AUR
+sesh
 
 # =============================================================================
 # TERMINAL EMULATOR
@@ -138,8 +136,6 @@ virt-manager
 git-absorb
 gitbutler-bin
 git-delta
-gh-dash
-gh-poi
 github-cli
 git-lfs
 gitu
@@ -153,7 +149,7 @@ calendar-indicator
 deezer
 discord
 dropbox
-espanso-wayland # AUR
+espanso
 geary
 insomnia-bin
 libreoffice-still
@@ -238,7 +234,7 @@ thunar-media-tags-plugin
 thunar-volman
 tlp
 ttf-cascadia-code-nerd
-ttf-maple # AUR
+ttf-maple
 ventoy-bin
 virtualbox
 virtualbox-ext-oracle

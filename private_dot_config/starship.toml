@@ -12,6 +12,7 @@ $git_branch\
 $git_status\
 $git_state\
 $git_commit\
+${custom.jj}\
 $terraform\
 $kubernetes\
 $docker_context\

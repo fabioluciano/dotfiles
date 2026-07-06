@@ -57,7 +57,12 @@ return {
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.editing-support.comment-box-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
-  { "jake-stewart/multicursor.nvim", lazy = true }, -- [VERIFY: astrocommunity.editing-support.multicursor-nvim not in community]
+  {
+    -- multicursor.nvim: precisa de keymaps para ser util — configure em plugins/
+    "jake-stewart/multicursor.nvim",
+    event = "BufReadPost",
+    config = function() require("multicursor-nvim").setup() end,
+  },
   { import = "astrocommunity.editing-support.nvim-regexplainer" },
   { import = "astrocommunity.editing-support.todo-comments-nvim" },
   { import = "astrocommunity.editing-support.vim-move" },
@@ -66,7 +71,13 @@ return {
   { import = "astrocommunity.editing-support.refactoring-nvim" },
   { import = "astrocommunity.editing-support.zen-mode-nvim" },
   { import = "astrocommunity.editing-support.nvim-treesitter-context" },
-  { "julienvincent/hunk.nvim", lazy = true }, -- [VERIFY: astrocommunity.editing-support.hunk-nvim not confirmed]
+  {
+    -- hunk.nvim: diff editor para `jj diffedit --tool nvim`
+    "julienvincent/hunk.nvim",
+    cmd = "DiffEditor",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    config = function() require("hunk").setup() end,
+  },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Fuzzy Finder                        │
@@ -94,7 +105,11 @@ return {
   { import = "astrocommunity.lsp.nvim-lint" },
   { import = "astrocommunity.lsp.garbage-day-nvim" },
   { import = "astrocommunity.lsp.inc-rename-nvim" },
-  { "Ramilito/kubectl.nvim", lazy = true }, -- [VERIFY: astrocommunity.lsp.kubectl-nvim not confirmed]
+  {
+    "Ramilito/kubectl.nvim",
+    keys = { { "<leader>K", function() require("kubectl").toggle() end, desc = "kubectl.nvim" } },
+    config = function() require("kubectl").setup() end,
+  },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Markdown & LaTeX                    │
@@ -272,7 +287,7 @@ return {
   -- │                    Programming Language Support        │
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.programming-language-support.kulala-nvim" },
-  { "sidekick-nvim/sidekick.nvim", lazy = true }, -- [VERIFY: astrocommunity.programming-language-support.sidekick-nvim not confirmed]
+  { "folke/sidekick.nvim", event = "VeryLazy", opts = {} },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Workflow                            │
