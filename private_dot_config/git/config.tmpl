@@ -22,6 +22,9 @@
 {{- if eq .chezmoi.os "darwin" }}
 [includeIf "gitdir:{{ .chezmoi.homeDir }}/Projects/"]
   path = ~/.config/git/projects
+
+[includeIf "gitdir:{{ .chezmoi.homeDir }}/developer/"]
+  path = ~/.config/git/projects
 {{- end }}
 
 [core]

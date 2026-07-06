@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Extract providers dynamically from chezmoi data (opencode_providers.toml)
-# falls back to a hardcoded list if chezmoi is unavailable or parsing fails.
-_PROVIDERS_FROM_TOML=$(chezmoi data --format=json 2>/dev/null \
-  | jq -r '.opencode.models | keys[]' 2>/dev/null | sort) || true
+# Extract providers and default_provider from chezmoi data (opencode_providers.toml)
+# in a single chezmoi data call. Falls back to hardcoded values when chezmoi is
+# unavailable or parsing fails.
+_CHEZMOI_DATA=$(chezmoi data --format=json 2>/dev/null) || true
+_PROVIDERS_FROM_TOML=""
+_DEFAULT_FROM_TOML=""
+if [[ -n "$_CHEZMOI_DATA" ]]; then
+  _PROVIDERS_FROM_TOML=$(printf '%s' "$_CHEZMOI_DATA" \
+    | jq -r '.opencode.models | keys[]' 2>/dev/null | sort) || true
+  _DEFAULT_FROM_TOML=$(printf '%s' "$_CHEZMOI_DATA" \
+    | jq -r '.opencode.default_provider // empty' 2>/dev/null) || true
+fi
 if [[ -n "$_PROVIDERS_FROM_TOML" ]]; then
   mapfile -t PROVIDERS <<< "$_PROVIDERS_FROM_TOML"
 else
   PROVIDERS=(bedrock-claude bedrock-mixed anthropic xiaomi openai github-copilot opencode opencode-free google bifrost)
 fi
-unset _PROVIDERS_FROM_TOML
+unset _CHEZMOI_DATA _PROVIDERS_FROM_TOML
 
 PROFILES=(optimized moderate super ultra recommended)
-DEFAULT_PROVIDER="xiaomi"
+DEFAULT_PROVIDER="${_DEFAULT_FROM_TOML:-xiaomi}"
+unset _DEFAULT_FROM_TOML
 DEFAULT_PROFILE="moderate"
 STATE_FILE="${HOME}/.config/opencode/.active_provider"
 TARGET_FILE="${HOME}/.config/opencode/oh-my-openagent.jsonc"

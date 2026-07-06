@@ -450,7 +450,7 @@ architecture = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 search = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 vision = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 review = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-long_running = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5-pro"]
+long_running = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 quick = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 standard = ["xiaomi/mimo-v2.5", "xiaomi/mimo-v2.5-pro"]
 complex = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
@@ -624,14 +624,14 @@ ultrabrain = "high"
 ultrawork = "medium"
 
 [opencode.variants.xiaomi-optimized]
-orchestrator = "high"
-implementation = "high"
+orchestrator = "medium"
+implementation = "medium"
 architecture = "high"
-review = "high"
-visual = "high"
+review = "medium"
+visual = "medium"
 deep = "high"
 ultrabrain = "high"
-ultrawork = "high"
+ultrawork = "medium"
 
 # =============================================================================
 # VARIANTS SUPER (maxima economia)
@@ -711,14 +711,14 @@ ultrabrain = "high"
 ultrawork = "medium"
 
 [opencode.variants.xiaomi-super]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
 ultrabrain = "high"
-ultrawork = "high"
+ultrawork = "low"
 
 # =============================================================================
 # VARIANTS MODERATE
