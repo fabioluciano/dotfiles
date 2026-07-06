@@ -533,6 +533,32 @@
         "DATABASE_URL": "{env:DATABASE_URL}"
       },
       "timeout": 10000
+    },
+    // gitlab-mcp (GitLab) — disabled until runtime token is set.
+    // Required env vars: GITLAB_TOKEN (personal access token), GITLAB_URL (optional, defaults to https://gitlab.com)
+    // Install: mise install (npm:@modelcontextprotocol/server-gitlab in mise config)
+    "gitlab": {
+      "type": "local",
+      "command": ["gitlab-mcp"],
+      "enabled": false,
+      "env": {
+        "GITLAB_TOKEN": "{env:GITLAB_TOKEN}",
+        "GITLAB_URL": "{env:GITLAB_URL:https://gitlab.com}"
+      },
+      "timeout": 10000
+    },
+    // aws-api-mcp (AWS API) — disabled until runtime credentials are set.
+    // Required env vars: AWS_PROFILE (AWS profile name), AWS_REGION (e.g. us-east-1)
+    // Install: mise install (uvx:awslabs-aws-api-mcp-server in mise config)
+    "aws": {
+      "type": "local",
+      "command": ["uvx", "awslabs-aws-api-mcp-server"],
+      "enabled": false,
+      "env": {
+        "AWS_PROFILE": "{env:AWS_PROFILE}",
+        "AWS_REGION": "{env:AWS_REGION}"
+      },
+      "timeout": 15000
     }
   }
 }
