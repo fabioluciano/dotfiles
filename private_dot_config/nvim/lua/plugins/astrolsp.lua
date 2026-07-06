@@ -28,7 +28,11 @@ return {
       timeout_ms = 2000,
     },
     servers = {},
-    config = {},
+    config = {
+      gopls = {
+        filetypes = { "go", "gomod", "gowork", "gosum" },
+      },
+    },
     handlers = {},
     autocmds = {
       lsp_codelens_refresh = {
