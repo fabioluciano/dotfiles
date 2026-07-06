@@ -16,6 +16,7 @@ zsh
 bandwhich
 bat
 broot
+btop
 difftastic
 direnv
 duf
@@ -33,6 +34,7 @@ inxi
 jc
 jless
 jnv
+jq
 jqp
 ncdu
 nvtop
@@ -40,6 +42,7 @@ procs
 ripgrep
 rsync
 shellcheck
+smug # AUR
 starship
 strace
 tailspin
@@ -55,6 +58,11 @@ xh
 xsel
 yazi
 zoxide
+
+# =============================================================================
+# TERMINAL EMULATOR
+# =============================================================================
+ghostty
 
 # =============================================================================
 # EDITORS, DATABASES & DOCUMENT TOOLING
@@ -115,6 +123,7 @@ packer
 pmbootstrap
 podman
 podman-desktop-bin
+stern
 tekton-cli
 vagrant
 virt-manager
@@ -136,6 +145,7 @@ calendar-indicator
 deezer
 discord
 dropbox
+espanso-wayland # AUR
 geary
 insomnia-bin
 libreoffice-still
