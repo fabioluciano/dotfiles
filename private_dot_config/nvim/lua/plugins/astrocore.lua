@@ -62,6 +62,7 @@ return {
       n = {
         -- AI / OpenCode
         ["<Leader>o"]  = { desc = "󱙺 OpenCode" },
+        ["<Leader>e"]  = { "<cmd>Neotree toggle reveal<cr>", desc = " Toggle Explorer" },
 
         -- Core actions
         ["<Leader>oa"] = { function() require("opencode").ask("@this: ") end,                          desc = "Ask" },

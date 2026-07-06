@@ -24,7 +24,6 @@ return {
     },
   },
   { import = "astrocommunity.bars-and-lines.dropbar-nvim" },
-  { import = "astrocommunity.bars-and-lines.vim-illuminate" },
   { import = "astrocommunity.icon.mini-icons" },
 
   -- ╭────────────────────────────────────────────────────────╮
@@ -58,7 +57,7 @@ return {
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.editing-support.comment-box-nvim" },
   { import = "astrocommunity.editing-support.conform-nvim" },
-  { import = "astrocommunity.editing-support.multicursors-nvim" },
+  { "jake-stewart/multicursor.nvim", lazy = true }, -- [VERIFY: astrocommunity.editing-support.multicursor-nvim not in community]
   { import = "astrocommunity.editing-support.nvim-regexplainer" },
   { import = "astrocommunity.editing-support.todo-comments-nvim" },
   { import = "astrocommunity.editing-support.vim-move" },
@@ -67,6 +66,7 @@ return {
   { import = "astrocommunity.editing-support.refactoring-nvim" },
   { import = "astrocommunity.editing-support.zen-mode-nvim" },
   { import = "astrocommunity.editing-support.nvim-treesitter-context" },
+  { "julienvincent/hunk.nvim", lazy = true }, -- [VERIFY: astrocommunity.editing-support.hunk-nvim not confirmed]
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Fuzzy Finder                        │
@@ -94,17 +94,25 @@ return {
   { import = "astrocommunity.lsp.nvim-lint" },
   { import = "astrocommunity.lsp.garbage-day-nvim" },
   { import = "astrocommunity.lsp.inc-rename-nvim" },
+  { "Ramilito/kubectl.nvim", lazy = true }, -- [VERIFY: astrocommunity.lsp.kubectl-nvim not confirmed]
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Markdown & LaTeX                    │
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.markdown-and-latex.markdown-preview-nvim" },
+  { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Motion                              │
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.motion.flash-nvim" },
   { import = "astrocommunity.motion.nvim-surround" },
+  { import = "astrocommunity.motion.harpoon" },
+
+  -- ╭────────────────────────────────────────────────────────╮
+  -- │                    Media                               │
+  -- ╰────────────────────────────────────────────────────────╯
+  { import = "astrocommunity.media.img-clip-nvim" },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Language Packs                      │
@@ -212,7 +220,6 @@ return {
   -- │                    Syntax                              │
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.syntax.vim-easy-align" },
-  { import = "astrocommunity.syntax.hlargs-nvim" },
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Terminal Integration                │
@@ -265,6 +272,7 @@ return {
   -- │                    Programming Language Support        │
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.programming-language-support.kulala-nvim" },
+  { "sidekick-nvim/sidekick.nvim", lazy = true }, -- [VERIFY: astrocommunity.programming-language-support.sidekick-nvim not confirmed]
 
   -- ╭────────────────────────────────────────────────────────╮
   -- │                    Workflow                            │
