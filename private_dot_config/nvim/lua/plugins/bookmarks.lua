@@ -18,14 +18,14 @@ end
 local function add_bookmark()
   local cwd = vim.fn.getcwd()
   local bookmarks = load_bookmarks()
-  
+
   for _, b in ipairs(bookmarks) do
     if b == cwd then
       vim.notify("Já está nos bookmarks: " .. cwd, vim.log.levels.WARN)
       return
     end
   end
-  
+
   table.insert(bookmarks, cwd)
   save_bookmarks(bookmarks)
   vim.notify("Adicionado aos bookmarks: " .. cwd, vim.log.levels.INFO)
@@ -35,13 +35,13 @@ local function remove_bookmark()
   local cwd = vim.fn.getcwd()
   local bookmarks = load_bookmarks()
   local new_bookmarks = {}
-  
+
   for _, b in ipairs(bookmarks) do
     if b ~= cwd then
       table.insert(new_bookmarks, b)
     end
   end
-  
+
   save_bookmarks(new_bookmarks)
   vim.notify("Removido dos bookmarks: " .. cwd, vim.log.levels.INFO)
 end
@@ -52,7 +52,7 @@ local function open_bookmarks()
     vim.notify("Nenhum bookmark salvo", vim.log.levels.WARN)
     return
   end
-  
+
   vim.ui.select(bookmarks, {
     prompt = "Bookmarks:",
     format_item = function(item)

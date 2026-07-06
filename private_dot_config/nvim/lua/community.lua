@@ -141,7 +141,7 @@ return {
   -- ╰────────────────────────────────────────────────────────╯
   { import = "astrocommunity.note-taking.obsidian-nvim" },
   {
-    "epwalsh/obsidian.nvim",
+    "obsidian-nvim/obsidian.nvim",
     opts = {
       workspaces = {
         { name = "study", path = "~/Obsidian/study" },
