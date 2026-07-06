@@ -317,13 +317,11 @@ cask "font-symbols-only-nerd-font"
 # DESKTOP APPS — WORK MACHINE ONLY
 # =============================================================================
 cask "onlyoffice"
-
-{{- /* chezmoi:template:missing-key=zero */ -}}
-{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
-
 cask "microsoft-outlook"
 cask "microsoft-teams"
 cask "microsoft-auto-update"
+
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "slack"
 cask "zoom"
 {{- end }}

@@ -54,7 +54,8 @@ window-padding-balance = true
 window-inherit-working-directory = true
 window-inherit-font-size = true
 window-decoration = server
-window-save-state = always
+window-save-state = never
+abnormal-command-exit-runtime = 0
 confirm-close-surface = false
 resize-overlay = never
 
@@ -84,7 +85,7 @@ mouse-hide-while-typing = true
 
 shell-integration = zsh
 shell-integration-features = cursor,sudo,title
-command = /bin/zsh -l -c "smug start main 2>/dev/null; tmux new-session -A -s main"
+command = /bin/zsh {{ .chezmoi.homeDir }}/.local/bin/ghostty-tmux
 
 # ╭──────────────────────────────────────────────────────────╮
 # │                    Scrollback                             │

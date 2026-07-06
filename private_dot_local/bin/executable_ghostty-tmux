@@ -1,0 +1,11 @@
+#!/bin/zsh
+# Ghostty startup: attach to tmux if running, otherwise start via smug
+
+if tmux list-sessions &>/dev/null; then
+  exec tmux new-session -A -s main
+else
+  # Start a bootstrap session, run smug from inside it (has tty now),
+  # smug creates the real 'main' session, then we switch to it
+  exec tmux new-session -A -s bootstrap -c ~ \
+    "smug start main 2>/dev/null; tmux select-window -t main:system; tmux switch-client -t main; tmux kill-session -t bootstrap"
+fi

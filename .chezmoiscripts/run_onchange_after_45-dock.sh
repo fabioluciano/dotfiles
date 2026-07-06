@@ -57,6 +57,13 @@ dockutil --add /Applications/Podman\ Desktop.app --no-restart
 
 dockutil --add '' --type small-spacer --section apps --no-restart
 
+# ── Trabalho ─────────────────────────────────────────────────────────────────
+dockutil --add /Applications/Microsoft\ Outlook.app --no-restart
+dockutil --add /Applications/Microsoft\ Teams.app --no-restart
+dockutil --add /Applications/ONLYOFFICE.app --no-restart
+
+dockutil --add '' --type small-spacer --section apps --no-restart
+
 # ── Mídia ─────────────────────────────────────────────────────────────────────
 dockutil --add /Applications/Spotify.app --no-restart
 dockutil --add /Applications/NetNewsWire.app --no-restart
