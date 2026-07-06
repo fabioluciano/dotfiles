@@ -36,9 +36,7 @@ export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-abbr/
 # startup only sources one (zcompiled) file instead of resolving plugins live.
 
 ANTIDOTE_DIR="${ZDOTDIR:-$HOME}/.antidote"
-if [[ ! -e $ANTIDOTE_DIR/antidote.zsh ]]; then
-    git clone --depth=1 --branch=v2.1.0 https://github.com/mattmc3/antidote "$ANTIDOTE_DIR"
-fi
+# antidote v2.1.0 is managed by chezmoi externals; run `chezmoi --refresh-externals apply` to reinstall.
 source "$ANTIDOTE_DIR/antidote.zsh"
 
 # --- Stage 1: completions onto fpath (must run BEFORE compinit) --------------
@@ -154,6 +152,7 @@ zstyle ':fzf-tab:*' popup-pad 80 0
 # =============================================================================
 
 export PATH="${HOME}/.local/bin:${HOME}/.krew/bin:${PATH}"
+typeset -U path
 
 # =============================================================================
 # Tool Integrations

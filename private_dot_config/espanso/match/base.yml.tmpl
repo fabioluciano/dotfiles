@@ -33,11 +33,20 @@ matches:
   - trigger: ":gh"
     replace: "https://github.com/{{ .github_user }}"
 
-  - trigger: ":sig"
-    replace: |
-      {{ .name }}
+   - trigger: ":sig"
+     replace: |
+       {{ .name }}
 
-  - trigger: ":br"
-    replace: |
-      Best regards,
-      {{ .name }}
+   - trigger: ":br"
+     replace: |
+       Best regards,
+       {{ .name }}
+
+   - trigger: ":issue"
+     replace: "https://github.com/{{ .github_user }}/REPO_NAME/issues/"
+     # NOTE: Replace REPO_NAME with your repository name
+
+   - trigger: ":pr"
+     replace: "https://github.com/{{ .github_user }}/REPO_NAME/pull/"
+     # NOTE: Replace REPO_NAME with your repository name
+

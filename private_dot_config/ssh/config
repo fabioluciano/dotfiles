@@ -1,0 +1,10 @@
+# SSH config managed by chezmoi
+# See ssh_config(5) for more details
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    ControlMaster auto
+    ControlPath ~/.ssh/control-%h-%p-%r
+    ControlPersist 600

@@ -7,6 +7,7 @@ $os\
 $username\
 $hostname\
 $directory\
+$direnv\
 $git_branch\
 $git_status\
 $git_state\
@@ -190,4 +191,11 @@ format = "via [$symbol$version]($style) "
 symbol = "📦 "
 style = "bold 208"
 disabled = true
+
+[custom.jj]
+command = "jj log -r @ --no-graph -T 'change_id.short(8)'"
+when = "jj root --quiet 2>/dev/null"
+format = "on [$output]($style) "
+style = "bold purple"
+disabled = false
 
