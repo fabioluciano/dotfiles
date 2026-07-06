@@ -23,6 +23,9 @@ set-option -as terminal-features ',*:RGB'
 set-option -g extended-keys on
 set-option -as terminal-features ',*:extkeys'
 
+# Terminal hyperlinks support
+set-option -ga terminal-features "*:hyperlinks"
+
 
 # Undercurl/underline support (for LSP diagnostics in Neovim)
 set-option -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
@@ -115,6 +118,9 @@ if-shell 'command -v wl-copy' {
         }
     }
 }
+
+# Session management with sesh
+bind-key C-o run-shell "sesh connect"
 
 
 # =============================================================================
