@@ -448,25 +448,6 @@
       "enabled": true,
       "timeout": 10000
     },
-    "sequential-thinking": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
-      "enabled": true,
-      "timeout": 8000
-    },
-    "fetch": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "mcp-server-fetch"
-      ],
-      "enabled": true,
-      "timeout": 10000
-    },
     "gh_grep": {
       "type": "remote",
       "url": "https://mcp.grep.app",
@@ -481,16 +462,6 @@
       "headers": {
         "Authorization": "Bearer {env:GITHUB_TOKEN}"
       },
-      "timeout": 10000
-    },
-    "codegraph": {
-      "type": "local",
-      "command": [
-        "codegraph",
-        "serve",
-        "--mcp"
-      ],
-      "enabled": true,
       "timeout": 10000
     },
     "codebase-memory": {
@@ -519,6 +490,53 @@
       "type": "local",
       "command": ["headroom", "mcp", "serve"],
       "enabled": true,
+      "timeout": 10000
+    },
+    // mcp-atlassian (Jira/Confluence) — disabled until runtime tokens are set.
+    // Required env vars: JIRA_DOMAIN (e.g. company.atlassian.net), JIRA_EMAIL, JIRA_TOKEN
+    // Install: mise install (uvx:mcp-atlassian in mise config)
+    "mcp-atlassian": {
+      "type": "local",
+      "command": ["uvx", "mcp-atlassian"],
+      "enabled": false,
+      "env": {
+        "ATLASSIAN_URL": "https://{env:JIRA_DOMAIN}",
+        "ATLASSIAN_EMAIL": "{env:JIRA_EMAIL}",
+        "ATLASSIAN_TOKEN": "{env:JIRA_TOKEN}"
+      },
+      "timeout": 10000
+    },
+    // terraform-mcp-server (HashiCorp Terraform) — enabled; uses ~/.terraform.d/credentials for auth.
+    // Install: mise install (go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server in mise config)
+    "terraform": {
+      "type": "local",
+      "command": ["terraform-mcp-server"],
+      "enabled": true,
+      "timeout": 10000
+    },
+    // mcp-grafana (Grafana) — disabled until runtime tokens are set.
+    // Required env vars: GRAFANA_URL (e.g. https://grafana.example.com), GRAFANA_SERVICE_ACCOUNT_TOKEN
+    // Install: mise install (uvx:mcp-grafana in mise config)
+    "grafana": {
+      "type": "local",
+      "command": ["uvx", "mcp-grafana"],
+      "enabled": false,
+      "env": {
+        "GRAFANA_URL": "{env:GRAFANA_URL}",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "{env:GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+      },
+      "timeout": 10000
+    },
+    // postgres-mcp (PostgreSQL) — disabled until runtime token is set.
+    // Required env vars: DATABASE_URL (e.g. postgresql://user:pass@host:5432/db)
+    // Install: mise install (uvx:postgres-mcp in mise config)
+    "postgres": {
+      "type": "local",
+      "command": ["uvx", "postgres-mcp"],
+      "enabled": false,
+      "env": {
+        "DATABASE_URL": "{env:DATABASE_URL}"
+      },
       "timeout": 10000
     }
   }

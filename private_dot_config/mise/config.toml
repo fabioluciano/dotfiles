@@ -33,10 +33,15 @@ pnpm = "latest"
 pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:typescript" = "latest"
 "npm:skills" = "latest"
+"npm:@fission-ai/openspec" = "latest"
 
 # MCP servers (float at latest)
 codebase-memory-mcp = "latest"
 "pipx:headroom-ai" = { version = "latest", extras = "mcp" }
+"uvx:mcp-atlassian" = "latest"                                              # Jira/Confluence — requires JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN at runtime
+"go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server" = "latest" # Terraform — no auth tokens needed
+"uvx:mcp-grafana" = "latest"                                                # Grafana — requires GRAFANA_URL, GRAFANA_SERVICE_ACCOUNT_TOKEN at runtime
+"uvx:postgres-mcp" = "latest"                                               # PostgreSQL — requires DATABASE_URL at runtime
 
 # Language servers / editor tooling (float at latest)
 "npm:typescript-language-server" = "latest"
@@ -90,7 +95,7 @@ jobs = 4
 
 [env]
 # Global environment variables
-_.python.venv = { path = ".venv", create = true }
+_.python.venv = { path = ".venv" }
 
 [tasks.update]
 run = "mise self-update && mise upgrade"
@@ -168,6 +173,44 @@ description = "Update all global skills via mise"
 run = "mise exec -- skills remove {{vars.skill}} -a opencode"
 description = "Remove a skill via mise"
 vars = { skill = "" }
+
+[tasks.lint]
+description = "Local lint runner: shellcheck, taplo, yamllint, luac, stylua, chezmoi templates"
+run = """
+set -euo pipefail
+cd "$(chezmoi source-dir)"
+
+echo "=== Linting shell scripts ==="
+find . -name "*.sh" -o -name "*.bash" -o -name "*.zsh" | grep -v ".git" | xargs shellcheck --severity=warning || true
+
+echo "=== Linting TOML files ==="
+find . -name "*.toml" | grep -v ".git" | xargs taplo check || true
+
+echo "=== Linting YAML files ==="
+find . -name "*.yaml" -o -name "*.yml" | grep -v ".git" | xargs yamllint -d relaxed || true
+
+echo "=== Linting Lua files (syntax check) ==="
+find . -name "*.lua" | grep -v ".git" | xargs luac -p || true
+
+echo "=== Linting Lua files (style check) ==="
+find . -name "*.lua" | grep -v ".git" | xargs stylua --check || true
+
+echo "=== Validating chezmoi templates ==="
+for tmpl in $(find . -name "*.tmpl" | grep -v ".git"); do
+  # Skip templates that require runtime secrets
+  if grep -q "Bitwarden\\|YubiKey\\|\\.active_provider" "$tmpl" 2>/dev/null; then
+    echo "  ⊘ $tmpl (skipped: requires runtime secrets)"
+    continue
+  fi
+  if chezmoi execute-template < "$tmpl" > /dev/null 2>&1; then
+    echo "  ✓ $tmpl"
+  else
+    echo "  ✗ $tmpl (template render failed)"
+  fi
+done
+
+echo "=== Lint complete ==="
+"""
 
 [plugins]
 # Add any custom plugins here
