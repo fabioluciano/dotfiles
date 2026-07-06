@@ -42,11 +42,11 @@ codebase-memory-mcp = "latest"
 "npm:kubernetes-mcp-server" = "latest"
 "pipx:headroom-ai" = { version = "latest", extras = "mcp" }
 "npm:@modelcontextprotocol/server-gitlab" = "latest"                        # GitLab — requires GITLAB_TOKEN at runtime
-"uvx:mcp-atlassian" = "latest"                                              # Jira/Confluence — requires JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN at runtime
+"pipx:mcp-atlassian" = "latest"                                             # Jira/Confluence — requires JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN at runtime
 "go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server" = "latest" # Terraform — no auth tokens needed
-"uvx:mcp-grafana" = "latest"                                                # Grafana — requires GRAFANA_URL, GRAFANA_SERVICE_ACCOUNT_TOKEN at runtime
-"uvx:postgres-mcp" = "latest"                                               # PostgreSQL — requires DATABASE_URL at runtime
-"uvx:awslabs-aws-api-mcp-server" = "latest"                                 # AWS API — requires AWS_PROFILE, AWS_REGION at runtime
+"pipx:mcp-grafana" = "latest"                                               # Grafana — requires GRAFANA_URL, GRAFANA_SERVICE_ACCOUNT_TOKEN at runtime
+"pipx:postgres-mcp" = "latest"                                              # PostgreSQL — requires DATABASE_URL at runtime
+"pipx:awslabs-aws-api-mcp-server" = "latest"                                # AWS API — requires AWS_PROFILE, AWS_REGION at runtime
 
 # Language servers / editor tooling (float at latest)
 "npm:typescript-language-server" = "latest"
