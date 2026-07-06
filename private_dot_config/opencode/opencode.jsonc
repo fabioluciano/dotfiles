@@ -379,6 +379,7 @@
       }
     },
     "bifrost": {
+      "enabled": false,
       "options": {
         "baseURL": "http://localhost:8080/v1",
         "apiKey": "bifrost-gateway"
@@ -431,9 +432,7 @@
     "context7": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@upstash/context7-mcp"
+        "context7-mcp"
       ],
       "enabled": true,
       "timeout": 8000
@@ -441,9 +440,7 @@
     "playwright": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@playwright/mcp"
+        "mcp-server-playwright"
       ],
       "enabled": true,
       "timeout": 10000
@@ -475,9 +472,7 @@
     "kubernetes": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "kubernetes-mcp-server@latest",
+        "kubernetes-mcp-server",
         "--read-only"
       ],
       "enabled": true,

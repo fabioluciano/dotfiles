@@ -37,6 +37,9 @@ pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 
 # MCP servers (float at latest)
 codebase-memory-mcp = "latest"
+"npm:@upstash/context7-mcp" = "latest"
+"npm:@playwright/mcp" = "latest"
+"npm:kubernetes-mcp-server" = "latest"
 "pipx:headroom-ai" = { version = "latest", extras = "mcp" }
 "uvx:mcp-atlassian" = "latest"                                              # Jira/Confluence — requires JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN at runtime
 "go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server" = "latest" # Terraform — no auth tokens needed
