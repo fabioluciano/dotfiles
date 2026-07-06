@@ -18,37 +18,30 @@
         ".markdown"
       ]
     },
-    // yaml-language-server: found at /Users/fabioluciano/.local/share/mise/shims/yaml-language-server
     "yaml-language-server": {
       "command": ["yaml-language-server", "--stdio"],
       "extensions": [".yaml", ".yml"]
     },
-    // dockerfile-language-server: found at /Users/fabioluciano/.local/share/mise/shims/docker-langserver
     "dockerfile-language-server": {
       "command": ["docker-langserver", "--stdio"],
       "extensions": [".dockerfile"]
     },
-    // helm-ls: found at /Users/fabioluciano/.local/share/mise/shims/helm_ls
     "helm-ls": {
       "command": ["helm_ls", "serve"],
       "extensions": [".yaml", ".yml"]
     },
-    // tailwindcss-language-server: found at /Users/fabioluciano/.local/share/mise/shims/tailwindcss-language-server
     "tailwindcss-language-server": {
       "command": ["tailwindcss-language-server", "--stdio"],
       "extensions": [".html", ".css", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"]
     },
-    // vue-language-server: found at /Users/fabioluciano/.local/share/mise/shims/vue-language-server
     "vue-language-server": {
       "command": ["vue-language-server", "--stdio"],
       "extensions": [".vue"]
     },
-    // zls: found at /Users/fabioluciano/.local/share/mise/shims/zls
     "zls": {
       "command": ["zls"],
       "extensions": [".zig", ".zon"]
     },
-    // tinymist: found at /Users/fabioluciano/.local/share/mise/shims/tinymist
     "tinymist": {
       "command": ["tinymist", "lsp"],
       "extensions": [".typ"]
@@ -402,8 +395,7 @@
     "opencode-antigravity-auth@latest",
     "@tarquinen/opencode-dcp@3.1.13",
     "opencode-claude-auth@latest",
-    "opencode-notify",
-    "@slkiser/opencode-quota"],
+    "opencode-notify"],
   "permission": {
     "bash": "allow",
     "edit": "allow",

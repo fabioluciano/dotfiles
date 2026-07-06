@@ -32,6 +32,7 @@ pnpm = "latest"
 "pipx:poetry" = "latest"    # pipx backend: vfox-poetry plugin is flaky
 pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:typescript" = "latest"
+"npm:skills" = "latest"
 
 # MCP servers (float at latest)
 codebase-memory-mcp = "latest"
@@ -112,7 +113,13 @@ run = "nvim --headless '+Lazy! sync' +qa"
 description = "Sync Neovim plugins headlessly"
 
 [tasks.update-tmux]
-run = "~/.tmux/plugins/tpm/bin/update_plugins all"
+run = """
+if [ "$(uname)" = "Darwin" ]; then
+  "$(brew --prefix tpm)/share/tpm/bin/update_plugins" all
+else
+  ~/.tmux/plugins/tpm/bin/update_plugins all
+fi
+"""
 description = "Update tmux TPM plugins"
 
 [tasks.update-full]
