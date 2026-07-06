@@ -8,7 +8,7 @@ Personal dotfiles managed with [chezmoi](https://chezmoi.io), targeting
 On a fresh machine (installs chezmoi, pulls this repo, and applies it):
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply fabioluciano
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply fabioluciano/dot
 ```
 
 Or, if chezmoi is already installed:
@@ -105,11 +105,11 @@ chezmoi apply
 ```
 
 **Template render errors** — if a `.tmpl` file references a missing data key
-(defined in `.chezmoidata.yaml`), chezmoi will fail with a template error.
+(defined in `.chezmoidata/`), chezmoi will fail with a template error.
 Debug with:
 
 ```sh
-chezmoi execute-template < dot_zshenv.tmpl
+chezmoi execute-template < private_dot_zshenv.tmpl
 ```
 
 **antidote not refreshing** — `.chezmoiexternal.toml` sets a 168-hour refresh.

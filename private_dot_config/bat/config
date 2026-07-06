@@ -2,7 +2,7 @@
 # https://github.com/sharkdp/bat
 
 # Theme (use a dark theme compatible with terminal)
---theme="tokyonight-night"
+--theme="tokyonight_night"
 
 # Enable paging by default
 --paging=auto
