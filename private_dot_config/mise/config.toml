@@ -36,7 +36,7 @@ pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:@fission-ai/openspec" = "latest"
 
 # MCP servers (float at latest)
-codebase-memory-mcp = "latest"
+"pipx:codebase-memory-mcp" = "latest"
 "npm:@upstash/context7-mcp" = "latest"
 "npm:@playwright/mcp" = "latest"
 "npm:kubernetes-mcp-server" = "latest"
