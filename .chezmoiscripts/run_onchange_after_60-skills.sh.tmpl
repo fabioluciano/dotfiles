@@ -11,6 +11,13 @@ echo ":: skills install (skill-lock changed)"
 # Extract unique source repos from the lock file and reinstall each one.
 # The lock format is: { "skills": { "<name>": { "source": "owner/repo", ... } } }
 failed=0
+_py_script=$(mktemp /tmp/skills-repos.XXXXXX.py)
+cat > "$_py_script" <<'PYEOF'
+import json, os
+lock = json.load(open(os.path.expanduser("~/.agents/.skill-lock.json")))
+repos = sorted({v["source"] for v in lock.get("skills", {}).values()})
+print("\n".join(repos))
+PYEOF
 while IFS= read -r repo; do
     [[ -z "$repo" ]] && continue
     echo "  adding skills from $repo"
@@ -20,14 +27,8 @@ while IFS= read -r repo; do
         echo "$install_output" >&2
         failed=1
     fi
-done < <(
-    python3 - <<'EOF'
-import json, sys
-lock = json.load(open(f"{__import__('os').environ['HOME']}/.agents/.skill-lock.json"))
-repos = sorted({v["source"] for v in lock.get("skills", {}).values()})
-print("\n".join(repos))
-EOF
-)
+done < <(python3 "$_py_script")
+rm -f "$_py_script"
 
 if [[ $failed -ne 0 ]]; then
     echo ":: skills install completed with errors" >&2
