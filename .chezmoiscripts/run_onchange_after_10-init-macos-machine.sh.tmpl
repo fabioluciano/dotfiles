@@ -8,8 +8,6 @@ set -euo pipefail
 sudo -v
 
 machine_name={{ .machineName | quote }}
-screenshot_dir="$HOME/screenshots"
-downloads_dir="$HOME/Downloads"
 raycast_app="/Applications/Raycast.app"
 raycast_hotkey="Command-49"
 spotlight_agent="/System/Library/LaunchAgents/com.apple.Spotlight.plist"
@@ -89,17 +87,6 @@ defaults write com.apple.finder FXDefaultSearchScope -string SCcf
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
-
-# Screenshots and folders used by the Dock.
-mkdir -p "$screenshot_dir" "$downloads_dir"
-defaults write com.apple.screencapture location -string "$screenshot_dir"
-
-# Dock folders. Finder and Trash are managed by macOS.
-defaults write com.apple.dock persistent-others -array
-for dir_path in "$screenshot_dir" "$downloads_dir"; do
-    [[ -d "$dir_path" ]] || continue
-    defaults write com.apple.dock persistent-others -array-add "$(printf '<dict><key>tile-data</key><dict><key>displayas</key><integer>1</integer><key>file-data</key><dict><key>_CFURLString</key><string>%s</string><key>_CFURLStringType</key><integer>0</integer></dict><key>showas</key><integer>2</integer></dict><key>tile-type</key><string>directory-tile</string></dict>' "$dir_path")"
-done
 
 defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock magnification -bool false
