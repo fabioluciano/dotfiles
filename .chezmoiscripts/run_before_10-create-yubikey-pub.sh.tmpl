@@ -86,5 +86,5 @@ if [[ -f "$YUBIKEY_PUB" ]] && [[ "$(cat "$YUBIKEY_PUB")" == "$key" ]]; then
 fi
 
 printf '%s\n' "$key" > "$YUBIKEY_PUB"
-chmod 644 "$YUBIKEY_PUB"
+chmod 600 "$YUBIKEY_PUB"
 echo "OK: $YUBIKEY_PUB atualizado."
