@@ -22,8 +22,11 @@ get-all
 graph
 grep
 ice
+janitor
 kc
 ktop
+kubectl-ai
+kor
 kubescape
 kubesec-scan
 lineage
