@@ -1,13 +1,13 @@
 alias du="ncdu --color dark"
-alias ls='eza --icons --git'
-alias ll='eza -l --icons --git'
-alias la='eza -la --icons --git'
-alias lt='eza --tree --icons --git'
-alias tree='eza --tree --icons --git'
-alias l='ll'
-alias cat='bat'
-alias df='duf'
-alias ps='procs'
+command -v eza >/dev/null 2>&1 && alias ls='eza --icons --git' || true
+command -v eza >/dev/null 2>&1 && alias ll='eza -l --icons --git' || true
+command -v eza >/dev/null 2>&1 && alias la='eza -la --icons --git' || true
+command -v eza >/dev/null 2>&1 && alias lt='eza --tree --icons --git' || true
+command -v eza >/dev/null 2>&1 && alias tree='eza --tree --icons --git' || true
+command -v eza >/dev/null 2>&1 && alias l='ll' || true
+command -v bat >/dev/null 2>&1 && alias cat='bat' || true
+command -v duf >/dev/null 2>&1 && alias df='duf' || true
+command -v procs >/dev/null 2>&1 && alias ps='procs' || true
 command -v viddy &>/dev/null && alias watch='viddy'
 
 wttr() { curl -s "wttr.in/${1:-}"; }
