@@ -10,9 +10,6 @@ docs/
 # Version control
 .git/
 
-# Brewfile is only used to track installed packages
-Brewfile
-
 # Editor and IDE
 .vscode/
 .idea/

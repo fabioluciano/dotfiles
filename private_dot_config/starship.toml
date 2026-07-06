@@ -191,15 +191,3 @@ symbol = "📦 "
 style = "bold 208"
 disabled = true
 
-# Other
-[direnv]
-format = "[$symbol$loaded/$allowed]($style) "
-symbol = "direnv "
-disabled = false
-detect_extensions = []
-detect_files = [".envrc"]
-detect_folders = []
-allowed_msg = "allowed"
-denied_msg = "denied"
-loaded_msg = "loaded"
-unloaded_msg = "not loaded"

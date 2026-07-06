@@ -113,7 +113,6 @@ defaults write com.apple.WindowManager StageManagerHideWidgets -bool true
 plist="$HOME/Library/Preferences/com.apple.symbolichotkeys.plist"
 [[ -f "$plist" ]] || defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict
 /usr/libexec/PlistBuddy -c "Add :AppleSymbolicHotKeys dict" "$plist" >/dev/null 2>&1 || true
-/usr/libexec/PlistBuddy -c "Delete :AppleSymbolicHotKeys:nabled" "$plist" >/dev/null 2>&1 || true
 for hotkey_spec in \
     "60:32:49:262144" \
     "61:32:49:786432" \

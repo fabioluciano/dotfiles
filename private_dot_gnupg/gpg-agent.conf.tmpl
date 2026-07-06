@@ -19,7 +19,11 @@ max-cache-ttl-ssh 28800
 
 # Pinentry program for password prompts
 {{- if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.arch "arm64" }}
 pinentry-program /opt/homebrew/bin/pinentry-mac
+{{- else }}
+pinentry-program /usr/local/bin/pinentry-mac
+{{- end }}
 {{- else if eq .chezmoi.os "linux" }}
 # Wrapper: pinentry grafico com display, curses em sessao TTY/headless.
 pinentry-program {{ .chezmoi.homeDir }}/.local/bin/pinentry-auto
