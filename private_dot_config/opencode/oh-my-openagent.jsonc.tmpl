@@ -17,7 +17,7 @@
 {{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
 {{- /* "moderate" is an alias for "optimized" — they share the same variants */ -}}
 {{- if eq $profile "moderate" -}}{{- $profile = "optimized" -}}{{- end -}}
-{{- $validProviders := list "bedrock-claude" "bedrock-mixed" "xiaomi" "openai" "github-copilot" "opencode" "opencode-free" "anthropic" "google" "bifrost" -}}
+{{- $validProviders := keys $.opencode.models -}}
 {{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
 {{- $providerModels := index $.opencode.models $provider -}}
 {{- $variantProvider := $provider -}}

@@ -425,22 +425,22 @@ ultrawork = [
   "opencode/nemotron-3-ultra-free",
 ]
 
-[opencode.models.bifrost]
-orchestrator = ["bifrost/auto"]
-implementation = ["bifrost/auto"]
-planner = ["bifrost/auto"]
-architecture = ["bifrost/auto"]
-search = ["bifrost/auto"]
-vision = ["bifrost/auto"]
-review = ["bifrost/auto"]
-long_running = ["bifrost/auto"]
-quick = ["bifrost/auto"]
-standard = ["bifrost/auto"]
-complex = ["bifrost/auto"]
-visual = ["bifrost/auto"]
-deep = ["bifrost/auto"]
-ultrabrain = ["bifrost/auto"]
-ultrawork = ["bifrost/auto"]
+[opencode.models.deepseek]
+orchestrator = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+implementation = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+planner = ["deepseek/deepseek-v4-flash"]
+architecture = ["deepseek/deepseek-v4-pro"]
+search = ["deepseek/deepseek-v4-flash"]
+vision = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+review = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+long_running = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+quick = ["deepseek/deepseek-v4-flash"]
+standard = ["deepseek/deepseek-v4-flash"]
+complex = ["deepseek/deepseek-v4-pro"]
+visual = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+deep = ["deepseek/deepseek-v4-pro"]
+ultrabrain = ["deepseek/deepseek-v4-pro"]
+ultrawork = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
 
 [opencode.models.xiaomi]
 orchestrator = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
@@ -820,18 +820,43 @@ deep = "none"
 ultrabrain = "none"
 ultrawork = "none"
 
-# bifrost: minimal variants (single "auto" model — effort is determined by gateway)
-[opencode.variants.bifrost]
+[opencode.variants.deepseek]
 orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.deepseek-optimized]
+orchestrator = "low"
 implementation = "medium"
 architecture = "medium"
 review = "medium"
-visual = "medium"
+visual = "low"
 deep = "medium"
-ultrabrain = "medium"
+ultrabrain = "high"
 ultrawork = "medium"
 
-[opencode.variants.bifrost-optimized]
+[opencode.variants.deepseek-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.deepseek-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
+
+[opencode.variants.deepseek-ultra]
 orchestrator = "low"
 implementation = "low"
 architecture = "low"
@@ -840,32 +865,6 @@ visual = "low"
 deep = "low"
 ultrabrain = "low"
 ultrawork = "low"
-
-[opencode.variants.bifrost-super]
-orchestrator = "none"
-implementation = "none"
-architecture = "none"
-review = "none"
-visual = "none"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "none"
-
-[opencode.variants.bifrost-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.bifrost-ultra]
-orchestrator = "none"
-implementation = "none"
-architecture = "none"
-review = "none"
-visual = "none"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "none"
 
 [opencode.variants.xiaomi-recommended]
 orchestrator = "high"

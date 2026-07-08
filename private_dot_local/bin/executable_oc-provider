@@ -16,7 +16,7 @@ fi
 if [[ -n "$_PROVIDERS_FROM_TOML" ]]; then
   mapfile -t PROVIDERS <<< "$_PROVIDERS_FROM_TOML"
 else
-  PROVIDERS=(bedrock-claude bedrock-mixed anthropic xiaomi openai github-copilot opencode opencode-free google bifrost)
+  PROVIDERS=(bedrock-claude bedrock-mixed anthropic deepseek xiaomi openai github-copilot opencode opencode-free google)
 fi
 unset _CHEZMOI_DATA _PROVIDERS_FROM_TOML
 

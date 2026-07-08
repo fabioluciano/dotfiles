@@ -166,7 +166,6 @@ oc-provider opencode    # switch to OpenCode Zen (opencode/ models)
 oc-provider opencode-free # switch to free OpenCode Zen models
 oc-provider github-copilot # switch to GitHub Copilot Plus models
 oc-provider xiaomi      # switch to Xiaomi (mimo)
-oc-provider bifrost      # switch to Bifrost (auto-routing)
 oc-provider opencode recommended # switch with Oh My OpenAgent recommended tiers
 oc-provider github-copilot ultra # GitHub Copilot with lowest safe reasoning variants
 ```

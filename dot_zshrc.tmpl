@@ -225,6 +225,14 @@ command -v starship &>/dev/null && _cache_eval starship starship init zsh
 # Mise — runtime/environment manager
 command -v mise &>/dev/null && _cache_eval mise mise activate zsh
 
+# Re-assert Homebrew priority — path_helper (/etc/zprofile) and mise activate
+# both prepend large PATH chunks, pushing /opt/homebrew/bin after /bin and
+# causing `bash` to resolve to the macOS system 3.2 instead of Homebrew 5.x.
+# Strip any existing homebrew entries then put them first.
+{{- if eq .chezmoi.os "darwin" }}
+path=(/opt/homebrew/bin /opt/homebrew/sbin "${(@)path:#/opt/homebrew/*}")
+{{- end }}
+
 # Lazy-loaded completions (loaded on first use)
 command -v bw    &>/dev/null && _lazyload bw    'source <(bw completion --shell zsh)'
 command -v jj    &>/dev/null && _lazyload jj    'source <(jj util completion zsh)'
