@@ -14,14 +14,11 @@ commands=(
 providers=(
   'bedrock-claude:Bedrock Claude (Anthropic via AWS)'
   'bedrock-mixed:Bedrock mixed (non-Anthropic via AWS)'
-  'anthropic:Anthropic direto'
   'deepseek:DeepSeek'
   'xiaomi:Xiaomi (mimo)'
   'openai:OpenAI'
   'github-copilot:GitHub Copilot Plus'
   'opencode:OpenCode Zen'
-  'opencode-free:OpenCode Zen (modelos gratuitos)'
-  'google:Google'
 )
 
 profiles=(

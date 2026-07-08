@@ -152,93 +152,6 @@ ultrawork = [
   "amazon-bedrock/mistral.devstral-2-123b",
 ]
 
-[opencode.models.anthropic]
-orchestrator = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-haiku-4-5",
-]
-implementation = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-haiku-4-5",
-]
-planner = [
-  "anthropic/claude-haiku-4-5",
-  "anthropic/claude-sonnet-4-6",
-]
-architecture = [
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-sonnet-4-6",
-]
-search = [
-  "anthropic/claude-haiku-4-5",
-  "anthropic/claude-sonnet-4-6",
-]
-vision = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-]
-review = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-haiku-4-5",
-]
-long_running = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-]
-quick = [
-  "anthropic/claude-haiku-4-5",
-  "anthropic/claude-sonnet-4-6",
-]
-standard = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-haiku-4-5",
-]
-complex = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-haiku-4-5",
-]
-visual = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-]
-deep = [
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-sonnet-4-6",
-]
-ultrabrain = [
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-sonnet-4-6",
-]
-ultrawork = [
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-opus-4-8",
-  "anthropic/claude-haiku-4-5",
-]
-
-[opencode.models.openai]
-orchestrator = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-implementation = [
-  "openai/gpt-5.5",
-  "openai/gpt-5.4-mini",
-]
-planner = ["openai/gpt-5.4-mini"]
-architecture = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-search = ["openai/gpt-5.4-mini"]
-vision = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-review = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-long_running = ["openai/gpt-5.4-mini", "openai/gpt-5.5"]
-quick = ["openai/gpt-5.4-mini"]
-standard = ["openai/gpt-5.4-mini"]
-complex = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-visual = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-deep = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-ultrabrain = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-ultrawork = ["openai/gpt-5.5", "openai/gpt-5.4-mini"]
-
 [opencode.models.github-copilot]
 orchestrator = [
   "github-copilot/claude-sonnet-4.6",
@@ -363,68 +276,6 @@ ultrawork = [
   "opencode/kimi-k2.5",
 ]
 
-[opencode.models.opencode-free]
-orchestrator = [
-  "opencode/deepseek-v4-flash-free",
-  "opencode/mimo-v2.5-free",
-]
-implementation = [
-  "opencode/north-mini-code-free",
-  "opencode/mimo-v2.5-free",
-]
-planner = [
-  "opencode/mimo-v2.5-free",
-  "opencode/deepseek-v4-flash-free",
-]
-architecture = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/deepseek-v4-flash-free",
-]
-search = [
-  "opencode/deepseek-v4-flash-free",
-  "opencode/mimo-v2.5-free",
-]
-vision = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/mimo-v2.5-free",
-]
-review = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/deepseek-v4-flash-free",
-]
-long_running = [
-  "opencode/mimo-v2.5-free",
-  "opencode/deepseek-v4-flash-free",
-]
-quick = [
-  "opencode/deepseek-v4-flash-free",
-  "opencode/mimo-v2.5-free",
-]
-standard = [
-  "opencode/mimo-v2.5-free",
-  "opencode/deepseek-v4-flash-free",
-]
-complex = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/deepseek-v4-flash-free",
-]
-visual = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/mimo-v2.5-free",
-]
-deep = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/deepseek-v4-flash-free",
-]
-ultrabrain = [
-  "opencode/nemotron-3-ultra-free",
-  "opencode/deepseek-v4-flash-free",
-]
-ultrawork = [
-  "opencode/north-mini-code-free",
-  "opencode/nemotron-3-ultra-free",
-]
-
 [opencode.models.deepseek]
 orchestrator = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
 implementation = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
@@ -483,24 +334,6 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
-[opencode.variants.anthropic]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.openai]
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
 [opencode.variants.github-copilot]
 orchestrator = "medium"
 implementation = "medium"
@@ -536,16 +369,6 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
-[opencode.variants.opencode-free]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
 # =============================================================================
 # VARIANTS OPTIMIZED
 # =============================================================================
@@ -563,24 +386,6 @@ ultrawork = "medium"
 [opencode.variants.bedrock-mixed-optimized]
 orchestrator = "low"
 implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.anthropic-optimized]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.openai-optimized]
 architecture = "medium"
 review = "medium"
 visual = "low"
@@ -606,16 +411,6 @@ ultrabrain = "high"
 ultrawork = "medium"
 
 [opencode.variants.opencode-optimized]
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.opencode-free-optimized]
-orchestrator = "low"
-implementation = "medium"
 architecture = "medium"
 review = "medium"
 visual = "low"
@@ -657,24 +452,6 @@ deep = "medium"
 ultrabrain = "high"
 ultrawork = "medium"
 
-[opencode.variants.anthropic-super]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.openai-super]
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
 [opencode.variants.github-copilot-super]
 orchestrator = "low"
 implementation = "low"
@@ -695,16 +472,6 @@ ultrawork = "low"
 [opencode.variants.opencode-super]
 architecture = "low"
 review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.opencode-free-super]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
 visual = "low"
 deep = "medium"
 ultrabrain = "high"
@@ -744,17 +511,6 @@ visual = "high"
 ultrabrain = "xhigh"
 ultrawork = "max"
 
-[opencode.variants.anthropic-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.openai-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-
 [opencode.variants.github-copilot-recommended]
 architecture = "high"
 vision = "high"
@@ -766,69 +522,6 @@ architecture = "high"
 visual = "high"
 ultrabrain = "xhigh"
 ultrawork = "max"
-
-[opencode.variants.opencode-free-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-# google: variants aligned with Gemini thinking levels
-[opencode.variants.google]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.google-optimized]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.google-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.google-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.google-ultra]
-orchestrator = "none"
-implementation = "none"
-architecture = "none"
-review = "none"
-visual = "none"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "none"
-
-[opencode.variants.deepseek]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
 
 [opencode.variants.deepseek-optimized]
 orchestrator = "low"
@@ -900,26 +593,6 @@ deep = "low"
 ultrabrain = "low"
 ultrawork = "low"
 
-[opencode.variants.anthropic-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.openai-ultra]
-orchestrator = "none"
-implementation = "none"
-architecture = "none"
-review = "none"
-visual = "none"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "none"
-
 [opencode.variants.github-copilot-ultra]
 orchestrator = "low"
 implementation = "none"
@@ -947,16 +620,6 @@ quick = "minimal"
 visual = "low"
 deep = "none"
 ultrabrain = "none"
-ultrawork = "low"
-
-[opencode.variants.opencode-free-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
 ultrawork = "low"
 
 [opencode.variants.xiaomi-ultra]
@@ -988,86 +651,12 @@ metis = "planner"
 momus = "review"
 atlas = "long_running"
 sisyphus-junior = "quick"
+build = "implementation"
+general = "standard"
+plan = "planner"
 
 [opencode.agent_ultrawork_profiles]
 sisyphus = "ultrawork"
-
-[opencode.models.google]
-orchestrator = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-implementation = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-planner = [
-  "google/gemini-2.5-flash",
-  "google/gemini-2.5-flash-lite",
-  "google/gemini-3-flash-preview",
-]
-architecture = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-search = [
-  "google/gemini-2.5-flash",
-  "google/gemini-2.5-flash-lite",
-  "google/gemini-3.1-flash-lite",
-]
-vision = [
-  "google/gemini-2.5-flash-image",
-  "google/gemini-3-pro-image-preview",
-  "google/gemini-3.1-flash-image-preview",
-]
-review = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-long_running = [
-  "google/gemini-2.5-pro",
-  "google/gemini-2.5-flash",
-  "google/gemini-3-flash-preview",
-]
-quick = [
-  "google/gemini-2.5-flash-lite",
-  "google/gemini-3.1-flash-lite",
-  "google/gemma-4-26b-a4b-it",
-]
-standard = [
-  "google/gemini-2.5-flash",
-  "google/gemini-2.5-flash-lite",
-  "google/gemini-3-flash-preview",
-]
-complex = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-visual = [
-  "google/gemini-2.5-flash-image",
-  "google/gemini-3-pro-image-preview",
-  "google/gemini-3.1-flash-image-preview",
-]
-deep = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-ultrabrain = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
-ultrawork = [
-  "google/gemini-2.5-pro",
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3-flash-preview",
-]
 
 [opencode.category_profiles]
 quick = "quick"

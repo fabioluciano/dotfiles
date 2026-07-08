@@ -87,6 +87,24 @@
     }{{ if lt $i (sub (len $categories) 1) }},{{ end }}
 {{- end }}
   },
+  "sisyphus_agent": {
+    "planner_enabled": true,
+    "replace_plan": false,
+    "default_builder_enabled": true
+  },
+  "agent_order": [
+    "sisyphus",
+    "atlas",
+    "hephaestus",
+    "oracle",
+    "prometheus",
+    "metis",
+    "momus",
+    "librarian",
+    "explore",
+    "multimodal-looker",
+    "sisyphus-junior"
+  ],
   "experimental": {
     "disable_omo_env": true,
     "task_system": true

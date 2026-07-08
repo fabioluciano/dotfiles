@@ -16,7 +16,7 @@ fi
 if [[ -n "$_PROVIDERS_FROM_TOML" ]]; then
   mapfile -t PROVIDERS <<< "$_PROVIDERS_FROM_TOML"
 else
-  PROVIDERS=(bedrock-claude bedrock-mixed anthropic deepseek xiaomi openai github-copilot opencode opencode-free google)
+  PROVIDERS=(bedrock-claude bedrock-mixed deepseek xiaomi openai github-copilot opencode)
 fi
 unset _CHEZMOI_DATA _PROVIDERS_FROM_TOML
 
@@ -25,7 +25,11 @@ DEFAULT_PROVIDER="${_DEFAULT_FROM_TOML:-xiaomi}"
 unset _DEFAULT_FROM_TOML
 DEFAULT_PROFILE="moderate"
 STATE_FILE="${HOME}/.config/opencode/.active_provider"
-TARGET_FILE="${HOME}/.config/opencode/oh-my-openagent.jsonc"
+TARGET_FILES=(
+  "${HOME}/.config/opencode/oh-my-openagent.jsonc"
+  "${HOME}/.config/opencode/opencode.jsonc"
+  "${HOME}/.config/opencode/omo.jsonc"
+)
 
 usage() {
   cat >&2 <<EOF
@@ -90,7 +94,7 @@ print_status() {
   echo "Provider ativo: $provider"
   echo "Profile ativo: $profile"
   echo "Arquivo de estado: $STATE_FILE"
-  echo "Target renderizado: $TARGET_FILE"
+  echo "Targets renderizados: ${TARGET_FILES[*]}"
 }
 
 write_state() {
@@ -104,7 +108,7 @@ EOF
 }
 
 apply_target() {
-  chezmoi apply "$TARGET_FILE"
+  chezmoi apply "${TARGET_FILES[@]}"
 }
 
 if [[ $# -lt 1 || $# -gt 3 ]]; then
@@ -140,7 +144,7 @@ case "$command_name" in
     echo "Provider alvo: $provider"
     echo "Profile alvo: $profile"
     echo "Arquivo de estado: $STATE_FILE"
-    echo "Target renderizado: $TARGET_FILE"
+    echo "Targets renderizados: ${TARGET_FILES[*]}"
     exit 0
     ;;
 esac

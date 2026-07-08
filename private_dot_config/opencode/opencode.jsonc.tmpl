@@ -1,0 +1,288 @@
+{{- $defaultProvider := get $.opencode "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.config/opencode/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "moderate" -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
+{{- end -}}
+{{- else -}}
+{{- $provider = $state -}}
+{{- $profile = "moderate" -}}
+{{- end -}}
+{{- if eq $provider "bedrock" -}}{{- $provider = "bedrock-claude" -}}{{- end -}}
+{{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
+{{- $validProviders := keys $.opencode.models -}}
+{{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
+{{- $providerModels := index $.opencode.models $provider -}}
+{
+  "$schema": "https://opencode.ai/config.json",
+  // NOTE: The effective model is controlled by oh-my-openagent (rendered from
+  // opencode_providers.toml via oh-my-openagent.jsonc.tmpl). This field is only
+  // used when oh-my-openagent is disabled.
+  "model": "{{ first (index $providerModels "orchestrator") }}",
+  "small_model": "{{ first (index $providerModels "quick") }}",
+  "default_agent": "build",
+  "formatter": true,
+  "lsp": {
+    "marksman": {
+      "command": [
+        "marksman",
+        "server"
+      ],
+      "extensions": [
+        ".md",
+        ".markdown"
+      ]
+    },
+    "yaml-language-server": {
+      "command": [
+        "yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "dockerfile-language-server": {
+      "command": [
+        "docker-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".dockerfile"
+      ]
+    },
+    "helm-ls": {
+      "command": [
+        "helm_ls",
+        "serve"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "tailwindcss-language-server": {
+      "command": [
+        "tailwindcss-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".vue",
+        ".svelte"
+      ]
+    },
+    "vue-language-server": {
+      "command": [
+        "vue-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".vue"
+      ]
+    },
+    "zls": {
+      "command": [
+        "zls"
+      ],
+      "extensions": [
+        ".zig",
+        ".zon"
+      ]
+    },
+    "tinymist": {
+      "command": [
+        "tinymist",
+        "lsp"
+      ],
+      "extensions": [
+        ".typ"
+      ]
+    },
+    "pyright": {
+      "disabled": true
+    },
+    "basedpyright": {
+      "command": [
+        "uvx",
+        "--from",
+        "basedpyright",
+        "basedpyright-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
+      ]
+    },
+    "jdtls": {
+      "command": [
+        "jdtls"
+      ],
+      "extensions": [
+        ".java"
+      ]
+    }
+  },
+  "enabled_providers": [
+    "xiaomi",
+    "amazon-bedrock",
+    "openai",
+    "github-copilot",
+    "opencode",
+    "anthropic",
+    "google",
+    "deepseek"
+  ],
+  "compaction": {
+    "auto": true,
+    "prune": false,
+    "reserved": 6000
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "vendor/**",
+      ".omo/**"
+    ]
+  },
+  "instructions": [
+    "~/.config/opencode/AGENTS.md",
+  ],
+  "provider": {
+    "xiaomi": {
+      "options": {
+        "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
+        "apiKey": "{env:MIMO_API_KEY}"
+      },
+    },
+    "openai": {
+      "options": {
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+    },
+    "opencode": {
+      "options": {
+        "apiKey": "{env:OPENCODE_API_KEY}"
+      },
+    },
+    "amazon-bedrock": {
+      "options": {
+        "apiKey": "{env:AWS_BEARER_TOKEN_BEDROCK}",
+        "region": "us-east-1"
+      },
+    },
+    "deepseek": {
+      "options": {
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4-flash": {},
+        "deepseek-v4-pro": {}
+      }
+    }
+  },
+  "plugin": [
+    "context-mode",
+    "openrtk",
+    "@tarquinen/opencode-dcp@3.1.13"
+  ],
+  "permission": {
+    "bash": "allow",
+    "edit": "allow",
+    "todowrite": "allow",
+    "question": "allow",
+    "lsp": "allow",
+    "skill": {
+      "*": "allow"
+    }
+  },
+  "experimental": {
+    "primary_tools": []
+  },
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": [
+        "context7-mcp"
+      ],
+      "enabled": true,
+      "timeout": 8000
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "playwright-mcp"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "gh_grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true,
+      "timeout": 8000
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      },
+      "timeout": 10000
+    },
+    "codebase-memory": {
+      "type": "local",
+      "command": [
+        "codebase-memory-mcp"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    },
+    "kubernetes": {
+      "type": "local",
+      "command": [
+        "kubernetes-mcp-server",
+        "--read-only"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    },
+    // terraform-mcp-server (HashiCorp Terraform) — enabled; uses ~/.terraform.d/credentials for auth.
+    // Install: mise install (go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server in mise config)
+    "terraform": {
+      "type": "local",
+      "command": [
+        "terraform-mcp-server"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "skillz": {
+      "type": "local",
+      "command": [
+        "/Users/fabioluciano/Developer/projects/skillz-mcp/bin/skillz-mcp"
+      ],
+      "env": {
+        "SKILLS_DIR": "~/.skillz"
+      },
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}

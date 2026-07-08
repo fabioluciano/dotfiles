@@ -46,3 +46,6 @@ fi
 alias reload='exec zsh'
 alias zshconfig='nvim ~/.zshrc'
 alias cls='clear'
+
+# OpenCode: omo com OmO, opencode sem
+alias omo='OPENCODE_CONFIG="$HOME/.config/opencode/omo.jsonc" opencode'
