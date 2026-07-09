@@ -39,10 +39,22 @@ ANTIDOTE_DIR="${ZDOTDIR:-$HOME}/.antidote"
 # antidote v2.1.0 is managed by chezmoi externals; run `chezmoi --refresh-externals apply` to reinstall.
 source "$ANTIDOTE_DIR/antidote.zsh"
 
+# Antidote cache directory — used to detect when the cache has been wiped
+# (e.g. macOS system cleanup), forcing bundle regeneration. The flag is
+# captured BEFORE any bundle runs so the main bundle doesn't miss the signal
+# after the pre-bundle creates the cache directory.
+{{- if eq .chezmoi.os "darwin" }}
+_antidote_cache_missing=false
+[[ -d "${ANTIDOTE_HOME:-$HOME/Library/Caches/antidote}" ]] || _antidote_cache_missing=true
+{{- else }}
+_antidote_cache_missing=false
+[[ -d "${ANTIDOTE_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/antidote}" ]] || _antidote_cache_missing=true
+{{- end }}
+
 # --- Stage 1: completions onto fpath (must run BEFORE compinit) --------------
 _zpre_txt="${ZDOTDIR:-$HOME}/.zsh_plugins_pre.txt"
 _zpre_zsh="${ZDOTDIR:-$HOME}/.zsh_plugins_pre.zsh"
-if [[ ! $_zpre_zsh -nt $_zpre_txt ]]; then
+if [[ ! $_zpre_zsh -nt $_zpre_txt ]] || $_antidote_cache_missing; then
     antidote bundle <"$_zpre_txt" >"$_zpre_zsh"
 fi
 source "$_zpre_zsh"
@@ -84,15 +96,16 @@ unset _zcompdump_stale
 unset _zcompdump
 
 # --- Stage 2: remaining plugins (OMZ calls `compdef`; safe now) --------------
-# Regenerate (and compile) the static bundle only when the plugin list changes.
+# Regenerate (and compile) the static bundle when the plugin list changes OR
+# when the antidote cache has been wiped (e.g. macOS system cleanup).
 _zplugins_txt="${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
 _zplugins_zsh="${ZDOTDIR:-$HOME}/.zsh_plugins.zsh"
-if [[ ! $_zplugins_zsh -nt $_zplugins_txt ]]; then
+if [[ ! $_zplugins_zsh -nt $_zplugins_txt ]] || $_antidote_cache_missing; then
     antidote bundle <"$_zplugins_txt" >"$_zplugins_zsh"
     zcompile -R -- "${_zplugins_zsh}.zwc" "$_zplugins_zsh" 2>/dev/null
 fi
 source "$_zplugins_zsh"
-unset _zpre_txt _zpre_zsh _zplugins_txt _zplugins_zsh
+unset _zpre_txt _zpre_zsh _zplugins_txt _zplugins_zsh _antidote_cache_missing
 
 # history-substring-search bindings (widgets are loaded by the bundle above)
 bindkey '^[[A' history-substring-search-up

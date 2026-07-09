@@ -667,3 +667,15 @@ deep = "deep"
 ultrabrain = "ultrabrain"
 artistry = "visual"
 writing = "quick"
+
+# =============================================================================
+# HISTORIAN MODELS (usados pelo Magic Context para compressão em background)
+# Cada provider mapeia para o modelo mais barato disponível.
+# =============================================================================
+
+[opencode.historian_models]
+deepseek = "deepseek/deepseek-v4-flash"
+xiaomi = "xiaomi/mimo-v2.5"
+"bedrock-claude" = "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0"
+"bedrock-mixed" = "amazon-bedrock/zai.glm-4.7-flash"
+"github-copilot" = "github-copilot/claude-sonnet-4.6"

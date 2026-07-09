@@ -1,0 +1,29 @@
+{{- $defaultProvider := get $.opencode "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.config/opencode/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- end -}}
+{{- else -}}
+{{- $provider = $state -}}
+{{- end -}}
+{{- if eq $provider "bedrock" -}}{{- $provider = "bedrock-claude" -}}{{- end -}}
+{{- $historianModels := $.opencode.historian_models | default dict -}}
+{{- $historianModel := get $historianModels $provider | default "deepseek/deepseek-v4-flash" -}}
+{
+  "$schema": "https://raw.githubusercontent.com/cortexkit/magic-context/master/assets/magic-context.schema.json",
+  "historian": {
+    "model": "{{ $historianModel }}"
+  },
+  "dreamer": {
+    "disable": true
+  },
+  "memory": {
+    "git_commit_indexing": {
+      "enabled": true
+    }
+  }
+}

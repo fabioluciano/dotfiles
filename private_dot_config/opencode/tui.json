@@ -10,6 +10,6 @@
   "plugin": [
     "oh-my-openagent",
     "./node_modules/opencode-subagent-statusline",
-    "@tarquinen/opencode-dcp@3.1.13"
+    "@cortexkit/opencode-magic-context"
   ]
 }
