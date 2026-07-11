@@ -160,10 +160,7 @@ The `oc-provider` command switches all opencode agents to use a specific LLM
 provider in one shot:
 
 ```sh
-oc-provider bedrock-claude # switch to the canonical Bedrock Claude chain
-oc-provider bedrock-mixed  # switch to the mixed non-Anthropic Bedrock chain
 oc-provider opencode    # switch to OpenCode Zen (opencode/ models)
-oc-provider opencode-free # switch to free OpenCode Zen models
 oc-provider github-copilot # switch to GitHub Copilot Plus models
 oc-provider xiaomi      # switch to Xiaomi (mimo)
 oc-provider opencode recommended # switch with Oh My OpenAgent recommended tiers

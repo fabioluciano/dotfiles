@@ -116,8 +116,8 @@ signing with that key.
 ## Notable subsystems
 
 - **opencode** (`private_dot_config/opencode/`): the `oc-provider` command
-  (`~/.local/bin/oc-provider`) switches all opencode agents between LLM
-  providers (`bedrock`/`anthropic`/`xiaomi`) by writing
+  (`~/.local/bin/oc-provider`) switches all opencode agents between configured
+  LLM providers by writing
   `~/.config/opencode/.active_provider` then running `chezmoi apply` on the
   `oh-my-openagent.json` template. The tier→model matrix lives in
   `.chezmoidata/opencode_providers.toml`. opencode *skills* are NOT tracked by

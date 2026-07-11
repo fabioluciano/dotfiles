@@ -1,157 +1,6 @@
 [opencode]
 default_provider = "xiaomi"
 
-[opencode.models.bedrock-claude]
-orchestrator = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-implementation = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-planner = [
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-architecture = [
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-search = [
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-vision = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-]
-review = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-long_running = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-]
-quick = [
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-standard = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-complex = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-visual = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-]
-deep = [
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-ultrabrain = [
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-]
-ultrawork = [
-  "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
-  "amazon-bedrock/us.anthropic.claude-opus-4-8",
-  "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-]
-
-# bedrock-mixed: cadeia non-Anthropic do Bedrock, validada via Converse API
-# (us-east-1, 2026-06). Regras aplicadas:
-#  - us.deepseek.r1-v1:0 REMOVIDO de tudo: nao suporta tool use
-#    (ValidationException "This model doesn't support tool use").
-#  - moonshot.kimi-k2-thinking (8.8s) e qwen.qwen3-vl-235b-a22b (14.8s)
-#    nunca como primary: reasoning verboso/lento que trava loop de agente.
-#  - primary de cada tier = modelo rapido (1-2s) e tool-capable; fallbacks validos.
-[opencode.models.bedrock-mixed]
-orchestrator = [
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/minimax.minimax-m2.5",
-  "amazon-bedrock/moonshotai.kimi-k2.5",
-]
-long_running = [
-  "amazon-bedrock/mistral.devstral-2-123b",
-  "amazon-bedrock/deepseek.v3.2",
-  "amazon-bedrock/qwen.qwen3-coder-next",
-]
-planner = [
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/zai.glm-4.7-flash",
-  "amazon-bedrock/qwen.qwen3-coder-30b-a3b-v1:0",
-]
-architecture = [
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/moonshot.kimi-k2-thinking",
-]
-review = [
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/deepseek.v3.2",
-]
-implementation = [
-  "amazon-bedrock/mistral.devstral-2-123b",
-  "amazon-bedrock/deepseek.v3.2",
-  "amazon-bedrock/qwen.qwen3-coder-next",
-]
-search = [
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/nvidia.nemotron-nano-3-30b",
-  "amazon-bedrock/qwen.qwen3-coder-30b-a3b-v1:0",
-]
-vision = [
-  "amazon-bedrock/moonshotai.kimi-k2.5",
-  "amazon-bedrock/us.mistral.pixtral-large-2502-v1:0",
-  "amazon-bedrock/qwen.qwen3-vl-235b-a22b",
-]
-ultrabrain = [
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/moonshot.kimi-k2-thinking",
-]
-deep = [
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/minimax.minimax-m2.5",
-  "amazon-bedrock/moonshotai.kimi-k2.5",
-]
-standard = [
-  "amazon-bedrock/zai.glm-4.7",
-  "amazon-bedrock/qwen.qwen3-next-80b-a3b",
-  "amazon-bedrock/deepseek.v3.2",
-]
-complex = [
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/deepseek.v3.2",
-  "amazon-bedrock/minimax.minimax-m2.5",
-]
-quick = [
-  "amazon-bedrock/openai.gpt-oss-120b-1:0",
-  "amazon-bedrock/nvidia.nemotron-nano-3-30b",
-  "amazon-bedrock/qwen.qwen3-coder-30b-a3b-v1:0",
-]
-visual = [
-  "amazon-bedrock/moonshotai.kimi-k2.5",
-  "amazon-bedrock/us.mistral.pixtral-large-2502-v1:0",
-  "amazon-bedrock/qwen.qwen3-vl-235b-a22b",
-]
-ultrawork = [
-  "amazon-bedrock/zai.glm-5",
-  "amazon-bedrock/minimax.minimax-m2.5",
-  "amazon-bedrock/mistral.devstral-2-123b",
-]
-
 [opencode.models.github-copilot]
 orchestrator = [
   "github-copilot/claude-sonnet-4.6",
@@ -293,6 +142,40 @@ deep = ["deepseek/deepseek-v4-pro"]
 ultrabrain = ["deepseek/deepseek-v4-pro"]
 ultrawork = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
 
+[opencode.models.openai]
+orchestrator = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+implementation = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+planner = ["openai/gpt-5.6-luna", "openai/gpt-5-mini", "openai/gpt-5-nano"]
+architecture = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
+search = ["openai/gpt-5.6-luna", "openai/gpt-5-mini", "openai/gpt-5-nano"]
+vision = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+review = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.6-luna"]
+long_running = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+quick = ["openai/gpt-5.6-luna", "openai/gpt-5-mini"]
+standard = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+complex = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
+visual = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+deep = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
+ultrabrain = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
+ultrawork = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+
+[opencode.models.minimax]
+orchestrator = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+implementation = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+planner = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+architecture = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+search = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+vision = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+review = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+long_running = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+quick = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+standard = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+complex = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+visual = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+deep = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+ultrabrain = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+ultrawork = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+
 [opencode.models.xiaomi]
 orchestrator = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 implementation = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
@@ -314,25 +197,15 @@ ultrawork = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
 # =============================================================================
 
-[opencode.variants.bedrock-claude]
-orchestrator = "medium"
-implementation = "medium"
+[opencode.variants.minimax]
+orchestrator = "high"
+implementation = "high"
 architecture = "high"
-review = "medium"
-visual = "medium"
+review = "high"
+visual = "high"
 deep = "high"
 ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.bedrock-mixed]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
+ultrawork = "high"
 
 [opencode.variants.github-copilot]
 orchestrator = "medium"
@@ -348,6 +221,23 @@ standard = "medium"
 complex = "high"
 visual = "high"
 deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.openai]
+orchestrator = "medium"
+implementation = "medium"
+planner = "medium"
+architecture = "high"
+search = "medium"
+vision = "medium"
+review = "medium"
+long_running = "medium"
+quick = "medium"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
@@ -373,27 +263,34 @@ ultrawork = "high"
 # VARIANTS OPTIMIZED
 # =============================================================================
 
-[opencode.variants.bedrock-claude-optimized]
-orchestrator = "low"
+[opencode.variants.minimax-optimized]
+orchestrator = "medium"
 implementation = "medium"
-architecture = "medium"
+architecture = "high"
 review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.bedrock-mixed-optimized]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
+visual = "medium"
+deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
 [opencode.variants.github-copilot-optimized]
+orchestrator = "low"
+implementation = "medium"
+planner = "low"
+architecture = "medium"
+search = "low"
+vision = "low"
+review = "medium"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "medium"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.openai-optimized]
 orchestrator = "low"
 implementation = "medium"
 planner = "low"
@@ -432,27 +329,34 @@ ultrawork = "medium"
 # VARIANTS SUPER (maxima economia)
 # =============================================================================
 
-[opencode.variants.bedrock-claude-super]
+[opencode.variants.minimax-super]
 orchestrator = "low"
-implementation = "medium"
+implementation = "low"
 architecture = "medium"
-review = "medium"
+review = "low"
 visual = "low"
 deep = "medium"
 ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.bedrock-mixed-super]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
+ultrawork = "low"
 
 [opencode.variants.github-copilot-super]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.openai-super]
 orchestrator = "low"
 implementation = "low"
 planner = "low"
@@ -499,23 +403,17 @@ ultrawork = "low"
 # VARIANTS RECOMMENDED (tiers alinhados ao Oh My OpenAgent)
 # =============================================================================
 
-[opencode.variants.bedrock-claude-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.bedrock-mixed-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
 [opencode.variants.github-copilot-recommended]
 architecture = "high"
 vision = "high"
 visual = "high"
 ultrabrain = "xhigh"
+
+[opencode.variants.openai-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
 
 [opencode.variants.opencode-recommended]
 architecture = "high"
@@ -569,31 +467,38 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
+[opencode.variants.minimax-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 # =============================================================================
 # VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
 # =============================================================================
 
-[opencode.variants.bedrock-claude-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.bedrock-mixed-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
 [opencode.variants.github-copilot-ultra]
+orchestrator = "low"
+implementation = "none"
+planner = "low"
+architecture = "none"
+search = "none"
+vision = "low"
+review = "none"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "none"
+visual = "low"
+deep = "none"
+ultrabrain = "none"
+ultrawork = "none"
+
+[opencode.variants.openai-ultra]
 orchestrator = "low"
 implementation = "none"
 planner = "low"
@@ -623,6 +528,23 @@ ultrabrain = "none"
 ultrawork = "low"
 
 [opencode.variants.xiaomi-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.minimax-ultra]
 orchestrator = "low"
 implementation = "low"
 planner = "low"
@@ -674,8 +596,8 @@ writing = "quick"
 # =============================================================================
 
 [opencode.historian_models]
+openai = "openai/gpt-5-nano"
 deepseek = "deepseek/deepseek-v4-flash"
 xiaomi = "xiaomi/mimo-v2.5"
-"bedrock-claude" = "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0"
-"bedrock-mixed" = "amazon-bedrock/zai.glm-4.7-flash"
+minimax = "minimax/MiniMax-M2.5"
 "github-copilot" = "github-copilot/claude-sonnet-4.6"

@@ -10,7 +10,6 @@
 {{- else -}}
 {{- $provider = $state -}}
 {{- end -}}
-{{- if eq $provider "bedrock" -}}{{- $provider = "bedrock-claude" -}}{{- end -}}
 {{- $historianModels := $.opencode.historian_models | default dict -}}
 {{- $historianModel := get $historianModels $provider | default "deepseek/deepseek-v4-flash" -}}
 {
@@ -19,7 +18,10 @@
     "model": "{{ $historianModel }}"
   },
   "dreamer": {
-    "disable": true
+    "enabled": true
+  },
+  "embedding": {
+    "provider": "off"
   },
   "memory": {
     "git_commit_indexing": {

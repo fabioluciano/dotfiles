@@ -13,7 +13,6 @@
 {{- $provider = $state -}}
 {{- $profile = "moderate" -}}
 {{- end -}}
-{{- if eq $provider "bedrock" -}}{{- $provider = "bedrock-claude" -}}{{- end -}}
 {{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
 {{- $validProviders := keys $.opencode.models -}}
 {{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
@@ -26,6 +25,14 @@
   "model": "{{ first (index $providerModels "orchestrator") }}",
   "small_model": "{{ first (index $providerModels "quick") }}",
   "default_agent": "build",
+  "agent": {
+    "build": {
+      "model": "{{ first (index $providerModels "implementation") }}"
+    },
+    "plan": {
+      "model": "{{ first (index $providerModels "planner") }}"
+    }
+  },
   "formatter": true,
   "lsp": {
     "marksman": {
@@ -137,11 +144,11 @@
   },
   "enabled_providers": [
     "xiaomi",
-    "amazon-bedrock",
     "openai",
     "github-copilot",
     "opencode",
-    "deepseek"
+    "deepseek",
+    "minimax"
   ],
   "compaction": {
     "auto": false,
@@ -168,19 +175,11 @@
       },
     },
     "openai": {
-      "options": {
-        "apiKey": "{env:OPENAI_API_KEY}"
-      },
+      "options": {},
     },
     "opencode": {
       "options": {
         "apiKey": "{env:OPENCODE_API_KEY}"
-      },
-    },
-    "amazon-bedrock": {
-      "options": {
-        "apiKey": "{env:AWS_BEARER_TOKEN_BEDROCK}",
-        "region": "us-east-1"
       },
     },
     "deepseek": {
@@ -190,6 +189,19 @@
       "models": {
         "deepseek-v4-flash": {},
         "deepseek-v4-pro": {}
+      }
+    },
+    "minimax": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MiniMax",
+      "options": {
+        "baseURL": "https://api.minimax.io/v1",
+        "apiKey": "{env:MINIMAX_API_KEY}"
+      },
+      "models": {
+        "MiniMax-M3": {},
+        "MiniMax-M2.7": {},
+        "MiniMax-M2.5": {}
       }
     }
   },

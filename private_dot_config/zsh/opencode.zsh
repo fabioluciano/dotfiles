@@ -20,4 +20,15 @@ if [[ -r "${HOME}/.config/opencode/.active_provider" ]]; then
   done < "${HOME}/.config/opencode/.active_provider"
 fi
 export OPENCODE_PROVIDER="$_opencode_active_provider"
+export OPENCODE_EXPERIMENTAL_WEBSOCKETS=1
+export OPENCODE_ENABLE_PARALLEL=1
+export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=1
+export OPENCODE_EXPERIMENTAL_PLAN_MODE=1
+export OPENCODE_EXPERIMENTAL_LSP_TOOL=1
 unset _opencode_active_provider
+
+# Force the WebSocket transport even from an already-open shell that reloads
+# this file after OpenCode's experimental flags were introduced.
+opencode() {
+  OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
+}

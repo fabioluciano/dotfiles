@@ -10,6 +10,7 @@
   "plugin": [
     "oh-my-openagent",
     "./node_modules/opencode-subagent-statusline",
-    "@cortexkit/opencode-magic-context"
+    "@cortexkit/opencode-magic-context",
+    "@slkiser/opencode-quota"
   ]
 }

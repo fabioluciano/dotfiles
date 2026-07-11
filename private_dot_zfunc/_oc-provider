@@ -12,9 +12,8 @@ commands=(
 # providers dynamically from chezmoi data via jq. Adding a new provider in
 # opencode_providers.toml requires updating both places.
 providers=(
-  'bedrock-claude:Bedrock Claude (Anthropic via AWS)'
-  'bedrock-mixed:Bedrock mixed (non-Anthropic via AWS)'
   'deepseek:DeepSeek'
+  'minimax:MiniMax'
   'xiaomi:Xiaomi (mimo)'
   'openai:OpenAI'
   'github-copilot:GitHub Copilot Plus'

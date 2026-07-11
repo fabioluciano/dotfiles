@@ -13,7 +13,6 @@
 {{- $provider = $state -}}
 {{- $profile = "moderate" -}}
 {{- end -}}
-{{- if eq $provider "bedrock" -}}{{- $provider = "bedrock-claude" -}}{{- end -}}
 {{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
 {{- /* "moderate" is an alias for "optimized" — they share the same variants */ -}}
 {{- if eq $profile "moderate" -}}{{- $profile = "optimized" -}}{{- end -}}

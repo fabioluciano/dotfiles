@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Generate ~/.config/zsh/tokens.zsh from Bitwarden on first apply (and whenever
-# the sync script changes). Unlocks the vault interactively if needed.
-# No-ops gracefully if bw is missing. Re-run `zsh-tokens-sync` by hand
-# after rotating a token.
+# the sync script changes). Installs bw and unlocks the vault if needed.
+# Re-run `zsh-tokens-sync` by hand after rotating a token.
 # sync script hash: {{ include "private_dot_local/bin/executable_zsh-tokens-sync" | sha256sum }}
 set -euo pipefail
 
@@ -11,13 +10,25 @@ if [ ! -x "$sync" ]; then
   exit 0
 fi
 
-command -v bw >/dev/null 2>&1 || exit 0
+if ! command -v bw >/dev/null 2>&1; then
+  echo "Bitwarden CLI (bw) nao encontrado — instalando..."
+  if command -v brew >/dev/null 2>&1; then
+    brew install bitwarden-cli
+  elif command -v yay >/dev/null 2>&1; then
+    yay -S --noconfirm bitwarden-cli
+  elif command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --noconfirm bitwarden-cli
+  else
+    echo "ERRO: Gerenciador de pacotes compativel nao encontrado. Instale o bw manualmente." >&2
+    exit 1
+  fi
+fi
 
 if ! bw unlock --check >/dev/null 2>&1; then
   echo "Bitwarden vault bloqueado — desbloqueando para gerar tokens..."
   session="$(bw unlock --raw)" || {
-    echo "Falha ao desbloquear. Tokens nao serao sincronizados." >&2
-    exit 0
+    echo "ERRO: Falha ao desbloquear o vault. Execute 'bw unlock' manualmente." >&2
+    exit 1
   }
   export BW_SESSION="$session"
 fi
