@@ -137,8 +137,7 @@ set -g @plugin 'tmux-plugins/tmux-pain-control'  # Pane management bindings
 # Search and extraction
 set -g @plugin 'sainnhe/tmux-fzf'                # FZF integration
 set -g @plugin 'laktak/extrakto'                 # Extract text from panes
-set -g @plugin 'fcsonline/tmux-thumbs'           # Hint-based copy (prefix+space... default: prefix+F)
-set -g @plugin 'omerxx/tmux-floax'               # Floating scratch pane
+set -g @plugin 'fcsonline/tmux-thumbs'           # Hint-based copy (prefix+t... default: prefix+F)
 
 # Mouse enhancements
 set -g @plugin 'nhdaly/tmux-better-mouse-mode'
@@ -154,11 +153,9 @@ set -g @tpm-install "C-i"
 set -g @tpm-update "C-u"
 
 # -----------------------------------------------------------------------------
-#  Floax Settings
+#  Thumbs Settings
 # -----------------------------------------------------------------------------
-set -g @floax-bind 'p'
-set -g @floax-width '80%'
-set -g @floax-height '80%'
+set -g @thumbs-key 't'
 
 # -----------------------------------------------------------------------------
 #  Better Mouse Mode Settings
@@ -208,19 +205,20 @@ set -g @powerkit_keybinding_conflict_action "ignore"
 #  Plugins Selection
 # -----------------------------------------------------------------------------
 # Groups:
-#   Blue:   System     - cpu, memory, disk, gpu, temperature, fan, iops
+#   Blue:   System     - cpu, memory, disk, gpu, temperature, fan, iops, sysstatus
 #   Purple: Network    - netspeed, wifi, vpn, ssh
 #   Green:  VCS        - git, github, bitbucket
-#   Yellow: DevOps     - jira, kubernetes, terraform
+#   Yellow: DevOps     - jira, kubernetes, terraform, docker, cloud
 #   Red:    Media      - audiodevices, nowplaying, bluetooth
-#   None:   Standalone - weather, camera, microphone, battery, bitwarden, etc.
+#   None:   Standalone - weather, aiquotas, camera, microphone, battery, bitwarden, etc.
 
 set -g @powerkit_plugins "\
 weather,\
-group(cpu,memory,disk,gpu,temperature,fan,iops),\
+aiquotas,\
+group(cpu,memory,disk,gpu,temperature,fan,iops,sysstatus),\
 group(netspeed,wifi,vpn,ssh),\
 group(git,github),\
-group(kubernetes,terraform,chezmoi),\
+group(kubernetes,terraform,chezmoi,docker,cloud),\
 group(audiodevices,nowplaying),\
 camera,microphone,battery,pomodoro,bitwarden,packages,smartkey"
 
@@ -239,6 +237,7 @@ set -g @powerkit_plugin_ping_show_only_on_threshold "true"
 set -g @powerkit_plugin_wifi_show_only_on_threshold "true"
 set -g @powerkit_plugin_git_show_only_on_threshold "true"
 set -g @powerkit_plugin_github_show_only_on_threshold "true"
+set -g @powerkit_plugin_sysstatus_show_only_on_threshold "true"
 
 # -----------------------------------------------------------------------------
 #  Plugin: Weather
@@ -246,6 +245,13 @@ set -g @powerkit_plugin_github_show_only_on_threshold "true"
 set -g @powerkit_plugin_weather_location "{{ .weather_city }}"
 set -g @powerkit_plugin_weather_format "%t H:%h"
 set -g @powerkit_plugin_weather_icon_mode "dynamic"
+
+# -----------------------------------------------------------------------------
+#  Plugin: AI Quotas
+# -----------------------------------------------------------------------------
+# DeepSeek and MiniMax have been verified with the environment available to tmux.
+set -g @powerkit_plugin_aiquotas_providers "deepseek,minimax"
+set -g @powerkit_plugin_aiquotas_cache_ttl "300"
 
 # -----------------------------------------------------------------------------
 #  Plugin: Bitbucket
@@ -281,6 +287,12 @@ set -g @powerkit_plugin_kubernetes_keybinding_namespace "M-n"
 #  Plugin: Terraform
 # -----------------------------------------------------------------------------
 set -g @powerkit_plugin_terraform_keybinding_workspace "M-w"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Docker/Podman
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_docker_runtime "auto"
+set -g @powerkit_plugin_docker_show_stopped "false"
 
 # -----------------------------------------------------------------------------
 #  Plugin: AudioDevices

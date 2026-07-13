@@ -4,6 +4,7 @@
 .omx/
 .omc/
 .omo/
+.opencode/
 .mimocode/
 .codegraph/
 .idea/

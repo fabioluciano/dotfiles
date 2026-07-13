@@ -66,10 +66,10 @@ defaults write com.apple.Accessibility KeyRepeatInterval -float 0.015
 defaults write com.apple.universalaccess slowKey -bool false >/dev/null 2>&1 || true
 hidutil property --matching keyboard --set '{"InitialKeyRepeat":10,"KeyRepeat":1}' >/dev/null 2>&1 || true
 
-defaults write -g com.apple.trackpad.scaling -float 2
-defaults -currentHost write -g com.apple.trackpad.scaling -float 2
-defaults write -g com.apple.mouse.scaling -float 2
-defaults -currentHost write -g com.apple.mouse.scaling -float 2
+defaults write -g com.apple.trackpad.scaling -float 1.5
+defaults -currentHost write -g com.apple.trackpad.scaling -float 1.5
+defaults write -g com.apple.mouse.scaling -float 1.5
+defaults -currentHost write -g com.apple.mouse.scaling -float 1.5
 
 # Text input for coding.
 defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
