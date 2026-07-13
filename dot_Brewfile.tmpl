@@ -249,7 +249,6 @@ cask "zed"
 # =============================================================================
 cask "bartender"
 cask "discord"
-cask "dropbox"
 cask "espanso"
 cask "expressions"
 cask "itsycal"
@@ -267,7 +266,6 @@ cask "swift-quit"
 cask "thaw"
 cask "telegram"
 cask "thunderbird"
-cask "whatsapp"
 
 # =============================================================================
 # DESKTOP APPS — BROWSERS, MEDIA & DESIGN
@@ -323,4 +321,12 @@ cask "microsoft-auto-update"
 {{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "slack"
 cask "zoom"
+{{- end }}
+
+# =============================================================================
+# DESKTOP APPS — PERSONAL MACHINE ONLY
+# =============================================================================
+{{- if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
+cask "dropbox"
+cask "whatsapp"
 {{- end }}

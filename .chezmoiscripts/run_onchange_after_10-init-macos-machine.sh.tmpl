@@ -68,8 +68,8 @@ hidutil property --matching keyboard --set '{"InitialKeyRepeat":10,"KeyRepeat":1
 
 defaults write -g com.apple.trackpad.scaling -float 1.5
 defaults -currentHost write -g com.apple.trackpad.scaling -float 1.5
-defaults write -g com.apple.mouse.scaling -float 1.5
-defaults -currentHost write -g com.apple.mouse.scaling -float 1.5
+defaults write -g com.apple.mouse.scaling -float 1.4
+defaults -currentHost write -g com.apple.mouse.scaling -float 1.4
 
 # Text input for coding.
 defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
@@ -94,6 +94,19 @@ defaults write com.apple.dock tilesize -int 36
 defaults write com.apple.dock magnification -bool true
 defaults write com.apple.dock largesize -int 54
 defaults write com.apple.dock mru-spaces -bool false
+
+# Hot corners (0=off, 1=Disable Screen Saver, 2=Mission Control, 3=App Windows,
+# 4=Launchpad, 5=Desktop, 6=Start Screen Saver, 10=Quick Note, 11=Apps (Tahoe),
+# 12=Notification Center, 13=Lock Screen). Modifier: 0=none, 131072=Shift,
+# 262144=Control, 524288=Option, 1048576=Command.
+defaults write com.apple.dock wvous-tl-corner -int 11
+defaults write com.apple.dock wvous-tl-modifier -int 0
+defaults write com.apple.dock wvous-tr-corner -int 0
+defaults write com.apple.dock wvous-tr-modifier -int 0
+defaults write com.apple.dock wvous-br-corner -int 4
+defaults write com.apple.dock wvous-br-modifier -int 0
+defaults write com.apple.dock wvous-bl-corner -int 2
+defaults write com.apple.dock wvous-bl-modifier -int 0
 defaults write com.apple.WindowManager GloballyEnabled -bool false
 defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 defaults write com.apple.WindowManager StandardHideWidgets -bool true
