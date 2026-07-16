@@ -27,6 +27,7 @@ MAP=(
   "opencode_api_key=OPENCODE_API_KEY"
   "minimax_api_token=MINIMAX_API_KEY"
   "deepseek_api_token=DEEPSEEK_API_KEY"
+  "zai_api_token=ZAI_API_KEY"
 )
 
 command -v bw >/dev/null 2>&1 || { echo "zsh-tokens-sync: bw nao instalado; pulando." >&2; exit 0; }

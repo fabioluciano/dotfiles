@@ -216,7 +216,7 @@ set -g @powerkit_plugins "\
 weather,\
 aiquotas,\
 group(cpu,memory,disk,gpu,temperature,fan,iops,sysstatus),\
-group(netspeed,wifi,vpn,ssh),\
+group(netspeed,wifi,vpn,ssh,connectivity),\
 group(git,github),\
 group(kubernetes,terraform,chezmoi,docker,cloud),\
 group(audiodevices,nowplaying),\
@@ -235,6 +235,7 @@ set -g @powerkit_plugin_fan_show_only_on_threshold "true"
 set -g @powerkit_plugin_iops_show_only_on_threshold "true"
 set -g @powerkit_plugin_ping_show_only_on_threshold "true"
 set -g @powerkit_plugin_wifi_show_only_on_threshold "true"
+set -g @powerkit_plugin_connectivity_show_only_on_threshold "true"
 set -g @powerkit_plugin_git_show_only_on_threshold "true"
 set -g @powerkit_plugin_github_show_only_on_threshold "true"
 set -g @powerkit_plugin_sysstatus_show_only_on_threshold "true"
@@ -250,7 +251,7 @@ set -g @powerkit_plugin_weather_icon_mode "dynamic"
 #  Plugin: AI Quotas
 # -----------------------------------------------------------------------------
 # DeepSeek and MiniMax have been verified with the environment available to tmux.
-set -g @powerkit_plugin_aiquotas_providers "deepseek,minimax"
+set -g @powerkit_plugin_aiquotas_providers "zai,deepseek,minimax"
 set -g @powerkit_plugin_aiquotas_cache_ttl "300"
 
 # -----------------------------------------------------------------------------

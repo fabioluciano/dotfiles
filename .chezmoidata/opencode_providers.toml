@@ -143,21 +143,45 @@ ultrabrain = ["deepseek/deepseek-v4-pro"]
 ultrawork = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
 
 [opencode.models.openai]
-orchestrator = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
-implementation = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+orchestrator = [
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-luna",
+]
+implementation = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
 planner = ["openai/gpt-5.6-luna", "openai/gpt-5-mini", "openai/gpt-5-nano"]
-architecture = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
+architecture = [
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.4-pro",
+]
 search = ["openai/gpt-5.6-luna", "openai/gpt-5-mini", "openai/gpt-5-nano"]
 vision = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
 review = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.6-luna"]
-long_running = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+long_running = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
 quick = ["openai/gpt-5.6-luna", "openai/gpt-5-mini"]
 standard = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
 complex = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
 visual = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
 deep = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
-ultrabrain = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
-ultrawork = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.4-codex"]
+ultrabrain = [
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.5-pro",
+]
+ultrawork = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
 
 [opencode.models.minimax]
 orchestrator = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
@@ -179,19 +203,36 @@ ultrawork = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
 [opencode.models.xiaomi]
 orchestrator = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
 implementation = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-planner = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-architecture = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-search = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-vision = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-review = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-long_running = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-quick = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-standard = ["xiaomi/mimo-v2.5", "xiaomi/mimo-v2.5-pro"]
-complex = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-visual = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-deep = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-ultrabrain = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-ultrawork = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
+planner = ["xiaomi/mimo-v2.5-pro"]
+architecture = ["xiaomi/mimo-v2.5-pro"]
+search = ["xiaomi/mimo-v2.5"]
+vision = ["xiaomi/mimo-v2.5"]
+review = ["xiaomi/mimo-v2.5-pro"]
+long_running = ["xiaomi/mimo-v2.5-pro"]
+quick = ["xiaomi/mimo-v2.5"]
+standard = ["xiaomi/mimo-v2.5"]
+complex = ["xiaomi/mimo-v2.5-pro"]
+visual = ["xiaomi/mimo-v2.5"]
+deep = ["xiaomi/mimo-v2.5-pro"]
+ultrabrain = ["xiaomi/mimo-v2.5-pro"]
+ultrawork = ["xiaomi/mimo-v2.5-pro"]
+
+[opencode.models.zai]
+orchestrator = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+implementation = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+planner = ["zai/glm-4.7-flashx", "zai/glm-4.7-flash"]
+architecture = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+search = ["zai/glm-4.7-flashx", "zai/glm-4.7-flash"]
+vision = ["zai/glm-5.2"]
+review = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+long_running = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+quick = ["zai/glm-4.7-flash", "zai/glm-4.7-flashx"]
+standard = ["zai/glm-5", "zai/glm-4.7"]
+complex = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+visual = ["zai/glm-5.2"]
+deep = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+ultrabrain = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+ultrawork = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 
 # =============================================================================
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
@@ -251,10 +292,34 @@ ultrawork = "medium"
 
 [opencode.variants.xiaomi]
 orchestrator = "high"
-implementation = "high"
+implementation = "medium"
+planner = "medium"
 architecture = "high"
+search = "low"
+vision = "medium"
+review = "medium"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.zai]
+orchestrator = "high"
+implementation = "high"
+planner = "low"
+architecture = "high"
+search = "low"
+vision = "medium"
 review = "high"
-visual = "high"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
 deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
@@ -325,6 +390,16 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
+[opencode.variants.zai-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
 # =============================================================================
 # VARIANTS SUPER (maxima economia)
 # =============================================================================
@@ -382,6 +457,16 @@ ultrabrain = "high"
 ultrawork = "medium"
 
 [opencode.variants.xiaomi-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.zai-super]
 orchestrator = "low"
 implementation = "low"
 architecture = "medium"
@@ -477,6 +562,16 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
+[opencode.variants.zai-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 # =============================================================================
 # VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
 # =============================================================================
@@ -528,6 +623,23 @@ ultrabrain = "none"
 ultrawork = "low"
 
 [opencode.variants.xiaomi-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.zai-ultra]
 orchestrator = "low"
 implementation = "low"
 planner = "low"
@@ -601,3 +713,4 @@ deepseek = "deepseek/deepseek-v4-flash"
 xiaomi = "xiaomi/mimo-v2.5"
 minimax = "minimax/MiniMax-M2.5"
 "github-copilot" = "github-copilot/claude-sonnet-4.6"
+zai = "zai/glm-4.7-flash"

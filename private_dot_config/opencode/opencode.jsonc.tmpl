@@ -148,7 +148,8 @@
     "github-copilot",
     "opencode",
     "deepseek",
-    "minimax"
+    "minimax",
+    "zai"
   ],
   "compaction": {
     "auto": false,
@@ -169,10 +170,58 @@
   ],
   "provider": {
     "xiaomi": {
+      "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
         "apiKey": "{env:MIMO_API_KEY}"
       },
+      "models": {
+        "mimo-auto": {
+          "name": "mimo-auto",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text", "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "mimo-v2.5-pro": {
+          "name": "mimo-v2.5-pro",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "mimo-v2.5": {
+          "name": "mimo-v2.5",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text", "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        }
+      }
     },
     "openai": {
       "options": {}
@@ -183,25 +232,91 @@
       },
     },
     "minimax": {
-      "npm": "@ai-sdk/openai-compatible",
+      "npm": "@ai-sdk/anthropic",
       "name": "MiniMax",
       "options": {
-        "baseURL": "https://api.minimax.io/v1",
+        "baseURL": "https://api.minimax.io/anthropic/v1",
         "apiKey": "{env:MINIMAX_API_KEY}"
       },
-      "models": {
-        "MiniMax-M3": {},
-        "MiniMax-M2.7": {},
-        "MiniMax-M2.5": {}
-      }
     },
     "deepseek": {
       "options": {
         "apiKey": "{env:DEEPSEEK_API_KEY}"
+      }
+    },
+    "zai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.z.ai/api/coding/paas/v4",
+        "apiKey": "{env:ZAI_API_KEY}"
       },
       "models": {
-        "deepseek-v4-flash": {},
-        "deepseek-v4-pro": {}
+        "glm-5.2": {
+          "name": "glm-5.2",
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5.1": {
+          "name": "glm-5.1",
+          "limit": {
+            "context": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5": {
+          "name": "glm-5",
+          "limit": {
+            "context": 202800,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7": {
+          "name": "glm-4.7",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7-flashx": {
+          "name": "glm-4.7-flashx",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7-flash": {
+          "name": "glm-4.7-flash",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
       }
     }
   },
