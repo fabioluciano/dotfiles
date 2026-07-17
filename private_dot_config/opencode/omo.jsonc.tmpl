@@ -148,7 +148,9 @@
     "github-copilot",
     "opencode",
     "deepseek",
-    "minimax"
+    "minimax",
+    "zai",
+    "zen-free"
   ],
   "compaction": {
     "auto": false,
@@ -203,13 +205,77 @@
         "MiniMax-M2.7": {},
         "MiniMax-M2.5": {}
       }
+    },
+    "zai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.z.ai/api/coding/paas/v4",
+        "apiKey": "{env:ZAI_API_KEY}"
+      },
+      "models": {
+        "glm-5.2": {
+          "name": "glm-5.2",
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5.1": {
+          "name": "glm-5.1",
+          "limit": {
+            "context": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5": {
+          "name": "glm-5",
+          "limit": {
+            "context": 202800,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7": {
+          "name": "glm-4.7",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7-flash": {
+          "name": "glm-4.7-flash",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
     }
   },
   "plugin": [
     "context-mode",
     "openrtk",
     "oh-my-openagent",
-    "@cortexkit/opencode-magic-context"
+    "@cortexkit/opencode-magic-context@latest"
   ],
   "permission": {
     "bash": "allow",

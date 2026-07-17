@@ -250,9 +250,11 @@ set -g @powerkit_plugin_weather_icon_mode "dynamic"
 # -----------------------------------------------------------------------------
 #  Plugin: AI Quotas
 # -----------------------------------------------------------------------------
-# DeepSeek and MiniMax have been verified with the environment available to tmux.
-set -g @powerkit_plugin_aiquotas_providers "zai,deepseek,minimax"
+# OpenAI, DeepSeek and MiniMax use credentials available to tmux.
+set -g @powerkit_plugin_aiquotas_providers "zai,openai,deepseek,minimax"
 set -g @powerkit_plugin_aiquotas_cache_ttl "300"
+set -g @powerkit_plugin_aiquotas_compact_content "true"
+set -g @powerkit_plugin_aiquotas_openai_source "codex"
 
 # -----------------------------------------------------------------------------
 #  Plugin: Bitbucket

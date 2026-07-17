@@ -19,9 +19,9 @@
 {{- $providerModels := index $.opencode.models $provider -}}
 {
   "$schema": "https://opencode.ai/config.json",
-  // NOTE: The effective model is controlled by oh-my-openagent (rendered from
-  // opencode_providers.toml via oh-my-openagent.jsonc.tmpl). This field is only
-  // used when oh-my-openagent is disabled.
+  // NOTE: The effective model is controlled by oh-my-opencode-slim (rendered
+  // from opencode_providers.toml via oh-my-opencode-slim.json.tmpl). This field
+  // is only used when the slim plugin is disabled.
   "model": "{{ first (index $providerModels "orchestrator") }}",
   "small_model": "{{ first (index $providerModels "quick") }}",
   "default_agent": "build",
@@ -142,15 +142,7 @@
       ]
     }
   },
-  "enabled_providers": [
-    "xiaomi",
-    "openai",
-    "github-copilot",
-    "opencode",
-    "deepseek",
-    "minimax",
-    "zai"
-  ],
+  "enabled_providers": {{ toJson (sortAlpha (keys $.opencode.models)) }},
   "compaction": {
     "auto": false,
     "prune": false,
@@ -170,78 +162,39 @@
   ],
   "provider": {
     "xiaomi": {
-      "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
         "apiKey": "{env:MIMO_API_KEY}"
       },
-      "models": {
-        "mimo-auto": {
-          "name": "mimo-auto",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text", "image"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "mimo-v2.5-pro": {
-          "name": "mimo-v2.5-pro",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "mimo-v2.5": {
-          "name": "mimo-v2.5",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text", "image"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        }
-      }
     },
     "openai": {
-      "options": {}
+      "options": {},
     },
     "opencode": {
       "options": {
         "apiKey": "{env:OPENCODE_API_KEY}"
       },
     },
-    "minimax": {
-      "npm": "@ai-sdk/anthropic",
-      "name": "MiniMax",
-      "options": {
-        "baseURL": "https://api.minimax.io/anthropic/v1",
-        "apiKey": "{env:MINIMAX_API_KEY}"
-      },
-    },
     "deepseek": {
       "options": {
         "apiKey": "{env:DEEPSEEK_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4-flash": {},
+        "deepseek-v4-pro": {}
+      }
+    },
+    "minimax": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MiniMax",
+      "options": {
+        "baseURL": "https://api.minimax.io/v1",
+        "apiKey": "{env:MINIMAX_API_KEY}"
+      },
+      "models": {
+        "MiniMax-M3": {},
+        "MiniMax-M2.7": {},
+        "MiniMax-M2.5": {}
       }
     },
     "zai": {
@@ -312,8 +265,8 @@
   "plugin": [
     "context-mode",
     "openrtk",
-    "@cortexkit/opencode-magic-context@latest",
-    "@slkiser/opencode-quota"
+    "oh-my-opencode-slim",
+    "@cortexkit/opencode-magic-context@latest"
   ],
   "permission": {
     "bash": "allow",

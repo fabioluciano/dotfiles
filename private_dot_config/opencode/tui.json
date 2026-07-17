@@ -9,8 +9,9 @@
   },
   "plugin": [
     "oh-my-openagent",
+    "oh-my-opencode-slim",
     "./node_modules/opencode-subagent-statusline",
-    "@cortexkit/opencode-magic-context",
+    "@cortexkit/opencode-magic-context@latest",
     "@slkiser/opencode-quota"
   ]
 }

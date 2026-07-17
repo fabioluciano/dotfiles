@@ -63,6 +63,16 @@ return {
         -- AI / OpenCode
         ["<Leader>o"]  = { desc = "󱙺 OpenCode" },
         ["<Leader>e"]  = { "<cmd>Neotree toggle reveal<cr>", desc = " Toggle Explorer" },
+        ["<Leader>ef"] = {
+          function()
+            if vim.bo.filetype == "neo-tree" then
+              vim.cmd.wincmd "p"
+            else
+              vim.cmd.Neotree "focus"
+            end
+          end,
+          desc = "Toggle Explorer Focus",
+        },
 
         -- Core actions
         ["<Leader>oa"] = { function() require("opencode").ask("@this: ") end,                          desc = "Ask" },
@@ -123,8 +133,6 @@ return {
 
         -- Agent & navigation
         ["<Leader>oA"] = { function() require("opencode").command("agent.cycle") end,                  desc = "Cycle agent" },
-        ["<S-C-u>"]    = { function() require("opencode").command("session.half.page.up") end,         desc = "OpenCode scroll up" },
-        ["<S-C-d>"]    = { function() require("opencode").command("session.half.page.down") end,       desc = "OpenCode scroll down" },
 
         -- Operator (go / goo) — motion e line
         -- <Leader>or enters operator-pending mode: wait for a motion/text-object.
@@ -137,6 +145,7 @@ return {
         ["<Leader>R"] = { desc = "󱓞 Run/Tasks" },
         ["<Leader>Rr"] = { "<cmd>OverseerRun<cr>", desc = "Run task" },
         ["<Leader>Rt"] = { "<cmd>OverseerToggle<cr>", desc = "Toggle task list" },
+        ["<Leader>rf"] = { function() require("astrocore").rename_file() end, desc = "Rename file" },
 
         -- Test (neotest) — under <Leader>t to avoid collision with AstroNvim v6 terminal prefix
         ["<Leader>tT"] = { desc = "󰙨 Test" },
@@ -144,16 +153,14 @@ return {
         ["<Leader>tTn"] = { function() require("neotest").run.run() end, desc = "Test nearest" },
         ["<Leader>tTs"] = { function() require("neotest").summary.toggle() end, desc = "Toggle summary" },
 
-        -- Git extras (diffview / codediff / octo)
+        -- Git extras (diffview / octo)
+        ["<Leader>gg"] = false,
         ["<Leader>gD"] = { "<cmd>DiffviewOpen<cr>",  desc = "Diffview open" },
-        ["<Leader>gd"] = { "<cmd>CodeDiff<cr>",      desc = "CodeDiff open" },
         ["<Leader>gO"] = { "<cmd>Octo pr list<cr>",  desc = "Octo: list PRs" },
 
         -- Misc
-        ["<Leader>z"] = { "<cmd>ZenMode<cr>", desc = "Zen mode" },
-        ["<Leader>tM"] = { "<cmd>Telescope toggleterm_manager<cr>", desc = "Search Toggleterms" },
-        -- Disable community pack's <Leader>ts (toggleterm-manager) — we use <Leader>tM instead
-        ["<Leader>ts"] = false,
+        ["<Leader>z"] = { function() require("snacks").zen() end, desc = "Zen mode" },
+        ["<Leader>uZ"] = false,
         ["<Leader>uo"] = { "<cmd>Neotree document_symbols<cr>", desc = "Outline (document symbols)" },
 
         ["<Leader>Ss"] = { function() require("resession").save() end,   desc = "Save session" },

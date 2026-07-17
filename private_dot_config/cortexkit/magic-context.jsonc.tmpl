@@ -15,10 +15,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/cortexkit/magic-context/master/assets/magic-context.schema.json",
   "historian": {
-    "model": "{{ $historianModel }}"
+    "model": "{{ $historianModel }}",
+    "two_pass": true
   },
   "dreamer": {
-    "enabled": true
+    "model": "{{ $historianModel }}"
   },
   "embedding": {
     "provider": "off"

@@ -1,8 +1,10 @@
 {
   "dependencies": {
     "@opencode-ai/plugin": "latest",
+    "@cortexkit/opencode-magic-context": "latest",
     "@slkiser/opencode-quota": "latest",
     "oh-my-openagent": "latest",
+    "oh-my-opencode-slim": "latest",
     "opencode-subagent-statusline": "latest",
     "@tarquinen/opencode-dcp": "latest"
   },

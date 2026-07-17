@@ -108,6 +108,7 @@ vim.api.nvim_create_autocmd("User", {
       return vim.api.nvim_buf_is_valid(bufnr)
         and vim.api.nvim_buf_get_name(bufnr) ~= ""
     end, vim.t.bufs)
+    -- Só atualiza se houver mudança significativa
     if #filtered ~= #vim.t.bufs then
       vim.t.bufs = filtered
     end

@@ -220,19 +220,37 @@ ultrawork = ["xiaomi/mimo-v2.5-pro"]
 [opencode.models.zai]
 orchestrator = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 implementation = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-planner = ["zai/glm-4.7-flashx", "zai/glm-4.7-flash"]
+planner = ["zai/glm-4.7-flash"]
 architecture = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-search = ["zai/glm-4.7-flashx", "zai/glm-4.7-flash"]
+search = ["zai/glm-4.7-flash"]
 vision = ["zai/glm-5.2"]
 review = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 long_running = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-quick = ["zai/glm-4.7-flash", "zai/glm-4.7-flashx"]
+quick = ["zai/glm-4.7-flash"]
 standard = ["zai/glm-5", "zai/glm-4.7"]
 complex = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 visual = ["zai/glm-5.2"]
 deep = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 ultrabrain = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 ultrawork = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+
+# OpenCode Zen Free — all agents run on free opencode models (https://opencode.ai/zen)
+[opencode.models.zen-free]
+orchestrator = ["opencode/hy3-free"]
+implementation = ["opencode/deepseek-v4-flash-free"]
+planner = ["opencode/north-mini-code-free"]
+architecture = ["opencode/big-pickle"]
+search = ["opencode/north-mini-code-free", "opencode/deepseek-v4-flash-free"]
+vision = ["opencode/mimo-v2.5-free"]
+review = ["opencode/big-pickle"]
+long_running = ["opencode/hy3-free"]
+quick = ["opencode/deepseek-v4-flash-free"]
+standard = ["opencode/deepseek-v4-flash-free"]
+complex = ["opencode/hy3-free"]
+visual = ["opencode/mimo-v2.5-free"]
+deep = ["opencode/big-pickle"]
+ultrabrain = ["opencode/big-pickle"]
+ultrawork = ["opencode/hy3-free"]
 
 # =============================================================================
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
@@ -323,6 +341,23 @@ visual = "medium"
 deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
+
+[opencode.variants.zen-free]
+orchestrator = "medium"
+implementation = "high"
+planner = "low"
+architecture = "max"
+search = "low"
+vision = "low"
+review = "medium"
+long_running = "medium"
+quick = "low"
+standard = "medium"
+complex = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "max"
+ultrawork = "medium"
 
 # =============================================================================
 # VARIANTS OPTIMIZED
@@ -714,3 +749,4 @@ xiaomi = "xiaomi/mimo-v2.5"
 minimax = "minimax/MiniMax-M2.5"
 "github-copilot" = "github-copilot/claude-sonnet-4.6"
 zai = "zai/glm-4.7-flash"
+"zen-free" = "opencode/deepseek-v4-flash-free"

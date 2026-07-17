@@ -1,6 +1,17 @@
 # =============================================================================
-# Performance Optimizations
+# Zsh Configuration
+# ==============================================================================
+
+# Debug logging (set ZSH_DEBUG=1 to enable)
+export ZSH_DEBUG=${ZSH_DEBUG:-0}
+if (( $ZSH_DEBUG )); then
+    setopt xtrace
+    setopt verbose
+fi
+
 # =============================================================================
+# Performance Optimizations
+# ==============================================================================
 
 # Enable profiling (uncomment to debug startup time)
 # zmodload zsh/zprof
@@ -83,8 +94,8 @@ fi
 # every startup.
 autoload -Uz compinit
 _zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-_zcompdump_stale=( ${_zcompdump}(N.mh+24) )
-if (( $#_zcompdump_stale )); then
+_zcompdump_stale=(${_zcompdump}(N.mh+24))
+if [[ ${#_zcompdump_stale} -gt 0 ]]; then
     compinit -d "$_zcompdump"
 else
     compinit -C -d "$_zcompdump"
@@ -255,8 +266,14 @@ command -v sem   &>/dev/null && _lazyload sem   'source <(sem completions zsh)'
 # Kubectl — lazy load (saves ~200ms on startup), re-alias to kubecolor if present
 if command -v kubectl &>/dev/null; then
     _lazyload kubectl '
+        # Carrega completions oficiais primeiro
         source <(command kubectl completion zsh)
+        # Reorganiza fpath para garantir ordem correta
+        fpath=(~/.zfunc $fpath)
+        compdef kubectl=kubectl
+        # Aplica kubecolor apenas depois do compdef
         if command -v kubecolor &>/dev/null; then
+            unalias kubectl 2>/dev/null
             alias kubectl=kubecolor
             compdef kubecolor=kubectl
         fi

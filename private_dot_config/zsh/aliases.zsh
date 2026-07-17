@@ -1,4 +1,4 @@
-alias du="ncdu --color dark"
+command alias du="ncdu --color dark"
 command -v eza >/dev/null 2>&1 && alias ls='eza --icons --git' || true
 command -v eza >/dev/null 2>&1 && alias ll='eza -l --icons --git' || true
 command -v eza >/dev/null 2>&1 && alias la='eza -la --icons --git' || true
@@ -47,5 +47,6 @@ alias reload='exec zsh'
 alias zshconfig='nvim ~/.zshrc'
 alias cls='clear'
 
-# OpenCode: omo com OmO, opencode sem
+# OpenCode: omo com OmO, omos com slim, opencode sem
 alias omo='OPENCODE_CONFIG="$HOME/.config/opencode/omo.jsonc" opencode'
+alias omos='OPENCODE_CONFIG="$HOME/.config/opencode/omo-slim.jsonc" opencode'

@@ -13,11 +13,13 @@ commands=(
 # opencode_providers.toml requires updating both places.
 providers=(
   'deepseek:DeepSeek'
-  'minimax:MiniMax'
-  'xiaomi:Xiaomi (mimo)'
-  'openai:OpenAI'
   'github-copilot:GitHub Copilot Plus'
+  'minimax:MiniMax'
+  'openai:OpenAI'
   'opencode:OpenCode Zen'
+  'xiaomi:Xiaomi (mimo)'
+  'zai:Zhipu AI (GLM)'
+  'zen-free:OpenCode Zen Free (zero cost)'
 )
 
 profiles=(

@@ -23,14 +23,14 @@ return {
   -- img-clip (inline: astrocommunity import causa loop com packs ativos)
   {
     "HakonHarnes/img-clip.nvim",
-    event = "BufEnter",
+    event = "VeryLazy",
     opts = {},
   },
 
   -- multicursor (não existe no astrocommunity)
   {
     "jake-stewart/multicursor.nvim",
-    event = "BufReadPost",
+    cmd = "MultiCursorToggle",
     config = function() require("multicursor-nvim").setup() end,
   },
 
@@ -42,13 +42,6 @@ return {
     config = function() require("hunk").setup() end,
   },
 
-  -- kubectl
-  {
-    "Ramilito/kubectl.nvim",
-    keys = { { "<leader>K", function() require("kubectl").toggle() end, desc = "kubectl.nvim" } },
-    config = function() require("kubectl").setup() end,
-  },
-
   -- sidekick
   { "folke/sidekick.nvim", event = "VeryLazy", opts = {} },
 
@@ -57,6 +50,7 @@ return {
     "folke/tokyonight.nvim",
     opts = {
       on_highlights = function(hl, c)
+        hl.SnacksGhNormalFloat = { fg = c.fg, bg = c.bg_float }
         hl.SpellBad   = { bg = "#3d2026", fg = "#f7768e", underline = true }
         hl.SpellCap   = { bg = "#3d3520", fg = "#e0af68", underline = true }
         hl.SpellLocal = { bg = "#203040", fg = "#7aa2f7", underline = true }
@@ -196,7 +190,7 @@ return {
   -- Better marks
   {
     "chentoast/marks.nvim",
-    event = "BufReadPost",
+    event = "VeryLazy",
     opts = { default_mappings = true, signs = true, mappings = {} },
   },
 
@@ -264,40 +258,6 @@ return {
     },
   },
 
-  {
-    "ryanmsnyder/toggleterm-manager.nvim",
-    lazy = true,
-    init = function(plugin) require("astrocore").on_load("telescope.nvim", plugin.name) end,
-    dependencies = {
-      "akinsho/toggleterm.nvim",
-      "nvim-telescope/telescope.nvim",
-      "nvim-lua/plenary.nvim",
-      -- NOTE: astrocore mapping fragment omitido intencionalmente — declarado em astrocore.lua
-    },
-    opts = function(_, opts)
-      local term_icon = require("astroui").get_icon "Terminal"
-      local actions   = require("toggleterm-manager").actions
-      return require("astrocore").extend_tbl(opts, {
-        titles   = { prompt = term_icon .. " Terminals" },
-        results  = { term_icon = term_icon },
-        mappings = {
-          n = {
-            ["<CR>"] = { action = actions.toggle_term,  exit_on_action = true },
-            ["r"]    = { action = actions.rename_term,  exit_on_action = false },
-            ["d"]    = { action = actions.delete_term,  exit_on_action = false },
-            ["n"]    = { action = actions.create_term,  exit_on_action = false },
-          },
-          i = {
-            ["<CR>"]   = { action = actions.toggle_term, exit_on_action = true },
-            ["<C-r>"]  = { action = actions.rename_term, exit_on_action = false },
-            ["<C-d>"]  = { action = actions.delete_term, exit_on_action = false },
-            ["<C-n>"]  = { action = actions.create_term, exit_on_action = false },
-          },
-        },
-      })
-    end,
-  },
-
   -- Fix nvim-notify E937 on Neovim 0.12+
   {
     "rcarriga/nvim-notify",
@@ -317,5 +277,37 @@ return {
       opts.formatters_by_ft.typescriptreact = { "biome" }
       opts.formatters_by_ft.lua         = { "stylua" }
     end,
+  },
+
+  -- VSCode-like sidebar layout manager
+  {
+    "folke/edgy.nvim",
+    event = "VeryLazy",
+    opts = {
+      left = {
+        {
+          title = "Neo-Tree",
+          ft = "neo-tree",
+          filter = function(buf) return vim.b[buf].neo_tree_source == "filesystem" end,
+          size = { height = 0.5 },
+        },
+        {
+          title = "Neo-Tree Symbols",
+          ft = "neo-tree",
+          filter = function(buf) return vim.b[buf].neo_tree_source == "document_symbols" end,
+          pinned = true,
+          open = "Neotree position=right document_symbols",
+        },
+      },
+      bottom = {
+        { ft = "qf", title = "QuickFix" },
+        {
+          ft = "help",
+          size = { height = 20 },
+          filter = function(buf) return vim.bo[buf].buftype == "help" end,
+        },
+      },
+      animate = { enabled = false },
+    },
   },
 }

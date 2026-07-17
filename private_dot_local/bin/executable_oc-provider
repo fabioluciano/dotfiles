@@ -29,6 +29,7 @@ TARGET_FILES=(
   "${HOME}/.config/opencode/oh-my-openagent.jsonc"
   "${HOME}/.config/opencode/opencode.jsonc"
   "${HOME}/.config/opencode/omo.jsonc"
+  "${HOME}/.config/opencode/oh-my-opencode-slim.json"
 )
 
 usage() {

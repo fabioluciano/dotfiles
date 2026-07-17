@@ -35,7 +35,6 @@ return {
   { import = "astrocommunity.editing-support.rainbow-delimiters-nvim" },
   { import = "astrocommunity.editing-support.yanky-nvim" },
   { import = "astrocommunity.editing-support.refactoring-nvim" },
-  { import = "astrocommunity.editing-support.zen-mode-nvim" },
   { import = "astrocommunity.editing-support.nvim-treesitter-context" },
 
   -- Fuzzy Finder
@@ -44,13 +43,7 @@ return {
 
   -- Git
   { import = "astrocommunity.git.octo-nvim" },
-  { import = "astrocommunity.git.neogit" },
   { import = "astrocommunity.git.diffview-nvim" },
-  { import = "astrocommunity.git.git-blame-nvim" },
-  { import = "astrocommunity.git.codediff-nvim" },
-
-  -- Indent
-  { import = "astrocommunity.indent.indent-blankline-nvim" },
 
   -- LSP
   { import = "astrocommunity.lsp.nvim-lint" },
@@ -109,7 +102,7 @@ return {
   { import = "astrocommunity.recipes.vscode" },
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.neovide" },
-  { import = "astrocommunity.recipes.telescope-lsp-mappings" },
+  { import = "astrocommunity.recipes.picker-lsp-mappings" },
 
   -- Scrolling
   { import = "astrocommunity.scrolling.mini-animate" },

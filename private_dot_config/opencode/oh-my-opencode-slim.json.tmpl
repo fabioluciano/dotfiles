@@ -1,0 +1,141 @@
+{{- /* ── State reading (same preamble as opencode.jsonc.tmpl / omo.jsonc.tmpl) ── */ -}}
+{{- $defaultProvider := get $.opencode "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.config/opencode/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "moderate" -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
+{{- end -}}
+{{- else -}}
+{{- $provider = $state -}}
+{{- $profile = "moderate" -}}
+{{- end -}}
+{{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
+{{- /* "moderate" is an alias for "optimized" — they share the same variants */ -}}
+{{- if eq $profile "moderate" -}}{{- $profile = "optimized" -}}{{- end -}}
+{{- $validProviders := keys $.opencode.models -}}
+{{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
+{{- /* zen-free maps to the opencode-zen-free preset (tuned static config) */ -}}
+{{- $presetName := ternary "opencode-zen-free" $provider (eq $provider "zen-free") -}}
+{{- $providerModels := index $.opencode.models $provider -}}
+
+{{- /* ── Agent → tier mapping (mirrors opencode_providers.toml tiers) ── */ -}}
+{{- $agentTiers := list
+  (dict "name" "orchestrator" "tier" "orchestrator")
+  (dict "name" "oracle"       "tier" "architecture")
+  (dict "name" "librarian"    "tier" "search")
+  (dict "name" "explorer"     "tier" "search")
+  (dict "name" "designer"     "tier" "visual")
+  (dict "name" "fixer"        "tier" "implementation")
+  (dict "name" "observer"     "tier" "vision")
+-}}
+{{- $agentSkills := dict
+  "orchestrator" (list "*")
+  "oracle"       (list "simplify")
+  "librarian"    (list)
+  "explorer"     (list)
+  "designer"     (list)
+  "fixer"        (list)
+  "observer"     (list)
+-}}
+{{- $agentMcps := dict
+  "orchestrator" (list "*" "!context7")
+  "oracle"       (list "codebase-memory")
+  "librarian"    (list "websearch" "context7" "gh_grep")
+  "explorer"     (list "codebase-memory")
+  "designer"     (list "playwright")
+  "fixer"        (list)
+  "observer"     (list "playwright")
+-}}
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "{{ $presetName }}",
+  "presets": {
+    "opencode-zen-free": {
+      "orchestrator": {
+        "model": "opencode/hy3-free",
+        "temperature": 0.4,
+        "skills": ["*"],
+        "mcps": ["*", "!context7"]
+      },
+      "oracle": {
+        "model": "opencode/big-pickle",
+        "temperature": 0.4,
+        "variant": "max",
+        "skills": ["simplify"],
+        "mcps": ["codebase-memory"]
+      },
+      "librarian": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "temperature": 0.2,
+        "skills": [],
+        "mcps": ["websearch", "context7", "gh_grep"]
+      },
+      "explorer": {
+        "model": "opencode/north-mini-code-free",
+        "temperature": 0.2,
+        "skills": [],
+        "mcps": ["codebase-memory"]
+      },
+      "designer": {
+        "model": "opencode/mimo-v2.5-free",
+        "temperature": 0.3,
+        "variant": "medium",
+        "skills": [],
+        "mcps": ["playwright"]
+      },
+      "fixer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "temperature": 0.2,
+        "variant": "high",
+        "skills": [],
+        "mcps": []
+      },
+      "observer": {
+        "model": "opencode/mimo-v2.5-free",
+        "temperature": 0.2,
+        "variant": "low",
+        "skills": [],
+        "mcps": ["playwright"]
+      }
+    }
+{{- $sortedProviders := sortAlpha $validProviders -}}
+{{- range $prov := $sortedProviders }}
+{{- if ne $prov "zen-free" }}
+{{- $models := index $.opencode.models $prov -}}
+{{- $variantKey := printf "%s-%s" $prov $profile -}}
+{{- $profileVariants := get $.opencode.variants $variantKey | default dict -}}
+{{- $defaultVariants := get $.opencode.variants $prov | default dict -}}
+    ,"{{ $prov }}": {
+{{- range $ai, $agent := $agentTiers }}
+{{- $agentName := index $agent "name" -}}
+{{- $tier := index $agent "tier" -}}
+{{- $chain := index $models $tier | default (index $models "standard") | default (index $models "orchestrator") -}}
+{{- $variantValue := get $profileVariants $tier | default (get $defaultVariants $tier) | default "medium" -}}
+      "{{ $agentName }}": {
+        "model": "{{ first $chain }}",
+        "variant": "{{ $variantValue }}",
+        "skills": {{ toJson (index $agentSkills $agentName) }},
+        "mcps": {{ toJson (index $agentMcps $agentName) }}
+      }{{ if lt $ai (sub (len $agentTiers) 1) }},{{ end }}
+{{- end }}
+    }
+{{- end }}
+{{- end }}
+  },
+  "council": {
+    "default_preset": "default",
+    "councillor_execution_mode": "serial",
+    "presets": {
+      "default": {
+        "alpha": {
+          "model": "{{ first (index $providerModels "orchestrator") }}"
+        }
+      }
+    }
+  }
+}
