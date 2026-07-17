@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Re-run whenever the mise tool list changes.
-# mise config hash: {{ include "private_dot_config/mise/config.toml" | sha256sum }}
+# mise config hash: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
 set -euo pipefail
 
 command -v mise >/dev/null 2>&1 || exit 0

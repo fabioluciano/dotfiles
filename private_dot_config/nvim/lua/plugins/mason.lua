@@ -1,101 +1,57 @@
--- Mason tool installer: ensures LSP servers and formatters/linters are present
--- in neovim's Mason registry even when no file of that type is open.
+-- Mason configuration — Strategy D: mise is the authoritative tool provider.
 --
--- Several tools here are *also* installed system-wide via mise (mise/config.toml).
--- That duplication is intentional:
---   - mise  → system-wide shims on $PATH (used by shells, editors, scripts)
---   - Mason → nvim-local copies registered with lspconfig/conform/nvim-lint
--- Tools managed by mise are annotated with [mise] below.
+-- mise (mise/config.toml, chezmoi-synced) installs every LSP/formatter/linter
+-- the editor needs and puts them on $PATH via shims. To stop Mason's copies
+-- from shadowing mise, mason.nvim is configured with PATH = "skip" so Mason's
+-- bin/ is NOT prepended to PATH — exepath resolution always falls through to
+-- mise. lspconfig/conform/nvim-lint therefore use the mise binaries, identical
+-- to what runs in the shell.
+--
+-- Consequences:
+--   - Editor and shell share the exact same binaries (no version drift).
+--   - Versions are synced across machines via chezmoi (Mason state is not).
+--   - Mason install failures become non-fatal: if a Mason package fails to
+--     build, the LSP still starts from the mise binary.
+--
+-- This ensure_installed list only contains tools mise CANNOT provide: nvim-dap
+-- debug adapters, Java/XML tooling behind corporate-network blocks, Go codegen
+-- helpers, and PHP tooling. Everything else is owned by mise.
 
 ---@type LazySpec
 return {
+  -- Do not let Mason shadow mise: keep mason/bin off the Neovim PATH so tools
+  -- resolve to the mise shims.
+  {
+    "mason.nvim",
+    opts = { PATH = "skip" },
+  },
+
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     opts = {
       ensure_installed = {
-        -- Lua
-        "lua-language-server", -- [mise]
-        "stylua",              -- [mise]
+        -- Debug adapters (nvim-dap; no mise equivalent)
+        "codelldb",
+        "js-debug-adapter",
+        "java-debug-adapter",
+        "java-test",
+        "php-debug-adapter",
+        "bash-debug-adapter",
 
-        -- Python
-        "ruff",    -- [mise: aqua:astral-sh/ruff]
-        "debugpy", -- [mise: pipx:debugpy]
+        -- Go code-generation helpers (not in mise)
+        "gomodifytags",
+        "gotests",
+        "iferr",
+        "impl",
 
-        -- Go
-        "gopls",         -- [mise: go:golang.org/x/tools/gopls]
-        "gofumpt",       -- [mise]
-        "goimports",     -- [mise: go:golang.org/x/tools/cmd/goimports]
-        "golangci-lint", -- [mise]
-        "delve",         -- [mise: go:github.com/go-delve/delve/cmd/dlv]
+        -- LSPs not provided by mise
+        "jdtls",       -- Java; also blocked by corporate network on work machines (download.eclipse.org)
+        "lemminx",     -- XML
+        "eslint-lsp",  -- JS/TS; mise ships oxlint instead
 
-        -- TypeScript/JavaScript
-        "typescript-language-server", -- [mise: npm:typescript-language-server]
-        "eslint-lsp",
-        "biome", -- [mise: npm:@biomejs/biome]
-
-        -- Angular
-        "angular-language-server",
-
-        -- Vue
-        "vue-language-server",
-
-        -- HTML/CSS
-        "html-lsp",
-        "css-lsp",
-        "tailwindcss-language-server", -- [mise: npm:@tailwindcss/language-server]
-
-        -- JSON/YAML
-        "json-lsp",
-        "yaml-language-server", -- [mise: npm:yaml-language-server]
-        "yamllint",
-        "yamlfmt",
-
-        -- Bash
-        "bash-language-server",
-        "shfmt", -- [mise]
-
-        -- Docker
-        "dockerfile-language-server",
-        "docker-compose-language-service",
-
-        -- Terraform
-        "terraform-ls", -- [mise]
-        "tflint",
-
-        -- Rust
-        "rust-analyzer", -- [mise]
-
-        -- PHP
-        "intelephense",
-
-        -- Java
-        "jdtls",
-
-        -- SQL
-        "sqlls",
-
-        -- XML
-        "lemminx",
-
-        -- TOML
-        "taplo",
-
-        -- Helm / Kubernetes
-        "helm-ls",
-
-        -- Markdown
-        "marksman",
-        "markdownlint",
-
-        -- MDX
-        "mdx-analyzer",
-
-        -- CMake
-        "cmake-language-server",
-        "cmakelint",
-
-        -- General
-        "tree-sitter-cli",
+        -- PHP tooling not in mise
+        "phpactor",
+        "php-cs-fixer",
       },
     },
   },

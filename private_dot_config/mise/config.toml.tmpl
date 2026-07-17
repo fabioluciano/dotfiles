@@ -83,7 +83,7 @@ helm-ls = "latest"
 "npm:@mdx-js/language-server" = "latest"
 "pipx:cmake-language-server" = "latest"
 "pipx:cmakelint" = "latest"
-"npm:tree-sitter-cli" = "latest"
+"npm:tree-sitter-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
 
 [settings]
 # Enable version files for better compatibility
@@ -94,8 +94,9 @@ asdf_compat = false
 jobs = 4
 
 [env]
-# Global environment variables
-_.python.venv = { path = ".venv" }
+{{- if not (has .machineName .personal_machines) }}
+npm_config_registry = "https://registry.npmmirror.com"
+{{- end }}
 
 [tasks.update]
 run = "mise self-update && mise upgrade"
@@ -156,12 +157,12 @@ run = "mise exec -- skills list"
 description = "List installed skills via mise"
 
 [tasks.skills-find]
-run = "mise exec -- skills find {{vars.query}}"
+run = "mise exec -- skills find {{"{{vars.query}}"}}"
 description = "Find skills by query"
 vars = { query = "" }
 
 [tasks.skills-add]
-run = "mise exec -- skills add {{vars.repo}} -a opencode -g -y"
+run = "mise exec -- skills add {{"{{vars.repo}}"}} -a opencode -g -y"
 description = "Add a skill repo via mise"
 vars = { repo = "" }
 
@@ -170,7 +171,7 @@ run = "mise exec -- skills update -g"
 description = "Update all global skills via mise"
 
 [tasks.skills-remove]
-run = "mise exec -- skills remove {{vars.skill}} -a opencode"
+run = "mise exec -- skills remove {{"{{vars.skill}}"}} -a opencode"
 description = "Remove a skill via mise"
 vars = { skill = "" }
 
