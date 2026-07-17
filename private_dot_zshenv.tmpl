@@ -12,6 +12,18 @@ export LC_CTYPE=en_US.UTF-8
 # no .zshrc cobre apenas o shell interativo; os shims cobrem o resto.
 [[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 
+# Node.js — confia nas CAs do System keychain do macOS.
+# O Node ignora o keychain e usa CA bundle proprio, quebrando downloads de
+# pacotes que fazem fetch no postinstall (tree-sitter-cli, playwright, etc.).
+# O bundle abaixo e gerado pelo chezmoi script run_before_05-macos-node-ca-bundle.
+{{- if eq .chezmoi.os "darwin" }}
+{{- if not (has .machineName .personal_machines) }}
+_node_ca_bundle="${XDG_STATE_HOME:-$HOME/.local/state}/node-ca-bundle.pem"
+[ -r "$_node_ca_bundle" ] && export NODE_EXTRA_CA_CERTS="$_node_ca_bundle"
+unset _node_ca_bundle
+{{- end }}
+{{- end }}
+
 # OpenCode experimental features
 export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 
