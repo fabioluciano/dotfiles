@@ -161,10 +161,10 @@ provider in one shot:
 
 ```sh
 oc-provider opencode    # switch to OpenCode Zen (opencode/ models)
-oc-provider github-copilot # switch to GitHub Copilot Plus models
+oc-provider openai      # switch to OpenAI models
 oc-provider xiaomi      # switch to Xiaomi (mimo)
 oc-provider opencode recommended # switch with Oh My OpenAgent recommended tiers
-oc-provider github-copilot ultra # GitHub Copilot with lowest safe reasoning variants
+oc-provider deepseek ultra # DeepSeek with lowest safe reasoning variants
 ```
 
 **How it works:**

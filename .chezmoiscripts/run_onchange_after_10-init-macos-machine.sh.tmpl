@@ -112,6 +112,8 @@ defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool fa
 defaults write com.apple.WindowManager StandardHideWidgets -bool true
 defaults write com.apple.WindowManager StageManagerHideWidgets -bool true
 
+{{- if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
+
 # Free Command-Space for Raycast by disabling Spotlight and input-source shortcuts.
 plist="$HOME/Library/Preferences/com.apple.symbolichotkeys.plist"
 [[ -f "$plist" ]] || defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict
@@ -168,6 +170,7 @@ if [[ -d "$raycast_app" ]]; then
         open -a Raycast >/dev/null 2>&1 || true
     fi
 fi
+{{- end }}
 
 # Disable background convenience features that add UI churn.
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true

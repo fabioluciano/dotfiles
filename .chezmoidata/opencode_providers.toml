@@ -1,64 +1,6 @@
 [opencode]
 default_provider = "xiaomi"
 
-[opencode.models.github-copilot]
-orchestrator = [
-  "github-copilot/claude-sonnet-4.6",
-  "github-copilot/gpt-5.4",
-  "github-copilot/claude-haiku-4.5",
-]
-implementation = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/gpt-5.3-codex",
-  "github-copilot/claude-sonnet-4.6",
-]
-planner = ["github-copilot/gpt-5-mini", "github-copilot/gpt-5.4-mini"]
-architecture = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/gemini-3.1-pro-preview",
-  "github-copilot/claude-sonnet-4.6",
-]
-search = [
-  "github-copilot/gpt-5.4-mini",
-  "github-copilot/mai-code-1-flash-picker",
-  "github-copilot/gpt-5-mini",
-]
-vision = [
-  "github-copilot/gemini-3.1-pro-preview",
-  "github-copilot/gemini-3.5-flash",
-]
-review = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/claude-sonnet-4.6",
-  "github-copilot/gemini-3.1-pro-preview",
-]
-long_running = [
-  "github-copilot/claude-sonnet-4.6",
-  "github-copilot/gpt-5.4",
-  "github-copilot/gpt-5.4-mini",
-]
-quick = ["github-copilot/gpt-5-mini", "github-copilot/gpt-5.4-mini"]
-standard = ["github-copilot/claude-sonnet-4.6", "github-copilot/gpt-5.4-mini"]
-complex = ["github-copilot/gpt-5.4", "github-copilot/claude-sonnet-4.6"]
-visual = [
-  "github-copilot/gemini-3.1-pro-preview",
-  "github-copilot/gemini-3.5-flash",
-]
-deep = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/gpt-5.3-codex",
-  "github-copilot/claude-sonnet-4.6",
-]
-ultrabrain = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/gemini-3.1-pro-preview",
-  "github-copilot/claude-sonnet-4.6",
-]
-ultrawork = [
-  "github-copilot/gpt-5.4",
-  "github-copilot/gpt-5.3-codex",
-  "github-copilot/claude-sonnet-4.6",
-]
 
 [opencode.models.opencode]
 orchestrator = [
@@ -234,6 +176,23 @@ deep = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 ultrabrain = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 ultrawork = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
 
+[opencode.models.moonshotai]
+orchestrator = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+implementation = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+planner = ["moonshotai/kimi-k2.7-code"]
+architecture = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+search = ["moonshotai/kimi-k2.7-code"]
+vision = ["moonshotai/kimi-k2.6"]
+review = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+long_running = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+quick = ["moonshotai/kimi-k2.7-code"]
+standard = ["moonshotai/kimi-k2.7-code"]
+complex = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+visual = ["moonshotai/kimi-k2.6"]
+deep = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+ultrabrain = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+ultrawork = ["moonshotai/kimi-k2.6", "moonshotai/kimi-k2.7-code"]
+
 # OpenCode Zen Free — all agents run on free opencode models (https://opencode.ai/zen)
 [opencode.models.zen-free]
 orchestrator = ["opencode/hy3-free"]
@@ -266,22 +225,6 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
-[opencode.variants.github-copilot]
-orchestrator = "medium"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "medium"
-vision = "high"
-review = "medium"
-long_running = "medium"
-quick = "medium"
-standard = "medium"
-complex = "high"
-visual = "high"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
 
 [opencode.variants.openai]
 orchestrator = "medium"
@@ -342,6 +285,23 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
+[opencode.variants.moonshotai]
+orchestrator = "high"
+implementation = "high"
+planner = "medium"
+architecture = "high"
+search = "medium"
+vision = "high"
+review = "high"
+long_running = "high"
+quick = "medium"
+standard = "medium"
+complex = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 [opencode.variants.zen-free]
 orchestrator = "medium"
 implementation = "high"
@@ -373,22 +333,6 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
-[opencode.variants.github-copilot-optimized]
-orchestrator = "low"
-implementation = "medium"
-planner = "low"
-architecture = "medium"
-search = "low"
-vision = "low"
-review = "medium"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
 
 [opencode.variants.openai-optimized]
 orchestrator = "low"
@@ -435,6 +379,16 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "medium"
 
+[opencode.variants.moonshotai-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
 # =============================================================================
 # VARIANTS SUPER (maxima economia)
 # =============================================================================
@@ -449,22 +403,6 @@ deep = "medium"
 ultrabrain = "high"
 ultrawork = "low"
 
-[opencode.variants.github-copilot-super]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "high"
-ultrawork = "low"
 
 [opencode.variants.openai-super]
 orchestrator = "low"
@@ -511,6 +449,16 @@ deep = "medium"
 ultrabrain = "high"
 ultrawork = "low"
 
+[opencode.variants.moonshotai-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
 # =============================================================================
 # VARIANTS MODERATE
 # =============================================================================
@@ -523,11 +471,6 @@ ultrawork = "low"
 # VARIANTS RECOMMENDED (tiers alinhados ao Oh My OpenAgent)
 # =============================================================================
 
-[opencode.variants.github-copilot-recommended]
-architecture = "high"
-vision = "high"
-visual = "high"
-ultrabrain = "xhigh"
 
 [opencode.variants.openai-recommended]
 architecture = "high"
@@ -607,26 +550,20 @@ deep = "high"
 ultrabrain = "high"
 ultrawork = "high"
 
+[opencode.variants.moonshotai-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 # =============================================================================
 # VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
 # =============================================================================
 
-[opencode.variants.github-copilot-ultra]
-orchestrator = "low"
-implementation = "none"
-planner = "low"
-architecture = "none"
-search = "none"
-vision = "low"
-review = "none"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "none"
-visual = "low"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "none"
 
 [opencode.variants.openai-ultra]
 orchestrator = "low"
@@ -675,6 +612,23 @@ ultrabrain = "low"
 ultrawork = "low"
 
 [opencode.variants.zai-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.moonshotai-ultra]
 orchestrator = "low"
 implementation = "low"
 planner = "low"
@@ -747,6 +701,6 @@ openai = "openai/gpt-5-nano"
 deepseek = "deepseek/deepseek-v4-flash"
 xiaomi = "xiaomi/mimo-v2.5"
 minimax = "minimax/MiniMax-M2.5"
-"github-copilot" = "github-copilot/claude-sonnet-4.6"
 zai = "zai/glm-4.7-flash"
+moonshotai = "moonshotai/kimi-k2.7-code"
 "zen-free" = "opencode/deepseek-v4-flash-free"

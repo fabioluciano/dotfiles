@@ -12,6 +12,7 @@
     "oh-my-opencode-slim",
     "./node_modules/opencode-subagent-statusline",
     "@cortexkit/opencode-magic-context@latest",
-    "@slkiser/opencode-quota"
+    "@slkiser/opencode-quota",
+    "/Users/fabioluciano/Developer/projects/planz/packages/host-opencode/src/tui.tsx"
   ]
 }

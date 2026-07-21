@@ -8,19 +8,31 @@ commands=(
   'dry-run:mostrar mudança sem aplicar'
 )
 
-# NOTE: Keep this list in sync with oc-provider script. The script extracts
-# providers dynamically from chezmoi data via jq. Adding a new provider in
-# opencode_providers.toml requires updating both places.
-providers=(
-  'deepseek:DeepSeek'
-  'github-copilot:GitHub Copilot Plus'
-  'minimax:MiniMax'
-  'openai:OpenAI'
-  'opencode:OpenCode Zen'
-  'xiaomi:Xiaomi (mimo)'
-  'zai:Zhipu AI (GLM)'
-  'zen-free:OpenCode Zen Free (zero cost)'
-)
+# Resolve providers from chezmoi data (same source as the oc-provider script).
+# Falls back to a hardcoded list if chezmoi/jq are unavailable or parsing fails,
+# so completion still works on a fresh machine before chezmoi has been run.
+providers=()
+if (( ${+commands[chezmoi]} )) && (( ${+commands[jq]} )); then
+  local -a _dyn
+  _dyn=( ${(f)"$(chezmoi data --format=json 2>/dev/null \
+    | jq -r '.opencode.models | keys[]' 2>/dev/null)"} )
+  if (( ${#_dyn} > 0 )); then
+    providers=( "${_dyn[@]}" )
+  fi
+fi
+if (( ${#providers} == 0 )); then
+  # Fallback — kept in sync with .chezmoidata/opencode_providers.toml
+  providers=(
+    'deepseek:DeepSeek'
+    'minimax:MiniMax'
+    'moonshotai:Kimi (Moonshot)'
+    'openai:OpenAI'
+    'opencode:OpenCode Zen'
+    'xiaomi:Xiaomi (mimo)'
+    'zai:Zhipu AI (GLM)'
+    'zen-free:OpenCode Zen Free (zero cost)'
+  )
+fi
 
 profiles=(
   'optimized:Economia de ~28% (medium para rotineiras, high para críticas)'

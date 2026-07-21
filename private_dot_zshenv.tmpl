@@ -27,6 +27,11 @@ unset _node_ca_bundle
 # OpenCode experimental features
 export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 
+# Planz — absolute path to the SQLite database the MCP server reads/writes.
+# Defaults to ~/.local/share/planz/planz.db (matches planz's hardcoded fallback),
+# but we set it explicitly so the MCP can resolve it before any planz code runs.
+export PLANZ_DATABASE="${HOME}/.local/share/planz/planz.db"
+
 # API tokens
 # Resolved once from Bitwarden by `zsh-tokens-sync` into the file below
 # (secrets stay in the vault, never in this repo). Sourcing a pre-rendered file

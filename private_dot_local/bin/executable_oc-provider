@@ -16,7 +16,7 @@ fi
 if [[ -n "$_PROVIDERS_FROM_TOML" ]]; then
   mapfile -t PROVIDERS <<< "$_PROVIDERS_FROM_TOML"
 else
-  PROVIDERS=(deepseek minimax xiaomi openai github-copilot opencode)
+  PROVIDERS=(deepseek minimax xiaomi openai opencode)
 fi
 unset _CHEZMOI_DATA _PROVIDERS_FROM_TOML
 
@@ -29,6 +29,7 @@ TARGET_FILES=(
   "${HOME}/.config/opencode/oh-my-openagent.jsonc"
   "${HOME}/.config/opencode/opencode.jsonc"
   "${HOME}/.config/opencode/omo.jsonc"
+  "${HOME}/.config/opencode/omo-slim.jsonc"
   "${HOME}/.config/opencode/oh-my-opencode-slim.json"
 )
 

@@ -145,11 +145,11 @@
   "enabled_providers": [
     "xiaomi",
     "openai",
-    "github-copilot",
     "opencode",
     "deepseek",
     "minimax",
     "zai",
+    "moonshotai",
     "zen-free"
   ],
   "compaction": {
@@ -193,11 +193,20 @@
         "deepseek-v4-pro": {}
       }
     },
+    "moonshotai": {
+      "options": {
+        "apiKey": "{env:MOONSHOT_API_KEY}"
+      },
+      "models": {
+        "kimi-k2.6": {},
+        "kimi-k2.7-code": {}
+      }
+    },
     "minimax": {
-      "npm": "@ai-sdk/openai-compatible",
+      "npm": "@ai-sdk/anthropic",
       "name": "MiniMax",
       "options": {
-        "baseURL": "https://api.minimax.io/v1",
+        "baseURL": "https://api.minimax.io/anthropic/v1",
         "apiKey": "{env:MINIMAX_API_KEY}"
       },
       "models": {
@@ -357,6 +366,22 @@
       ],
       "env": {
         "SKILLS_DIR": "~/.skillz"
+      },
+      "enabled": true,
+      "timeout": 10000
+    },
+    // planz (project-local): tracks plans, waves, execution and deviations.
+    // Requires PLANZ_DATABASE to point at an absolute SQLite path before the
+    // MCP starts. Do not enable until the OpenCode contract tests pass.
+    "planz": {
+      "type": "local",
+      "command": [
+        "bun",
+        "run",
+        "/Users/fabioluciano/Developer/projects/planz/packages/host-mcp/src/server.ts"
+      ],
+      "env": {
+        "PLANZ_DATABASE": "{env:PLANZ_DATABASE}"
       },
       "enabled": true,
       "timeout": 10000
