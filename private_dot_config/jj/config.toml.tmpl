@@ -1,0 +1,43 @@
+[user]
+name = "{{ .name }}"
+email = "{{ .email }}"
+
+# Override email for work repositories (Bitwarden so e consultado em maquina de trabalho)
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
+{{- $work_email := .email }}
+{{- if env "WORK_MAIL" }}
+{{-   $work_email = env "WORK_MAIL" }}
+{{- else }}
+{{-   $fields := bitwardenFields "item" "dotfiles-tokens" }}
+{{-   if $fields.work_mail }}
+{{-     $work_email = $fields.work_mail.value }}
+{{-   end }}
+{{- end }}
+[[--scope]]
+--when.repositories = ["/mnt/srv/work"{{ if eq .chezmoi.os "darwin" }}, "~/Projects/work"{{ end }}]
+[--scope.user]
+email = "{{ $work_email }}"
+{{- end }}
+
+[ui]
+editor = "nvim"
+pager = "delta"
+default-command = "log"
+
+[git]
+write-change-id-header = true
+
+[remotes.origin]
+auto-track-bookmarks = "*"
+
+[aliases]
+# View
+l = ["log"]
+ll = ["log", "-r", "all()"]
+
+# Status
+s = ["status"]
+st = ["status"]
+
+# Other
+b = ["bookmark", "list"]

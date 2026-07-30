@@ -1,0 +1,142 @@
+# ╭──────────────────────────────────────────────────────────╮
+# │                 K9s Transparent Skin                      │
+# │            Tokyo Night theme with transparency            │
+# ╰──────────────────────────────────────────────────────────╯
+#
+# Uses terminal background (transparent) with Tokyo Night colors
+# Compatible with WezTerm/Ghostty transparency settings
+
+k9s:
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Body / Main                          │
+  # ╰────────────────────────────────────────────────────────╯
+  body:
+    fgColor: "#c0caf5"
+    bgColor: default
+    logoColor: "#7aa2f7"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Prompt / Command                     │
+  # ╰────────────────────────────────────────────────────────╯
+  prompt:
+    fgColor: "#c0caf5"
+    bgColor: default
+    suggestColor: "#565f89"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Info Panel                           │
+  # ╰────────────────────────────────────────────────────────╯
+  info:
+    fgColor: "#7dcfff"
+    sectionColor: "#7aa2f7"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Dialogs                              │
+  # ╰────────────────────────────────────────────────────────╯
+  dialog:
+    fgColor: "#c0caf5"
+    bgColor: default
+    buttonFgColor: "#1a1b26"
+    buttonBgColor: "#7aa2f7"
+    buttonFocusFgColor: "#1a1b26"
+    buttonFocusBgColor: "#bb9af7"
+    labelFgColor: "#ff9e64"
+    fieldFgColor: "#c0caf5"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Frame / Chrome                       │
+  # ╰────────────────────────────────────────────────────────╯
+  frame:
+    border:
+      fgColor: "#3b4261"
+      focusColor: "#7aa2f7"
+    menu:
+      fgColor: "#c0caf5"
+      keyColor: "#7aa2f7"
+      numKeyColor: "#ff9e64"
+    crumbs:
+      fgColor: "#1a1b26"
+      bgColor: "#7aa2f7"
+      activeColor: "#bb9af7"
+    status:
+      newColor: "#9ece6a"
+      modifyColor: "#e0af68"
+      addColor: "#73daca"
+      pendingColor: "#ff9e64"
+      errorColor: "#f7768e"
+      highlightColor: "#7dcfff"
+      killColor: "#db4b4b"
+      completedColor: "#565f89"
+    title:
+      fgColor: "#c0caf5"
+      bgColor: default
+      highlightColor: "#7aa2f7"
+      counterColor: "#bb9af7"
+      filterColor: "#9ece6a"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Views                                │
+  # ╰────────────────────────────────────────────────────────╯
+  views:
+    # Charts (CPU/Memory)
+    charts:
+      bgColor: default
+      defaultDialColors:
+      - "#7aa2f7"
+      - "#f7768e"
+      defaultChartColors:
+      - "#7aa2f7"
+      - "#f7768e"
+      resourceColors:
+        cpu:
+        - "#7aa2f7"
+        - "#bb9af7"
+        mem:
+        - "#9ece6a"
+        - "#e0af68"
+
+    # Table views
+    table:
+      fgColor: "#c0caf5"
+      bgColor: default
+      cursorFgColor: "#1a1b26"
+      cursorBgColor: "#7aa2f7"
+      markColor: "#ff9e64"
+      header:
+        fgColor: "#7dcfff"
+        bgColor: default
+        sorterColor: "#bb9af7"
+
+    # Xray view
+    xray:
+      fgColor: "#c0caf5"
+      bgColor: default
+      cursorColor: "#7aa2f7"
+      cursorTextColor: "#1a1b26"
+      graphicColor: "#bb9af7"
+
+    # YAML viewer
+    yaml:
+      keyColor: "#7aa2f7"
+      colonColor: "#565f89"
+      valueColor: "#9ece6a"
+
+    # Log viewer
+    logs:
+      fgColor: "#c0caf5"
+      bgColor: default
+      indicator:
+        fgColor: "#c0caf5"
+        bgColor: default
+        toggleOnColor: "#9ece6a"
+        toggleOffColor: "#565f89"
+
+  # ╭────────────────────────────────────────────────────────╮
+  # │                    Help / Popup                         │
+  # ╰────────────────────────────────────────────────────────╯
+  help:
+    fgColor: "#c0caf5"
+    bgColor: default
+    keyColor: "#7aa2f7"
+    numKeyColor: "#ff9e64"
+    sectionColor: "#bb9af7"

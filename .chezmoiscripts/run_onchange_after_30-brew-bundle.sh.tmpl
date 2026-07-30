@@ -1,0 +1,16 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Re-run whenever ~/.Brewfile changes.
+# Brewfile hash: {{ include "dot_Brewfile.tmpl" | sha256sum }} machine: {{ default .chezmoi.hostname (index . "machineName") }}
+set -euo pipefail
+
+command -v brew >/dev/null 2>&1 || exit 0
+
+echo ":: brew bundle (Brewfile changed)"
+# Trust brew's exit code as the failure signal — grepping the output for
+# "error" gives false positives (cask descriptions, "0 errors", etc.).
+if ! brew bundle --global; then
+    echo ":: brew bundle failed" >&2
+    exit 1
+fi
+{{- end -}}

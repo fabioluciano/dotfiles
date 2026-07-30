@@ -1,0 +1,21 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Re-run whenever ~/.Pacmanfile changes.
+# Pacmanfile hash: {{ include "dot_Pacmanfile" | sha256sum }}
+set -euo pipefail
+
+[[ -f "$HOME/.Pacmanfile" ]] || exit 0
+
+if command -v yay >/dev/null 2>&1; then
+    helper="yay"
+elif command -v paru >/dev/null 2>&1; then
+    helper="paru"
+else
+    echo ":: error: yay or paru is required; zsh-antidote is an AUR package" >&2
+    echo ":: install one AUR helper before running chezmoi apply" >&2
+    exit 1
+fi
+
+echo ":: $helper -S --needed (Pacmanfile changed)"
+grep -vE '^\s*(#|$)' "$HOME/.Pacmanfile" | $helper -S --needed --noconfirm -
+{{- end -}}

@@ -1,0 +1,340 @@
+# =============================================================================
+#  TMUX CONFIGURATION
+# =============================================================================
+#  Author: Fabio Luciano
+#  Prefix: C-a (Ctrl+a)
+# =============================================================================
+
+
+# =============================================================================
+#  1. GENERAL OPTIONS
+# =============================================================================
+
+# Prefix key (C-a instead of C-b)
+set-option -g prefix C-a
+unbind-key C-b
+bind C-a send-prefix
+
+# Terminal settings
+set-option -g default-terminal "tmux-256color"
+set-option -as terminal-features ',*:RGB'
+
+# Extended keys support (useful for Neovim/Vim)
+set-option -g extended-keys on
+set-option -as terminal-features ',*:extkeys'
+
+# Terminal hyperlinks support
+set-option -ga terminal-features "*:hyperlinks"
+
+
+# Undercurl/underline support (for LSP diagnostics in Neovim)
+set-option -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
+set-option -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
+
+# Timing
+set-option -sg escape-time 0       # Faster command sequences (for Vim)
+set-option -sg repeat-time 300      # Allow 300ms for repeated commands
+set-option -g display-time 4000     # Messages display for 4 seconds
+
+# History and scrollback
+set-option -g history-limit 50000
+
+# Indexing (start from 1 instead of 0)
+set-option -g base-index 1
+set-option -g pane-base-index 1
+set-option -g renumber-windows on   # Renumber windows when one is closed
+
+# Focus and events
+set-option -g focus-events on       # Required for autoread in Vim/Neovim
+
+# Mouse support
+set-option -g mouse on
+
+# Clipboard integration
+set-option -g set-clipboard on
+set-option -g allow-passthrough on  # Allow terminal escape sequences (images in kitty/wezterm)
+
+# Ensure Homebrew bash (4+) is found before system bash (3.2) for plugins
+# Uses run-shell so $(brew --prefix) is expanded by the user's shell (zsh)
+if-shell 'command -v brew' {
+    run-shell 'brew_prefix=$(brew --prefix); tmux set-environment -g PATH "${brew_prefix}/bin:${PATH}"'
+}
+
+# Make vault-backed exports available to status plugins spawned by tmux.
+run-shell '~/.local/bin/tmux-tokens-sync'
+
+# Session behavior
+set-option -g detach-on-destroy off # Switch to another session instead of exiting
+
+# Window titles
+set-option -g set-titles on
+
+# Status bar position
+set-option -g status-position top
+
+# Search
+set-option -g wrap-search on
+
+# Word separators (improves double-click text selection)
+set-option -g word-separators ' -_@./\()[]{}:;,<>'
+
+
+# =============================================================================
+#  2. WINDOW OPTIONS
+# =============================================================================
+
+# Activity monitoring
+set-window-option -g monitor-activity on
+set-option -g visual-activity off
+set-option -g activity-action other
+
+# Window behavior
+set-window-option -g automatic-rename on
+set-window-option -g pane-base-index 1
+
+# Mouse (window-level)
+set-window-option -g mouse on
+
+# Vi mode for copy/search
+set-window-option -g mode-keys vi
+
+
+# =============================================================================
+#  3. KEY BINDINGS
+# =============================================================================
+
+# Quick window/session switching
+bind -r Tab switch-client -l        # prefix + Tab: last session
+
+# Copy mode (vi-style)
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi C-v send-keys -X rectangle-toggle
+if-shell 'command -v wl-copy' {
+    bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "wl-copy"
+} {
+    if-shell 'command -v xclip' {
+        bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
+    } {
+        if-shell 'command -v pbcopy' {
+            bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+        }
+    }
+}
+
+# Session management with sesh
+bind-key C-o run-shell "sesh connect"
+
+
+# =============================================================================
+#  4. PLUGINS (TPM)
+# =============================================================================
+
+# TPM - Tmux Plugin Manager
+set -g @plugin 'tmux-plugins/tpm'
+
+# Essential plugins
+set -g @plugin 'tmux-plugins/tmux-sensible'      # Sensible defaults
+set -g @plugin 'tmux-plugins/tmux-pain-control'  # Pane management bindings
+
+# Search and extraction
+set -g @plugin 'sainnhe/tmux-fzf'                # FZF integration
+set -g @plugin 'laktak/extrakto'                 # Extract text from panes
+set -g @plugin 'fcsonline/tmux-thumbs'           # Hint-based copy (prefix+t... default: prefix+F)
+
+# Mouse enhancements
+set -g @plugin 'nhdaly/tmux-better-mouse-mode'
+set -g @plugin 'azorng/tmux-smooth-scroll'
+
+# Status bar
+set -g @plugin 'fabioluciano/tmux-powerkit'
+
+# -----------------------------------------------------------------------------
+#  TPM Settings
+# -----------------------------------------------------------------------------
+set -g @tpm-install "C-i"
+set -g @tpm-update "C-u"
+
+# -----------------------------------------------------------------------------
+#  Thumbs Settings
+# -----------------------------------------------------------------------------
+set -g @thumbs-key 't'
+
+# -----------------------------------------------------------------------------
+#  Better Mouse Mode Settings
+# -----------------------------------------------------------------------------
+set -g @scroll-without-changing-pane 'on'
+set -g @scroll-in-moused-over-pane 'on'
+set -g @emulate-scroll-for-no-mouse-alternate-buffer 'on'
+set -g @scroll-speed-num-lines-per-scroll '3'
+
+
+# =============================================================================
+#  5. POWERKIT CONFIGURATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+#  Theme
+# -----------------------------------------------------------------------------
+set -g @powerkit_theme "tokyo-night"
+set -g @powerkit_theme_variant "night"
+set -g @powerkit_transparent "true"
+
+# -----------------------------------------------------------------------------
+#  Layout & Appearance
+# -----------------------------------------------------------------------------
+set -g @powerkit_status_order "session,plugins,windows"
+set -g @powerkit_elements_spacing "false"
+set -g @powerkit_window_index_style "box"
+set -g @powerkit_window_index_icons "true"
+set -g @powerkit_edge_separator_style "rounded"
+
+# -----------------------------------------------------------------------------
+#  Pane Flash Effect
+# -----------------------------------------------------------------------------
+set -g @powerkit_pane_flash_enabled "true"
+set -g @powerkit_pane_flash_duration "100"
+
+# -----------------------------------------------------------------------------
+#  Keybindings
+# -----------------------------------------------------------------------------
+set -g @powerkit_cache_clear_key "M-x"
+set -g @powerkit_theme_selector_key "M-t"
+set -g @powerkit_show_options_key "M-h"
+set -g @powerkit_show_keybindings_key "M-y"
+set -g @powerkit_keybinding_conflict_action "ignore"
+
+# -----------------------------------------------------------------------------
+#  Plugins Selection
+# -----------------------------------------------------------------------------
+# Groups:
+#   Blue:   System     - cpu, memory, disk, gpu, temperature, fan, iops, sysstatus
+#   Purple: Network    - netspeed, wifi, vpn, ssh
+#   Green:  VCS        - git, github, bitbucket
+#   Yellow: DevOps     - jira, kubernetes, terraform, docker, cloud
+#   Red:    Media      - audiodevices, nowplaying, bluetooth
+#   None:   Standalone - weather, aiquotas, camera, microphone, battery, bitwarden, etc.
+
+set -g @powerkit_plugins "\
+weather,\
+aiquotas,\
+group(cpu,memory,disk,gpu,temperature,fan,iops,sysstatus),\
+group(netspeed,wifi,vpn,ssh,connectivity),\
+group(git,github),\
+group(kubernetes,terraform,chezmoi,docker,cloud),\
+group(audiodevices,nowplaying),\
+camera,microphone,battery,pomodoro,bitwarden,packages,smartkey"
+
+# -----------------------------------------------------------------------------
+#  Show Only on Threshold (hide plugins when values are normal)
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_battery_show_only_on_threshold "true"
+set -g @powerkit_plugin_cpu_show_only_on_threshold "true"
+set -g @powerkit_plugin_memory_show_only_on_threshold "true"
+set -g @powerkit_plugin_disk_show_only_on_threshold "true"
+set -g @powerkit_plugin_gpu_show_only_on_threshold "true"
+set -g @powerkit_plugin_temperature_show_only_on_threshold "true"
+set -g @powerkit_plugin_fan_show_only_on_threshold "true"
+set -g @powerkit_plugin_iops_show_only_on_threshold "true"
+set -g @powerkit_plugin_ping_show_only_on_threshold "true"
+set -g @powerkit_plugin_wifi_show_only_on_threshold "true"
+set -g @powerkit_plugin_connectivity_show_only_on_threshold "true"
+set -g @powerkit_plugin_git_show_only_on_threshold "true"
+set -g @powerkit_plugin_github_show_only_on_threshold "true"
+set -g @powerkit_plugin_sysstatus_show_only_on_threshold "true"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Weather
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_weather_location "{{ .weather_city }}"
+set -g @powerkit_plugin_weather_format "%t H:%h"
+set -g @powerkit_plugin_weather_icon_mode "dynamic"
+
+# -----------------------------------------------------------------------------
+#  Plugin: AI Quotas
+# -----------------------------------------------------------------------------
+# OpenAI, DeepSeek and MiniMax use credentials available to tmux.
+set -g @powerkit_plugin_aiquotas_providers "zai,openai,deepseek,minimax,kimicode"
+set -g @powerkit_plugin_aiquotas_cache_ttl "300"
+set -g @powerkit_plugin_aiquotas_compact_content "true"
+set -g @powerkit_plugin_aiquotas_openai_source "codex"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Bitbucket
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_bitbucket_type "cloud"
+set -g @powerkit_plugin_bitbucket_repos "{{ .github_user }}/testea"
+set -g @powerkit_plugin_bitbucket_email "{{ .email }}"
+set -g @powerkit_plugin_bitbucket_token "$BITBUCKET_TOKEN"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Jira
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_jira_domain "$JIRA_DOMAIN"
+set -g @powerkit_plugin_jira_email "$JIRA_EMAIL"
+set -g @powerkit_plugin_jira_token "$JIRA_TOKEN"
+set -g @powerkit_plugin_jira_keybinding_issues "M-j"
+
+# -----------------------------------------------------------------------------
+#  Plugin: GitHub
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_github_repos "{{ .github_user }}/tmux-powerkit"
+# Use the tmux server environment; an empty custom option blocks this fallback.
+set-option -gu @powerkit_plugin_github_token
+set -g @powerkit_plugin_github_warning_threshold_issues "1"
+set -g @powerkit_plugin_github_warning_threshold_prs "1"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Kubernetes
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_kubernetes_keybinding_context "M-k"
+set -g @powerkit_plugin_kubernetes_keybinding_namespace "M-n"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Terraform
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_terraform_keybinding_workspace "M-w"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Docker/Podman
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_docker_runtime "auto"
+set -g @powerkit_plugin_docker_show_stopped "false"
+
+# -----------------------------------------------------------------------------
+#  Plugin: AudioDevices
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_audiodevices_display_mode "off"
+set -g @powerkit_plugin_audiodevices_keybinding_input "M-i"
+set -g @powerkit_plugin_audiodevices_keybinding_output "M-o"
+
+# -----------------------------------------------------------------------------
+#  Plugin: NowPlaying
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_nowplaying_info_when_paused "true"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Bitwarden
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_bitwarden_show_only_when_unlocked "true"
+set -g @powerkit_plugin_bitwarden_keybinding_password "M-p"
+set -g @powerkit_plugin_bitwarden_keybinding_totp "M-q"
+set -g @powerkit_plugin_bitwarden_keybinding_unlock "M-u"
+set -g @powerkit_plugin_bitwarden_keybinding_lock "M-l"
+
+# -----------------------------------------------------------------------------
+#  Plugin: Fan
+# -----------------------------------------------------------------------------
+set -g @powerkit_plugin_fan_selection "active"
+
+# =============================================================================
+#  6. INITIALIZE TPM (keep this at the very end)
+# =============================================================================
+if-shell '[ -f /usr/share/tmux-plugin-manager/tpm ]' {
+    run '/usr/share/tmux-plugin-manager/tpm'
+} {
+    if-shell '[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]' {
+        run '/opt/homebrew/opt/tpm/share/tpm/tpm'
+    } {
+        run '~/.tmux/plugins/tpm/tpm'
+    }
+}

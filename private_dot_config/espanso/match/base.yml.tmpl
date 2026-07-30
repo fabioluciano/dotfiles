@@ -1,0 +1,52 @@
+# espanso match file
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/master/schemas/match.schema.json
+
+matches:
+  - trigger: ":dhoje"
+    replace: "{{ "{{today}}" }}"
+    vars:
+      - name: today
+        type: date
+        params:
+          format: "%d/%m/%Y"
+
+  - trigger: ":agora"
+    replace: "{{ "{{now}}" }}"
+    vars:
+      - name: now
+        type: date
+        params:
+          format: "%Y-%m-%d %H:%M"
+
+  - trigger: ":uuid"
+    replace: "{{ "{{output}}" }}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "uuidgen | tr 'A-Z' 'a-z'"
+
+  - trigger: ":mail"
+    replace: "{{ .email }}"
+
+  - trigger: ":gh"
+    replace: "https://github.com/{{ .github_user }}"
+
+  - trigger: ":sig"
+    replace: |
+      {{ .name }}
+
+  - trigger: ":br"
+    replace: |
+      Best regards,
+      {{ .name }}
+
+  - trigger: ":issue"
+    replace: "https://github.com/{{ .github_user }}/REPO_NAME/issues/"
+    # NOTE: Replace REPO_NAME with your repository name
+
+  - trigger: ":pr"
+    replace: "https://github.com/{{ .github_user }}/REPO_NAME/pull/"
+    # NOTE: Replace REPO_NAME with your repository name
+

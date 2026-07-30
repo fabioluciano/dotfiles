@@ -1,0 +1,31 @@
+# zsh-abbr — seeded once by chezmoi (create_), then yours to edit.
+# Add more with:  abbr add <key>=<value>   (persists here automatically)
+# Format: abbr <key>=<value>   ('quote' values with spaces)
+
+# --- kubernetes -------------------------------------------------------------
+abbr kg='kubectl get'
+abbr kga='kubectl get all'
+abbr kgaa='kubectl get all -A'
+abbr kgpw='kubectl get pods -o wide'
+abbr kgpa='kubectl get pods -A'
+abbr kpf='kubectl port-forward'
+abbr ktop='kubectl top pods'
+abbr kctx='kubectl config get-contexts'
+abbr kev='kubectl get events --sort-by=.lastTimestamp'
+
+# --- terraform / opentofu ---------------------------------------------------
+abbr tf='terraform'
+abbr tfa='terraform apply'
+abbr tfp='terraform plan'
+abbr tfd='terraform destroy'
+abbr tfi='terraform init'
+
+# --- docker / compose -------------------------------------------------------
+abbr dcu='docker compose up -d'
+abbr dcd='docker compose down'
+abbr dcl='docker compose logs -f'
+
+# --- git (forgit owns ga/gd/gco/glo/grb interactively) ----------------------
+abbr gcm='git commit -m'
+abbr gca='git commit --amend'
+abbr gpf='git push --force-with-lease'

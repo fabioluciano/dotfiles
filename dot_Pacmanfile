@@ -1,0 +1,248 @@
+# =============================================================================
+# BOOTSTRAP & HOST FOUNDATIONS
+# =============================================================================
+bitwarden
+bitwarden-cli
+chezmoi
+gnupg
+mise
+openssh
+pinentry
+pkgfile
+zsh
+zsh-antidote
+
+# =============================================================================
+# SHELL UX & TERMINAL TOOLING
+# =============================================================================
+bandwhich
+bat
+broot
+btop
+difftastic
+direnv
+duf
+dust
+eza
+fd
+fzf
+glow
+gpg-tui
+gping
+gron
+gum
+hexyl
+inxi
+jc
+jless
+jnv
+jq
+jqp
+ncdu
+nvtop
+procs
+ripgrep
+rsync
+shellcheck
+smug
+starship
+strace
+tailspin
+termshark
+tldr
+tmux
+tmux-plugin-manager
+topgrade-bin
+tree
+viddy
+xclip
+xh
+xsel
+yazi
+zoxide
+sesh
+
+# =============================================================================
+# TERMINAL EMULATOR
+# =============================================================================
+ghostty
+
+# =============================================================================
+# EDITORS, DATABASES & DOCUMENT TOOLING
+# =============================================================================
+apachedirectorystudio
+asciidoc
+composer
+dbeaver
+hugo
+imagemagick
+meld
+nb
+neovim
+obsidian
+plantuml
+postgresql-libs
+python-pynvim
+visual-studio-code-bin
+
+# =============================================================================
+# BUILD, LANGUAGE & PROJECT TOOLING
+# =============================================================================
+act
+beads
+cmake
+devtools
+git-cliff
+just
+python-pip
+python-setuptools
+re2c
+rustup
+vhs
+
+# =============================================================================
+# CLOUD, KUBERNETES & PLATFORM OPS
+# =============================================================================
+android-tools
+aws-cli-v2
+azure-cli
+buildah
+cosign
+dive
+docker-compose
+firewalld
+helm
+k9s
+kind-bin
+krew-bin
+kubecolor
+kube-linter
+kustomize
+lazydocker-bin
+minikube
+mkcert
+opentofu
+openvpn
+osquery
+packer
+pmbootstrap
+podman
+podman-desktop-bin
+stern
+tekton-cli
+vagrant
+virt-manager
+
+# =============================================================================
+# GIT, REVIEW & AGENT WORKFLOW
+# =============================================================================
+# TODO: map macOS-only agent tools to AUR equivalents:
+#   opencode, mimo-code, rtk
+#   (see dot_Brewfile.tmpl section "GIT, REVIEW & AGENT WORKFLOW")
+git-absorb
+gitbutler-bin
+git-delta
+github-cli
+git-lfs
+gitu
+lazygit
+mergiraf
+
+# =============================================================================
+# DESKTOP APPS — PRODUCTIVITY & COMMUNICATION
+# =============================================================================
+calendar-indicator
+deezer
+discord
+dropbox
+espanso
+geary
+insomnia-bin
+libreoffice-still
+mugshot
+postman-bin
+sniffnet
+spotify
+synapse
+telegram-desktop
+thunderbird
+ulauncher
+whatsdesk-bin
+
+# =============================================================================
+# DESKTOP APPS — BROWSERS, MEDIA & DESIGN
+# =============================================================================
+evince
+file-roller
+firefox
+flac
+gimp
+google-chrome
+inkscape
+libopenraw
+mjpegtools
+mpv
+obs-studio
+p7zip
+patat-bin
+sox
+transmission-gtk
+unrar
+unzip
+vlc
+
+# =============================================================================
+# DESKTOP APPS — SYSTEM, DEVICE & THEMING
+# =============================================================================
+aspell
+aspell-en
+aspell-pt
+bibata-cursor-theme-bin
+ccid
+chrony
+compiz
+exo
+forticlient-vpn
+garcon
+gnome-keyring
+grub
+gvfs
+hunspell
+hunspell-en_us
+lens-bin
+libfido2
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+lightdm-settings
+logiops
+lsb-release
+numix-gtk-theme-git
+orchis-theme
+os-prober
+otf-monaspace-nerd
+pacmanfile
+papirus-icon-theme
+pcmanfm
+pcsclite
+plank
+plocate
+qalculate-gtk
+qogir-gtk-theme
+qogir-icon-theme
+quickemu
+reflector
+ristretto
+sof-firmware
+thunar
+thunar-archive-plugin
+thunar-media-tags-plugin
+thunar-volman
+tlp
+ttf-cascadia-code-nerd
+ttf-maple
+ventoy-bin
+virtualbox
+virtualbox-ext-oracle
+virtualbox-guest-iso
+xdg-user-dirs
+yubikey-manager

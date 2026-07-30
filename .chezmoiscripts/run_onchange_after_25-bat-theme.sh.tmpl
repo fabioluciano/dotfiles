@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Rebuild the bat cache so the bundled Tokyo Night theme is registered.
+# Re-runs only when the theme file changes (its hash is embedded below).
+# theme hash: {{ include "private_dot_config/bat/themes/tokyonight_night.tmTheme" | sha256sum }}
+set -euo pipefail
+
+command -v bat >/dev/null 2>&1 || exit 0
+
+echo ":: bat cache --build (theme changed)"
+bat cache --build >/dev/null 2>&1 || true

@@ -1,0 +1,68 @@
+# IDEs and Editors
+.vscode/
+.claude/
+.omx/
+.omc/
+.omo/
+.opencode/
+.cortexkit/
+.mimocode/
+.codegraph/
+.playwright-mcp/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git config (use ~/.config/git/config instead)
+.gitconfig
+
+# OS Files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories (local overrides)
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+.coverage
+.pytest_cache/
+coverage/
+
+# Zsh generated files
+.zcompdump*
+.zsh_plugins.zsh
+
+# Personal notes
+notes.txt

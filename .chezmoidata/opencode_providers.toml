@@ -1,0 +1,913 @@
+[opencode]
+default_provider = "xiaomi"
+
+
+[opencode.models.opencode]
+orchestrator = [
+  "opencode/kimi-k2.5",
+  "opencode/claude-opus-4-7",
+  "opencode/gpt-5.5",
+  "opencode/glm-5",
+  "opencode/big-pickle",
+]
+implementation = [
+  "opencode/gpt-5.5",
+  "opencode/claude-opus-4-7",
+  "opencode/kimi-k2.5",
+  "opencode/glm-5",
+]
+planner = [
+  "opencode/gpt-5.4-mini",
+  "opencode/grok-build-0.1",
+]
+architecture = [
+  "opencode/gpt-5.5",
+  "opencode/gemini-3.1-pro",
+  "opencode/claude-opus-4-7",
+  "opencode/glm-5",
+]
+search = [
+  "opencode/grok-build-0.1",
+  "opencode/minimax-m2.7",
+]
+vision = ["opencode/gemini-3.1-pro", "opencode/gpt-5.5"]
+review = [
+  "opencode/gpt-5.5",
+  "opencode/claude-opus-4-7",
+  "opencode/gemini-3.1-pro",
+]
+long_running = [
+  "opencode/kimi-k2.5",
+  "opencode/minimax-m2.7",
+  "opencode/gpt-5.5",
+]
+quick = [
+  "opencode/grok-build-0.1",
+  "opencode/gpt-5.4-mini",
+]
+standard = [
+  "opencode/claude-sonnet-4-6",
+  "opencode/kimi-k2.5",
+  "opencode/gpt-5.5",
+]
+complex = ["opencode/gpt-5.5", "opencode/claude-opus-4-7", "opencode/glm-5"]
+visual = ["opencode/gemini-3.1-pro", "opencode/gpt-5.5"]
+deep = ["opencode/gpt-5.5", "opencode/claude-opus-4-7", "opencode/kimi-k2.5"]
+ultrabrain = [
+  "opencode/gpt-5.5",
+  "opencode/claude-opus-4-7",
+  "opencode/gemini-3.1-pro",
+]
+ultrawork = [
+  "opencode/claude-opus-4-7",
+  "opencode/gpt-5.5",
+  "opencode/kimi-k2.5",
+]
+
+[opencode.models.deepseek]
+orchestrator = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+implementation = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+planner = ["deepseek/deepseek-v4-flash"]
+architecture = ["deepseek/deepseek-v4-pro"]
+search = ["deepseek/deepseek-v4-flash"]
+vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
+review = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+long_running = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+quick = ["deepseek/deepseek-v4-flash"]
+standard = ["deepseek/deepseek-v4-flash"]
+complex = ["deepseek/deepseek-v4-pro"]
+visual = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+deep = ["deepseek/deepseek-v4-pro"]
+ultrabrain = ["deepseek/deepseek-v4-pro"]
+ultrawork = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+
+[opencode.models.openai]
+orchestrator = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-luna",
+]
+implementation = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
+planner = ["openai/gpt-5.6-luna", "openai/gpt-5.4-mini"]
+architecture = [
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.4-pro",
+]
+search = ["openai/gpt-5.6-luna", "openai/gpt-5.4-mini"]
+vision = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+review = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.6-luna"]
+long_running = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
+quick = ["openai/gpt-5.6-luna", "openai/gpt-5-mini"]
+standard = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+complex = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
+visual = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
+deep = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
+ultrabrain = [
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.5-pro",
+]
+ultrawork = [
+  "openai/gpt-5.6-terra",
+  "openai/gpt-5.6-sol",
+  "openai/gpt-5.4-codex",
+]
+
+[opencode.models.minimax]
+orchestrator = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+implementation = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+planner = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+architecture = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+search = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+vision = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+review = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+long_running = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+quick = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+standard = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
+complex = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+visual = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+deep = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+ultrabrain = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+ultrawork = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+
+[opencode.models.xiaomi]
+orchestrator = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
+implementation = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
+planner = ["xiaomi/mimo-v2.5-pro"]
+architecture = ["xiaomi/mimo-v2.5-pro"]
+search = ["xiaomi/mimo-v2.5"]
+vision = ["xiaomi/mimo-v2.5"]
+review = ["xiaomi/mimo-v2.5-pro"]
+long_running = ["xiaomi/mimo-v2.5-pro"]
+quick = ["xiaomi/mimo-v2.5"]
+standard = ["xiaomi/mimo-v2.5"]
+complex = ["xiaomi/mimo-v2.5-pro"]
+visual = ["xiaomi/mimo-v2.5"]
+deep = ["xiaomi/mimo-v2.5-pro"]
+ultrabrain = ["xiaomi/mimo-v2.5-pro"]
+ultrawork = ["xiaomi/mimo-v2.5-pro"]
+
+[opencode.models.zai]
+orchestrator = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+implementation = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+planner = ["zai/glm-4.7-flash"]
+architecture = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+search = ["zai/glm-4.7-flash"]
+vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
+review = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+long_running = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+quick = ["zai/glm-4.7-flash"]
+standard = ["zai/glm-5", "zai/glm-4.7"]
+complex = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+visual = ["zai/glm-5.2"]
+deep = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+ultrabrain = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+ultrawork = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+
+[opencode.models.kimicode]
+orchestrator = ["kimicode/k3", "kimicode/kimi-for-coding"]
+implementation = ["kimicode/kimi-for-coding", "kimicode/k3"]
+planner = ["kimicode/kimi-for-coding", "kimicode/k3"]
+architecture = ["kimicode/k3", "kimicode/kimi-for-coding"]
+search = ["kimicode/kimi-for-coding"]
+vision = ["kimicode/k3", "kimicode/kimi-for-coding"]
+review = ["kimicode/kimi-for-coding", "kimicode/k3"]
+long_running = ["kimicode/kimi-for-coding", "kimicode/k3"]
+quick = ["kimicode/kimi-for-coding"]
+standard = ["kimicode/kimi-for-coding", "kimicode/k3"]
+complex = ["kimicode/k3", "kimicode/kimi-for-coding"]
+visual = ["kimicode/k3", "kimicode/kimi-for-coding"]
+deep = ["kimicode/k3", "kimicode/kimi-for-coding"]
+ultrabrain = ["kimicode/k3", "kimicode/kimi-for-coding"]
+ultrawork = ["kimicode/k3", "kimicode/kimi-for-coding"]
+
+# OpenCode Zen Free — all agents run on free opencode models (https://opencode.ai/zen)
+[opencode.models.zen-free]
+orchestrator = ["opencode/hy3-free"]
+implementation = ["opencode/deepseek-v4-flash-free"]
+planner = ["opencode/north-mini-code-free"]
+architecture = ["opencode/big-pickle"]
+search = ["opencode/north-mini-code-free", "opencode/deepseek-v4-flash-free"]
+vision = ["opencode/mimo-v2.5-free"]
+review = ["opencode/big-pickle"]
+long_running = ["opencode/hy3-free"]
+quick = ["opencode/deepseek-v4-flash-free"]
+standard = ["opencode/deepseek-v4-flash-free"]
+complex = ["opencode/hy3-free"]
+visual = ["opencode/mimo-v2.5-free"]
+deep = ["opencode/big-pickle"]
+ultrabrain = ["opencode/big-pickle"]
+ultrawork = ["opencode/hy3-free"]
+
+# Alibaba Token Plan (OpenAI-compatible endpoint, built-in provider em opencode)
+# 4 modelos Qwen no plano atual: qwen3.8-max-preview (mais recente), qwen3.7-max
+# (mais capaz estável), qwen3.7-plus (balanceado), qwen3.6-flash (rápido).
+# Nao ha VL dedicado — todos usam text-only no Token Plan.
+[opencode.models.alibaba-token-plan]
+orchestrator = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
+implementation = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
+planner = ["alibaba-token-plan/qwen3.7-plus", "alibaba-token-plan/qwen3.6-flash"]
+architecture = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+search = ["alibaba-token-plan/qwen3.6-flash"]
+vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
+review = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+long_running = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
+quick = ["alibaba-token-plan/qwen3.6-flash"]
+standard = ["alibaba-token-plan/qwen3.7-plus"]
+complex = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+visual = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+deep = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+ultrabrain = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+ultrawork = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
+
+# Mix — combina modelos de minimax (API Anthropic), xiaomi/mimo e deepseek
+# (ambos OpenAI-compatible). Exclui openai, opencode/zen-free, kimicode, zai e
+# alibaba-token-plan. Ordem em cada chain = prioridade de fallback.
+[opencode.models.mix]
+orchestrator = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+implementation = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+planner = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
+architecture = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+search = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
+vision = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5"]
+review = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+long_running = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+quick = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
+standard = ["minimax/MiniMax-M2.7", "xiaomi/mimo-v2.5", "deepseek/deepseek-v4-flash"]
+complex = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+visual = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5"]
+deep = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+ultrabrain = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+ultrawork = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+
+# =============================================================================
+# VARIANTS DEFAULT (quando nenhum perfil e especificado)
+# =============================================================================
+
+[opencode.variants.minimax]
+orchestrator = "thinking"
+implementation = "thinking"
+architecture = "thinking"
+review = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+
+[opencode.variants.openai]
+orchestrator = "medium"
+implementation = "medium"
+planner = "medium"
+architecture = "high"
+search = "medium"
+vision = "medium"
+review = "medium"
+long_running = "medium"
+quick = "medium"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.opencode]
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.xiaomi]
+orchestrator = "high"
+implementation = "medium"
+planner = "medium"
+architecture = "high"
+search = "low"
+vision = "medium"
+review = "medium"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.zai]
+orchestrator = "high"
+implementation = "high"
+planner = "low"
+architecture = "high"
+search = "low"
+vision = "medium"
+review = "high"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.kimicode]
+orchestrator = "high"
+implementation = "high"
+planner = "medium"
+architecture = "high"
+search = "medium"
+vision = "high"
+review = "high"
+long_running = "high"
+quick = "medium"
+standard = "medium"
+complex = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.alibaba-token-plan]
+orchestrator = "high"
+implementation = "high"
+planner = "medium"
+architecture = "high"
+search = "medium"
+vision = "medium"
+review = "high"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.zen-free]
+orchestrator = "medium"
+implementation = "high"
+planner = "low"
+architecture = "max"
+search = "low"
+vision = "low"
+review = "medium"
+long_running = "medium"
+quick = "low"
+standard = "medium"
+complex = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "max"
+ultrawork = "medium"
+
+[opencode.variants.mix]
+orchestrator = "thinking"
+implementation = "thinking"
+planner = "low"
+architecture = "thinking"
+search = "low"
+vision = "medium"
+review = "thinking"
+long_running = "thinking"
+quick = "low"
+standard = "medium"
+complex = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+# =============================================================================
+# VARIANTS OPTIMIZED
+# =============================================================================
+
+[opencode.variants.minimax-optimized]
+orchestrator = "thinking"
+implementation = "thinking"
+architecture = "thinking"
+review = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+
+[opencode.variants.openai-optimized]
+orchestrator = "medium"
+implementation = "medium"
+planner = "medium"
+architecture = "high"
+search = "low"
+vision = "low"
+review = "medium"
+long_running = "medium"
+quick = "low"
+standard = "low"
+complex = "medium"
+visual = "medium"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.opencode-optimized]
+architecture = "medium"
+review = "medium"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.xiaomi-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.zai-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.kimicode-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.alibaba-token-plan-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.mix-optimized]
+orchestrator = "thinking"
+implementation = "thinking"
+planner = "medium"
+architecture = "thinking"
+search = "medium"
+vision = "medium"
+review = "thinking"
+long_running = "thinking"
+quick = "medium"
+standard = "medium"
+complex = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+# =============================================================================
+# VARIANTS SUPER (maxima economia)
+# =============================================================================
+
+[opencode.variants.minimax-super]
+orchestrator = "thinking"
+implementation = "thinking"
+architecture = "thinking"
+review = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+
+[opencode.variants.openai-super]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "medium"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "medium"
+visual = "low"
+deep = "low"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.opencode-super]
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.xiaomi-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.zai-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.kimicode-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.alibaba-token-plan-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.mix-super]
+orchestrator = "thinking"
+implementation = "thinking"
+planner = "low"
+architecture = "thinking"
+search = "low"
+vision = "low"
+review = "thinking"
+long_running = "thinking"
+quick = "low"
+standard = "low"
+complex = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+# =============================================================================
+# VARIANTS MODERATE
+# =============================================================================
+# "moderate" is an alias for "optimized" — the template
+# (oh-my-openagent.jsonc.tmpl) rewrites `moderate` → `optimized` before looking
+# up variants, so no `-moderate` blocks exist here. This keeps the dedup real
+# (no copy-pasted data) instead of relying on the template's missing-key fallback.
+
+# =============================================================================
+# VARIANTS RECOMMENDED (tiers alinhados ao Oh My OpenAgent)
+# =============================================================================
+
+
+[opencode.variants.openai-recommended]
+orchestrator = "xhigh"
+implementation = "high"
+planner = "medium"
+architecture = "xhigh"
+search = "low"
+vision = "medium"
+review = "high"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "xhigh"
+visual = "high"
+deep = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
+
+[opencode.variants.opencode-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
+
+[opencode.variants.deepseek-optimized]
+orchestrator = "low"
+implementation = "medium"
+architecture = "medium"
+review = "medium"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "medium"
+
+[opencode.variants.deepseek-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "high"
+ultrawork = "low"
+
+[opencode.variants.deepseek-recommended]
+architecture = "high"
+visual = "high"
+ultrabrain = "xhigh"
+ultrawork = "max"
+
+[opencode.variants.deepseek-ultra]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+review = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.xiaomi-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.minimax-recommended]
+orchestrator = "thinking"
+implementation = "thinking"
+architecture = "thinking"
+review = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+[opencode.variants.zai-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.kimicode-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.alibaba-token-plan-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
+[opencode.variants.mix-recommended]
+orchestrator = "thinking"
+implementation = "thinking"
+planner = "high"
+architecture = "thinking"
+search = "high"
+vision = "high"
+review = "thinking"
+long_running = "thinking"
+quick = "high"
+standard = "high"
+complex = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+# =============================================================================
+# VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
+# =============================================================================
+
+
+[opencode.variants.openai-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "none"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "none"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "none"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.opencode-ultra]
+implementation = "none"
+planner = "minimal"
+architecture = "none"
+vision = "low"
+review = "none"
+quick = "minimal"
+visual = "low"
+deep = "none"
+ultrabrain = "none"
+ultrawork = "low"
+
+[opencode.variants.xiaomi-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.zai-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.kimicode-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.alibaba-token-plan-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.minimax-ultra]
+orchestrator = "low"
+implementation = "low"
+architecture = "low"
+vision = "low"
+long_running = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
+[opencode.variants.mix-ultra]
+orchestrator = "thinking"
+implementation = "thinking"
+planner = "low"
+architecture = "thinking"
+search = "low"
+vision = "low"
+review = "thinking"
+long_running = "thinking"
+quick = "low"
+standard = "low"
+complex = "thinking"
+visual = "thinking"
+deep = "thinking"
+ultrabrain = "thinking"
+ultrawork = "thinking"
+
+[opencode.agent_profiles]
+sisyphus = "orchestrator"
+hephaestus = "implementation"
+prometheus = "planner"
+oracle = "architecture"
+librarian = "search"
+explore = "search"
+multimodal-looker = "vision"
+metis = "planner"
+momus = "review"
+atlas = "long_running"
+sisyphus-junior = "quick"
+build = "implementation"
+general = "standard"
+plan = "planner"
+
+[opencode.agent_ultrawork_profiles]
+sisyphus = "ultrawork"
+
+# OMOS-only routing overrides. Global tiers remain the source of truth for all
+# other agents; these keep the lightweight Designer and Fixer on Luna.
+[opencode.omos_overrides.openai.models]
+designer = "openai/gpt-5.6-luna"
+fixer = "openai/gpt-5.6-luna"
+
+[opencode.omos_overrides.openai-recommended.variants]
+designer = "medium"
+fixer = "xhigh"
+council = "xhigh"
+
+[opencode.category_profiles]
+quick = "quick"
+unspecified-low = "standard"
+unspecified-high = "complex"
+visual-engineering = "visual"
+deep = "deep"
+ultrabrain = "ultrabrain"
+artistry = "visual"
+writing = "quick"
+
+# =============================================================================
+# HISTORIAN MODELS (usados pelo Magic Context para compressão em background)
+# Cada provider mapeia para o modelo mais barato disponível.
+# =============================================================================
+
+[opencode.historian_models]
+openai = "openai/gpt-5.4-mini"
+opencode = "opencode/gpt-5.4-mini"
+deepseek = "deepseek/deepseek-v4-flash"
+xiaomi = "xiaomi/mimo-v2.5"
+minimax = "minimax/MiniMax-M2.5"
+zai = "zai/glm-4.7-flash"
+kimicode = "xiaomi/mimo-v2.5"
+alibaba-token-plan = "alibaba-token-plan/qwen3.6-flash"
+mix = "deepseek/deepseek-v4-flash"
+"zen-free" = "opencode/deepseek-v4-flash-free"

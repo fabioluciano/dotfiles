@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Generate ~/.config/zsh/tokens.zsh from Bitwarden on first apply (and whenever
+# the sync script changes). A locked vault is left untouched and requires a
+# separate manual unlock before applying again.
+# Re-run `zsh-tokens-sync` by hand after rotating a token.
+# sync script hash: {{ include "private_dot_local/bin/executable_zsh-tokens-sync" | sha256sum }}
+set -euo pipefail
+
+sync="{{ .chezmoi.homeDir }}/.local/bin/zsh-tokens-sync"
+if [ ! -x "$sync" ]; then
+  exit 0
+fi
+
+if ! command -v bw >/dev/null 2>&1; then
+  echo "Bitwarden CLI (bw) nao encontrado. Ele ja esta listado no Brewfile/Pacmanfile;" >&2
+  echo "instale-o pelo gerenciador de pacotes e re-execute 'chezmoi apply'." >&2
+  exit 0
+fi
+
+if ! bw unlock --check >/dev/null 2>&1; then
+  echo "Bitwarden vault bloqueado — mantendo tokens atuais; execute 'bw unlock' manualmente." >&2
+  exit 0
+fi
+
+"$sync"

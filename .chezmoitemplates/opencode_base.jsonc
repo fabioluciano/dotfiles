@@ -1,0 +1,439 @@
+{{- $state := includeTemplate "opencode-state.tmpl" . | fromJson -}}
+{{- $provider := $state.provider -}}
+{{- $profile := $state.profile -}}
+{{- $providerModels := $state.providerModels -}}
+  "$schema": "https://opencode.ai/config.json",
+  // NOTE: The effective model is normally controlled by oh-my-openagent or
+  // oh-my-opencode-slim (rendered from opencode_providers.toml). This field is
+  // only used when those agent plugins are disabled.
+  "model": "{{ first (index $providerModels "orchestrator") }}",
+  "small_model": "{{ first (index $providerModels "quick") }}",
+  "default_agent": "build",
+  "agent": {
+    "build": {
+      "model": "{{ first (index $providerModels "implementation") }}"
+    },
+    "plan": {
+      "model": "{{ first (index $providerModels "planner") }}"
+    }
+  },
+  "formatter": true,
+  "lsp": {
+    "marksman": {
+      "command": [
+        "marksman",
+        "server"
+      ],
+      "extensions": [
+        ".md",
+        ".markdown"
+      ]
+    },
+    "yaml-language-server": {
+      "command": [
+        "yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "dockerfile-language-server": {
+      "command": [
+        "docker-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".dockerfile"
+      ]
+    },
+    "helm-ls": {
+      "command": [
+        "helm_ls",
+        "serve"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "tailwindcss-language-server": {
+      "command": [
+        "tailwindcss-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".vue",
+        ".svelte"
+      ]
+    },
+    "vue-language-server": {
+      "command": [
+        "vue-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".vue"
+      ]
+    },
+    "zls": {
+      "command": [
+        "zls"
+      ],
+      "extensions": [
+        ".zig",
+        ".zon"
+      ]
+    },
+    "tinymist": {
+      "command": [
+        "tinymist",
+        "lsp"
+      ],
+      "extensions": [
+        ".typ"
+      ]
+    },
+    "pyright": {
+      "disabled": true
+    },
+    "basedpyright": {
+      "command": [
+        "uvx",
+        "--from",
+        "basedpyright",
+        "basedpyright-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
+      ]
+    },
+    "jdtls": {
+      "command": [
+        "jdtls"
+      ],
+      "extensions": [
+        ".java"
+      ]
+    }
+  },
+  "enabled_providers": {{ toJson (without (sortAlpha (keys $.opencode.models)) "zen-free") }},
+  "compaction": {
+    "auto": false,
+    "prune": false,
+    "reserved": 6000
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "vendor/**",
+      ".omo/**"
+    ]
+  },
+  "instructions": [
+    "~/.config/opencode/AGENTS.md",
+  ],
+  "provider": {
+    "xiaomi": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
+        "apiKey": "{env:MIMO_API_KEY}"
+      },
+      "models": {
+        "mimo-auto": {
+          "name": "mimo-auto",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text", "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "mimo-v2.5-pro": {
+          "name": "mimo-v2.5-pro",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "mimo-v2.5": {
+          "name": "mimo-v2.5",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text", "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        }
+      }
+    },
+    "openai": {
+      "options": {}
+    },
+    "opencode": {
+      "options": {
+        "apiKey": "{env:OPENCODE_API_KEY}"
+      },
+    },
+    "minimax": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "MiniMax",
+      "options": {
+        "baseURL": "https://api.minimax.io/anthropic/v1",
+        "apiKey": "{env:MINIMAX_API_KEY}"
+      },
+    },
+    "deepseek": {
+      "options": {
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
+      }
+    },
+    "kimicode": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.kimi.com/coding/v1",
+        "apiKey": "{env:KIMI_CODE_API_KEY}"
+      },
+      "models": {
+        "k3": {
+          "name": "Kimi K3",
+          "attachment": true,
+          "reasoning": true,
+          "temperature": false,
+          "tool_call": true,
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "k3-256k": {
+          "name": "Kimi K3 256K",
+          "attachment": true,
+          "reasoning": true,
+          "temperature": false,
+          "tool_call": true,
+          "limit": {
+            "context": 262144,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "kimi-for-coding": {
+          "name": "Kimi K2.7 Code",
+          "attachment": true,
+          "reasoning": true,
+          "temperature": false,
+          "tool_call": true,
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "kimi-for-coding-highspeed": {
+          "name": "Kimi K2.7 Code HighSpeed",
+          "attachment": true,
+          "reasoning": true,
+          "temperature": false,
+          "tool_call": true,
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+    "zai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.z.ai/api/coding/paas/v4",
+        "apiKey": "{env:ZAI_API_KEY}"
+      },
+      "models": {
+        "glm-5.2": {
+          "name": "glm-5.2",
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5.1": {
+          "name": "glm-5.1",
+          "limit": {
+            "context": 200000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-5": {
+          "name": "glm-5",
+          "limit": {
+            "context": 202800,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7": {
+          "name": "glm-4.7",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "glm-4.7-flash": {
+          "name": "glm-4.7-flash",
+          "limit": {
+            "context": 131072,
+            "output": 131072
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+    // Built-in alibaba-token-plan provider (npm, baseURL e modelos
+    // vêm do models.dev). Aqui só sobrescrevemos a apiKey para apontar
+    // para o env var já existente (QWENCLOUD_API_TOKEN) em vez do nome
+    // padrão ALIBABA_TOKEN_PLAN_API_KEY, evitando renomear o item do
+    // Bitwarden e o zsh-tokens-sync.
+    "alibaba-token-plan": {
+      "options": {
+        "apiKey": "{env:QWENCLOUD_API_TOKEN}"
+      }
+    }
+  },
+  "permission": {
+    "bash": "allow",
+    "edit": "allow",
+    "question": "allow",
+    "lsp": "allow",
+    "skill": {
+      "*": "allow"
+    }
+  },
+  "experimental": {
+    "primary_tools": []
+  },
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": [
+        "context7-mcp"
+      ],
+      "enabled": true,
+      "timeout": 8000
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "playwright-mcp"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "gh_grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true,
+      "timeout": 8000
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      },
+      "timeout": 10000
+    },
+    "codebase-memory": {
+      "type": "local",
+      "command": [
+        "codebase-memory-mcp"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    },
+    "kubernetes": {
+      "type": "local",
+      "command": [
+        "kubernetes-mcp-server",
+        "--read-only"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    },
+    // terraform-mcp-server (HashiCorp Terraform) — enabled; uses ~/.terraform.d/credentials for auth.
+    // Install: mise install (go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server in mise config)
+    "terraform": {
+      "type": "local",
+      "command": [
+        "terraform-mcp-server"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    }
+  }

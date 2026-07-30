@@ -1,0 +1,30 @@
+# GPG Agent Configuration
+# https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html
+
+# Enable SSH support
+enable-ssh-support
+
+# Cache TTL (time-to-live) in seconds
+# Default cache TTL: 1 hour
+default-cache-ttl 3600
+
+# Maximum cache TTL: 2 hours
+max-cache-ttl 7200
+
+# SSH cache TTL: 4 hours
+default-cache-ttl-ssh 14400
+
+# Maximum SSH cache TTL: 8 hours
+max-cache-ttl-ssh 28800
+
+# Pinentry program for password prompts
+{{- if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.arch "arm64" }}
+pinentry-program /opt/homebrew/bin/pinentry-mac
+{{- else }}
+pinentry-program /usr/local/bin/pinentry-mac
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+# Wrapper: pinentry grafico com display, curses em sessao TTY/headless.
+pinentry-program {{ .chezmoi.homeDir }}/.local/bin/pinentry-auto
+{{- end }}

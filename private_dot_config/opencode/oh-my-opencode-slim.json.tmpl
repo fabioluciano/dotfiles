@@ -1,0 +1,138 @@
+{{- /* ── State reading (shared template; moderate stays an alias for optimized) ── */ -}}
+{{- $state := includeTemplate "opencode-state.tmpl" . | fromJson -}}
+{{- $provider := $state.provider -}}
+{{- $profile := $state.profile -}}
+{{- $providerModels := $state.providerModels -}}
+{{- $validProviders := keys $.opencode.models -}}
+{{- /* "moderate" is an alias for "optimized" — they share the same variants */ -}}
+{{- if eq $profile "moderate" -}}{{- $profile = "optimized" -}}{{- end -}}
+{{- /* zen-free maps to the opencode-zen-free preset (tuned static config) */ -}}
+{{- $presetName := ternary "opencode-zen-free" $provider (eq $provider "zen-free") -}}
+
+{{- /* ── Agent → tier mapping (mirrors opencode_providers.toml tiers) ── */ -}}
+{{- $agentTiers := list
+  (dict "name" "orchestrator" "tier" "orchestrator")
+  (dict "name" "oracle"       "tier" "architecture")
+  (dict "name" "librarian"    "tier" "search")
+  (dict "name" "explorer"     "tier" "search")
+  (dict "name" "designer"     "tier" "visual")
+  (dict "name" "fixer"        "tier" "implementation")
+  (dict "name" "observer"     "tier" "vision")
+  (dict "name" "council"      "tier" "orchestrator")
+-}}
+{{- $agentSkills := dict
+  "orchestrator" (list "*")
+  "oracle"       (list "simplify")
+  "librarian"    (list)
+  "explorer"     (list)
+  "designer"     (list)
+  "fixer"        (list)
+  "observer"     (list)
+  "council"      (list)
+-}}
+{{- $agentMcps := dict
+  "orchestrator" (list "github" "kubernetes" "terraform")
+  "oracle"       (list "codebase-memory")
+  "librarian"    (list "websearch" "context7" "gh_grep")
+  "explorer"     (list "codebase-memory")
+  "designer"     (list "playwright")
+  "fixer"        (list)
+  "observer"     (list "playwright")
+  "council"      (list)
+-}}
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "{{ $presetName }}",
+  "presets": {
+    "opencode-zen-free": {
+      "orchestrator": {
+        "model": "opencode/hy3-free",
+        "temperature": 0.4,
+        "skills": ["*"],
+        "mcps": ["github", "kubernetes", "terraform"]
+      },
+      "oracle": {
+        "model": "opencode/big-pickle",
+        "temperature": 0.4,
+        "variant": "max",
+        "skills": ["simplify"],
+        "mcps": ["codebase-memory"]
+      },
+      "librarian": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "temperature": 0.2,
+        "skills": [],
+        "mcps": ["websearch", "context7", "gh_grep"]
+      },
+      "explorer": {
+        "model": "opencode/north-mini-code-free",
+        "temperature": 0.2,
+        "skills": [],
+        "mcps": ["codebase-memory"]
+      },
+      "designer": {
+        "model": "opencode/mimo-v2.5-free",
+        "temperature": 0.3,
+        "variant": "medium",
+        "skills": [],
+        "mcps": ["playwright"]
+      },
+      "fixer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "temperature": 0.2,
+        "variant": "high",
+        "skills": [],
+        "mcps": []
+      },
+      "observer": {
+        "model": "opencode/mimo-v2.5-free",
+        "temperature": 0.2,
+        "variant": "low",
+        "skills": [],
+        "mcps": ["playwright"]
+      },
+      "council": {
+        "model": "opencode/hy3-free",
+        "temperature": 0.4,
+        "skills": [],
+        "mcps": []
+      }
+    }
+{{- $sortedProviders := sortAlpha $validProviders -}}
+{{- range $prov := $sortedProviders }}
+{{- if ne $prov "zen-free" }}
+{{- $models := index $.opencode.models $prov -}}
+{{- $variantKey := printf "%s-%s" $prov $profile -}}
+{{- $profileVariants := ternary (get $.opencode.variants $variantKey) (get $.opencode.variants $prov | default dict) (hasKey $.opencode.variants $variantKey) -}}
+{{- $modelOverrides := get (get $.opencode.omos_overrides $prov | default dict) "models" | default dict -}}
+{{- $variantOverrides := get (get $.opencode.omos_overrides $variantKey | default dict) "variants" | default dict -}}
+    ,"{{ $prov }}": {
+{{- range $ai, $agent := $agentTiers }}
+{{- $agentName := index $agent "name" -}}
+{{- $tier := index $agent "tier" -}}
+{{- $chain := index $models $tier | default (index $models "standard") | default (index $models "orchestrator") -}}
+{{- $model := get $modelOverrides $agentName | default (first $chain) -}}
+{{- $variantValue := get $variantOverrides $agentName | default (get $profileVariants $tier) -}}
+      "{{ $agentName }}": {
+        "model": {{ if eq $agentName "observer" }}{{ toJson $chain }}{{ else }}"{{ $model }}"{{ end }}{{ if $variantValue }},
+        "variant": "{{ $variantValue }}"{{ end }},
+        "skills": {{ toJson (index $agentSkills $agentName) }},
+        "mcps": {{ toJson (index $agentMcps $agentName) }}
+      }{{ if lt $ai (sub (len $agentTiers) 1) }},{{ end }}
+{{- end }}
+    }
+{{- end }}
+{{- end }}
+  },
+  "council": {
+    "default_preset": "default",
+    "presets": {
+      "default": {
+        "alpha": {
+          "model": "{{ first (index $providerModels "architecture") }}"{{- $variantKey := printf "%s-%s" $provider $profile -}}{{- $councilVariants := ternary (get $.opencode.variants $variantKey) (get $.opencode.variants $provider | default dict) (hasKey $.opencode.variants $variantKey) -}}{{- $councilVariantOverrides := get (get $.opencode.omos_overrides $variantKey | default dict) "variants" | default dict -}}{{- $alphaVariant := get $councilVariantOverrides "alpha" | default (get $councilVariants "architecture") }}{{ if $alphaVariant }},
+          "variant": "{{ $alphaVariant }}"{{ end }}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Instala e atualiza os plugins oficiais do nb a partir da branch master.
+set -euo pipefail
+
+{{ if or (eq .chezmoi.os "darwin") (and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch")) }}
+command -v nb >/dev/null 2>&1 || exit 0
+
+readonly plugin_base_url="https://github.com/xwmx/nb/blob/master/plugins"
+readonly plugins=(daily clip backlink bump)
+
+printf '%s\n' ':: instalando plugins oficiais do nb a partir da master'
+
+for plugin in "${plugins[@]}"; do
+    nb plugins install "${plugin_base_url}/${plugin}.nb-plugin" --force
+done
+
+printf '%s\n' ':: plugins oficiais do nb instalados com sucesso'
+{{ else }}
+exit 0
+{{ end }}

@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Gera ~/.ssh/yubikey.pub com a chave publica de autenticacao da YubiKey.
+#
+# A YubiKey (OpenPGP) e sempre a fonte da chave. Para o `gpg --export-ssh-key`
+# funcionar, a chave PUBLICA precisa estar no keyring. Numa maquina nova ela
+# costuma faltar, entao este script tenta, em ordem, traze-la do proprio cartao
+# ou de uma fonte conhecida antes de exporta-la.
+
+set -euo pipefail
+
+YUBIKEY_PUB="$HOME/.ssh/yubikey.pub"
+GPG_KEY_ID="{{ .email }}"
+
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+export GPG_TTY="$(tty 2>/dev/null || true)"
+
+if ! command -v gpg >/dev/null 2>&1; then
+  echo "AVISO: gpg nao instalado; nao foi possivel gerar $YUBIKEY_PUB." >&2
+  exit 0
+fi
+
+# Garante que o gpg-agent/scdaemon estejam no ar e que o cartao seja lido.
+command -v gpgconf >/dev/null 2>&1 && gpgconf --launch gpg-agent >/dev/null 2>&1 || true
+card_ok=no
+if gpg --card-status >/dev/null 2>&1; then
+  card_ok=yes
+fi
+
+_get_key() { gpg --export-ssh-key "$GPG_KEY_ID" 2>/dev/null | head -n1 || true; }
+
+key="$(_get_key)"
+
+# A chave publica nao esta no keyring: tentar obte-la.
+if [[ -z "$key" ]]; then
+  # 1) Buscar pela URL gravada no proprio cartao (gpg --card-edit -> fetch).
+  printf 'fetch\nquit\n' | gpg --command-fd 0 --batch --no-tty --edit-card >/dev/null 2>&1 || true
+  key="$(_get_key)"
+fi
+
+if [[ -z "$key" ]]; then
+  # 2) Importar uma chave publica versionada no proprio dotfiles, se existir.
+  for f in \
+    "${CHEZMOI_SOURCE_DIR:-}/keys/yubikey-gpg.asc" \
+    "$HOME/.ssh/yubikey-gpg.asc" \
+    "$HOME/.gnupg/yubikey-gpg.asc"; do
+    if [[ -n "$f" && -f "$f" ]]; then
+      gpg --import "$f" >/dev/null 2>&1 || true
+      break
+    fi
+  done
+  key="$(_get_key)"
+fi
+
+if [[ -z "$key" ]] && command -v gpgconf >/dev/null 2>&1; then
+  # 3) Fallback: pegar a chave do smartcard direto do ssh-agent do gpg-agent.
+  export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket 2>/dev/null || true)"
+  command -v gpg-connect-agent >/dev/null 2>&1 \
+    && gpg-connect-agent "scd serialno" "learn --force" /bye >/dev/null 2>&1 || true
+  key="$(ssh-add -L 2>/dev/null | awk '/cardno:|openpgp|YubiKey/ {print; exit}' || true)"
+fi
+
+if [[ -z "$key" ]]; then
+  {
+    echo "AVISO: nao foi possivel obter a chave publica da YubiKey."
+    echo "  - gpg --card-status detectou o cartao? $card_ok"
+    if [[ "$card_ok" == "no" ]]; then
+      echo "    -> Conecte a YubiKey e verifique a stack de smartcard:"
+      echo "       'systemctl enable --now pcscd.socket' (pacotes pcsclite + ccid)."
+    else
+      echo "    -> O cartao foi lido, mas a chave publica nao esta no keyring."
+      echo "       Importe sua chave publica GPG, p.ex.:"
+      echo "         gpg --recv-keys <FINGERPRINT>            (de um keyserver)"
+      echo "         gpg --import keys/yubikey-gpg.asc        (versionada no dotfiles)"
+      echo "         gpg --edit-card  -> fetch                (URL gravada no cartao)"
+    fi
+    echo "  Depois rode 'chezmoi apply' novamente."
+  } >&2
+  exit 0
+fi
+
+# Atualiza apenas se o conteudo mudou (evita reescrita a cada apply).
+if [[ -f "$YUBIKEY_PUB" ]] && [[ "$(cat "$YUBIKEY_PUB")" == "$key" ]]; then
+  exit 0
+fi
+
+printf '%s\n' "$key" > "$YUBIKEY_PUB"
+chmod 600 "$YUBIKEY_PUB"
+echo "OK: $YUBIKEY_PUB atualizado."

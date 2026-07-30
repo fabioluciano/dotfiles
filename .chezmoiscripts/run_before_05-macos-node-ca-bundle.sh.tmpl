@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Exporta as CAs do System keychain do macOS para um PEM que o Node.js consome
+# via NODE_EXTRA_CA_CERTS. O Node usa CA bundle proprio e ignora o keychain
+# do macOS, quebrando o postinstall de pacotes como npm:tree-sitter-cli
+# (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). Roda antes do mise-install para garantir
+# que o bundle exista antes de qualquer install.js de pacote npm.
+#
+# Idempotente: so reescreve o PEM quando o conteudo do keychain muda.
+{{ if eq .chezmoi.os "darwin" }}
+{{- if not (has .machineName .personal_machines) }}
+set -euo pipefail
+
+command -v security >/dev/null 2>&1 || exit 0
+
+BUNDLE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}"
+BUNDLE="$BUNDLE_DIR/node-ca-bundle.pem"
+mkdir -p "$BUNDLE_DIR"
+
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+
+# -a: todas as CAs do System keychain.
+# -p: saida PEM.
+if ! security find-certificate -a -p /Library/Keychains/System.keychain > "$TMP" 2>/dev/null; then
+    exit 0
+fi
+
+# So sobrescreve se o conteudo mudou (preserva modtime/cache dos consumidores).
+if [ ! -f "$BUNDLE" ] || ! cmp -s "$TMP" "$BUNDLE"; then
+    mv "$TMP" "$BUNDLE"
+    chmod 644 "$BUNDLE"
+    echo ":: Node CA bundle atualizado em $BUNDLE ($(grep -c 'BEGIN CERT' "$BUNDLE") certs)"
+fi
+{{- end }}
+{{ end }}

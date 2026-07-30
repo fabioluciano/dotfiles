@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Gera ~/.ssh/allowed_signers para verificacao de assinaturas SSH do Git.
+
+set -euo pipefail
+
+ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
+YUBIKEY_PUB="$HOME/.ssh/yubikey.pub"
+SIGNER_EMAIL="{{ .email }}"
+
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+if [[ ! -s "$YUBIKEY_PUB" ]]; then
+  echo "AVISO: $YUBIKEY_PUB nao encontrado/vazio." >&2
+  echo "       O script run_before_10 precisa gerar a chave primeiro." >&2
+  exit 0
+fi
+
+signer_line="$SIGNER_EMAIL $(cat "$YUBIKEY_PUB")"
+
+if [[ -f "$ALLOWED_SIGNERS" ]] && [[ "$(cat "$ALLOWED_SIGNERS")" == "$signer_line" ]]; then
+  exit 0
+fi
+
+printf '%s\n' "$signer_line" > "$ALLOWED_SIGNERS"
+chmod 644 "$ALLOWED_SIGNERS"
+echo "OK: $ALLOWED_SIGNERS atualizado."

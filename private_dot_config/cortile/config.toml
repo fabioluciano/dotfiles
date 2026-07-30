@@ -1,0 +1,305 @@
+################################################################################
+#                                                                              #
+#           https://github.com/leukipp/cortile/blob/main/config.toml           #
+#                                                                              #
+################################################################################
+
+#################################### Tiling ####################################
+
+# Initial tiling activation, will be cached afterwards (true | false).
+tiling_enabled = true
+
+# Initial tiling layout, will be cached afterwards.
+tiling_layout = "vertical-left"
+
+# List of tiling layouts used for next/previous layout cycle.
+tiling_cycle = [
+    "vertical-left",
+    "vertical-right",
+    "horizontal-top",
+    "horizontal-bottom",
+    "maximized",
+]
+
+# Overlay window display duration [ms] when layout changes (0 = disabled).
+tiling_gui = 1000
+
+# Menu entries in systray.
+tiling_icon = [
+    [
+        "toggle",
+        "Enabled",
+    ],
+    [
+        "decoration",
+        "Decoration",
+    ],
+    [
+        "",
+        "",
+    ],
+    [
+        "layout_vertical_left",
+        "Vertical Left",
+    ],
+    [
+        "layout_vertical_right",
+        "Vertical Right",
+    ],
+    [
+        "layout_horizontal_top",
+        "Horizontal Top",
+    ],
+    [
+        "layout_horizontal_bottom",
+        "Horizontal Bottom",
+    ],
+    [
+        "layout_maximized",
+        "Maximized",
+    ],
+    [
+        "",
+        "",
+    ],
+    [
+        "master_increase",
+        "Add Master",
+    ],
+    [
+        "master_decrease",
+        "Remove Master",
+    ],
+    [
+        "slave_increase",
+        "Add Slave",
+    ],
+    [
+        "slave_decrease",
+        "Remove Slave",
+    ],
+    [
+        "",
+        "",
+    ],
+    [
+        "reset",
+        "Reset",
+    ],
+    [
+        "restore",
+        "Restore",
+    ],
+    [
+        "",
+        "",
+    ],
+    [
+        "exit",
+        "Exit",
+    ],
+]
+
+#################################### Window ####################################
+
+# Regex RE2 syntax to ignore windows (WM_CLASS, WM_NAME).
+# Use `xprop WM_CLASS` to find window classes.
+window_ignore = [
+    # System / Auth / Network
+    ["nm-.*", ""],
+    ["gcr-.*", ""],
+    ["polkit-.*", ""],
+    ["wrapper-.*", ""],
+    ["lightdm-.*", ""],
+    ["blueman-.*", ""],
+    ["gnome-keyring.*", ""],
+
+    # XFCE components
+    ["xfce4-panel.*", ""],
+    ["xfce4-notifyd.*", ""],
+    ["xfce4-appfinder.*", ""],
+    ["xfce4-settings.*", ""],
+    ["xfce4-power-manager.*", ""],
+    ["xfdesktop.*", ""],
+    ["Wrapper-2.0", ""],
+    ["Xfce4-terminal", "Preferences"],
+
+    # Audio / Volume
+    ["pavucontrol.*", ""],
+    ["pulseaudio.*", ""],
+
+    # File managers dialogs
+    ["thunar", "File Operation Progress"],
+    ["thunar", "Confirm to replace files"],
+    ["file-roller.*", ""],
+    ["engrampa.*", ""],
+
+    # Utilities - floating
+    ["galculator.*", ""],
+    ["gnome-calculator.*", ""],
+    ["xfce4-screenshooter.*", ""],
+    ["flameshot.*", ""],
+    ["gpick.*", ""],
+    ["gcolor.*", ""],
+    ["zenity.*", ""],
+    ["yad.*", ""],
+    ["arandr.*", ""],
+    ["lxappearance.*", ""],
+    ["nitrogen.*", ""],
+    ["feh.*", ""],
+    ["eog.*", ""],
+    ["ristretto.*", ""],
+    ["viewnior.*", ""],
+
+    # Password managers / Auth
+    ["keepassxc.*", ".*Unlock.*"],
+    ["bitwarden.*", ""],
+    ["1password.*", ""],
+
+    # Misc
+    ["vicinae.*", ""],
+    ["vlc.*", ""],
+    ["mpv.*", ""],
+    ["steam.*", ""],
+    ["lutris.*", ""],
+]
+
+# Maximum number of allowed master windows (0 - 5).
+window_masters_max = 3
+
+# Maximum number of allowed slave windows (1 - 5).
+window_slaves_max = 4
+
+# Space between windows in pixels (0 - 100).
+window_gap_size = 8
+
+# Focus window on hover after delay [ms] (0 = disabled).
+window_focus_delay = 0
+
+# Initial rendering of window decorations.
+window_decoration = true
+
+################################## Proportion ##################################
+
+# Master-slave area increment/decrement step (0.0 - 1.0).
+proportion_step = 0.05
+
+# Minimum window proportion relative to workspace (0.0 - 1.0).
+proportion_min = 0.2
+
+##################################### Edge #####################################
+
+# Margin of the tiling area ([top, right, bottom, left]).
+edge_margin = [4, 4, 4, 4]
+
+# Margin of the tiling area on primary screen.
+edge_margin_primary = [4, 4, 4, 4]
+
+# Hot-corner area size within edge corners (0 - 100).
+# Set to 0 to disable corner detection completely.
+edge_corner_size = 0
+
+# Hot-corner area size within edge centers (0 - 100).
+# Set to 0 to disable edge center detection.
+edge_center_size = 0
+
+################################################################################
+[colors] # RGBA color values for UI elements.
+################################################################################
+
+# Window text color.
+gui_text = [236, 239, 244, 255]
+
+# Window background color (Nord theme inspired).
+gui_background = [46, 52, 64, 240]
+
+# Slave client layout color.
+gui_client_slave = [59, 66, 82, 255]
+
+# Master client layout color.
+gui_client_master = [94, 129, 172, 255]
+
+# Systray icon background color.
+icon_background = [0, 0, 0, 0]
+
+# Systray icon foreground color.
+icon_foreground = [236, 239, 244, 255]
+
+################################################################################
+[keys] # Keybindings - Super (Mod4) based, i3/sway style.
+# Key symbols: run `xev` to find key names.
+################################################################################
+
+# === Tiling Control ===
+toggle = "Mod4-t"
+enable = "Mod4-Shift-t"
+disable = "Mod4-Control-t"
+restore = "Mod4-Shift-r"
+reset = "Mod4-BackSpace"
+decoration = "Mod4-Shift-d"
+
+# === Layout Selection ===
+# Vim-style: h=left, l=right, k=up, j=down
+layout_vertical_left = "Mod4-bracketleft"
+layout_vertical_right = "Mod4-bracketright"
+layout_horizontal_top = "Mod4-Shift-bracketleft"
+layout_horizontal_bottom = "Mod4-Shift-bracketright"
+layout_maximized = "Mod4-m"
+layout_fullscreen = "Mod4-f"
+
+# === Layout Cycling ===
+# Changed from Tab to avoid conflict with Compiz scale
+cycle_next = "Mod4-grave"
+cycle_previous = "Mod4-Shift-grave"
+
+# === Window Navigation (vim-style) ===
+window_next = "Mod4-j"
+window_previous = "Mod4-k"
+
+# === Master/Slave Management ===
+master_make = "Mod4-Return"
+master_make_next = "Mod4-Shift-j"
+master_make_previous = "Mod4-Shift-k"
+master_increase = "Mod4-i"
+master_decrease = "Mod4-d"
+slave_increase = "Mod4-Shift-i"
+slave_decrease = "Mod4-Shift-d"
+
+# === Proportion Control ===
+proportion_increase = "Mod4-l"
+proportion_decrease = "Mod4-h"
+
+# === Multi-Screen ===
+# Changed to Alt variants to avoid conflict with Compiz put
+screen_next = "Mod4-Alt-period"
+screen_previous = "Mod4-Alt-comma"
+
+# === Modifier Keys for Multi-Screen/Workspace Operations ===
+mod_screens = "Mod1"
+mod_workspaces = "Control"
+
+################################################################################
+[corners] # Hot-corner actions (drag window to corner).
+# DISABLED: Prevents layout breaking when dragging windows near edges.
+################################################################################
+
+top_left = ""
+top_center = ""
+top_right = ""
+center_right = ""
+bottom_right = ""
+bottom_center = ""
+bottom_left = ""
+center_left = ""
+
+################################################################################
+[systray] # Systray icon actions.
+################################################################################
+
+click_left = "toggle"
+click_middle = "reset"
+click_right = ""
+scroll_up = "cycle_previous"
+scroll_down = "cycle_next"
+scroll_left = "proportion_decrease"
+scroll_right = "proportion_increase"

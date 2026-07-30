@@ -1,0 +1,17 @@
+#!/usr/bin/env zsh
+# Synchronize generated vault exports into the tmux server environment.
+set -euo pipefail
+
+token_file="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/tokens.zsh"
+[[ -r "$token_file" ]] || exit 0
+
+command tmux has-session &>/dev/null || exit 0
+
+source "$token_file"
+
+while IFS= read -r line; do
+    if [[ "$line" =~ "^export ([[:alpha:]_][[:alnum:]_]*)=" ]]; then
+        variable="${match[1]}"
+        command tmux set-environment -g "$variable" "${(P)variable}"
+    fi
+done < "$token_file"

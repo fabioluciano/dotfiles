@@ -1,0 +1,219 @@
+[tools]
+# Runtimes pinned to latest patch for reproducibility; utilities float at latest.
+# Pinned on 2026-07-23 — bump each runtime's major when upgrading intentionally.
+go = "1.26.5"
+java = "26.0.2"
+node = "26.5.0"
+ruby = "3.4.10"
+groovy = "5.0.7"
+python = "3.14.6"
+bun = "1.3.14"
+deno = "2.9.3"
+rust = "1.97.1"
+
+# Infrastructure & build utilities (float at latest)
+terraform = "latest"
+terragrunt = "latest"
+maven = "latest"
+bazel = "latest"
+kubectl = "latest"
+kubeconform = "latest"
+terraform-ls = "latest"
+
+# CLI tools (float at latest)
+yq = "latest"
+pandoc = "latest"
+uv = "latest"
+usage = "latest"
+pre-commit = "latest"
+
+# Node/Python tooling (moved off Homebrew so mise owns the versions)
+pnpm = "latest"
+"pipx:poetry" = "latest"    # pipx backend: vfox-poetry plugin is flaky
+pipx = "latest"             # note: `uv tool` / `uvx` already cover this
+"npm:typescript" = "latest"
+"npm:skills" = "latest"
+"npm:@fission-ai/openspec" = "latest"
+"npm:@andymatuschak/note-link-janitor" = { version = "0.0.1", allow_low_downloads = true } # reviewed nb backlink dependency
+
+# MCP servers (float at latest)
+"pipx:codebase-memory-mcp" = "latest"
+"pipx:graphifyy" = "latest"
+"npm:@upstash/context7-mcp" = "latest"
+"npm:@playwright/mcp" = "latest"
+"npm:kubernetes-mcp-server" = "latest"
+"pipx:headroom-ai" = { version = "latest", extras = "mcp" }
+"go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server" = "latest" # Terraform — no auth tokens needed
+
+# Language servers / editor tooling (float at latest)
+"npm:typescript-language-server" = "latest"
+"npm:vscode-langservers-extracted" = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+rust-analyzer = "latest"
+lua-language-server = "latest"
+"npm:yaml-language-server" = "latest"
+"npm:bash-language-server" = "latest"
+"npm:@biomejs/biome" = "latest"
+"npm:basedpyright" = "latest"
+"aqua:tamasfe/taplo" = "latest"
+"npm:dockerfile-language-server-nodejs" = "latest"
+"npm:intelephense" = "latest"
+"npm:oxlint" = "latest"
+"aqua:Myriad-Dreamin/tinymist" = "latest"
+"aqua:astral-sh/ruff" = "latest"
+"aqua:zigtools/zls" = "latest"
+"aqua:elixir-lsp/elixir-ls" = "latest"
+"aqua:artempyanykh/marksman" = "latest"
+
+stylua = "latest"
+"pipx:debugpy" = "latest"
+gofumpt = "latest"
+"go:golang.org/x/tools/cmd/goimports" = "latest"
+golangci-lint = "latest"
+"go:github.com/go-delve/delve/cmd/dlv" = "latest"
+"npm:@angular/language-server" = "latest"
+"npm:@vue/language-server" = "latest"
+"npm:@tailwindcss/language-server" = "latest"
+yamllint = "latest"
+yamlfmt = "latest"
+shfmt = "latest"
+"npm:@microsoft/compose-language-service" = "latest"
+tflint = "latest"
+"npm:sql-language-server" = "latest"
+helm-ls = "latest"
+"npm:markdownlint-cli" = "latest"
+"npm:@mdx-js/language-server" = "latest"
+"pipx:cmake-language-server" = "latest"
+"pipx:cmakelint" = "latest"
+"npm:tree-sitter-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
+
+[settings]
+# Enable version files for better compatibility
+idiomatic_version_file_enable_tools = ["node", "python", "ruby", "java"]
+experimental = true
+verbose = false
+asdf_compat = false
+jobs = 4
+
+[env]
+{{- if not (has .machineName .personal_machines) }}
+npm_config_registry = "https://registry.npmmirror.com"
+{{- end }}
+
+[tasks.update]
+run = "mise self-update && mise upgrade"
+description = "Update mise and all tools"
+
+[tasks.update-safe]
+run = "topgrade"
+description = "Safe host/package-manager update path"
+
+[tasks.update-dotfiles]
+run = "chezmoi update --apply"
+description = "Update dotfiles source and apply rendered changes"
+
+[tasks.update-krew]
+run = "kubectl krew upgrade"
+description = "Upgrade kubectl plugins managed by Krew"
+
+[tasks.update-nvim]
+run = "nvim --headless '+Lazy! sync' +qa"
+description = "Sync Neovim plugins headlessly"
+
+[tasks.update-tmux]
+run = """
+if [ "$(uname)" = "Darwin" ]; then
+  "$(brew --prefix tpm)/share/tpm/bin/update_plugins" all
+else
+  ~/.tmux/plugins/tpm/bin/update_plugins all
+fi
+"""
+description = "Update tmux TPM plugins"
+
+[tasks.update-full]
+run = "mise run update-safe && mise run update-dotfiles && mise run update-krew && mise run update-nvim && mise run update-tmux && mise run skills-update"
+description = "Full update path including dotfiles, kubectl plugins, Neovim, tmux, and opencode skills"
+
+[tasks.doctor-chezmoi]
+run = "chezmoi doctor && chezmoi --dry-run apply"
+description = "Check chezmoi integrity and pending changes"
+
+[tasks.doctor-opencode]
+run = "cat ${HOME}/.config/opencode/.active_provider && chezmoi execute-template < private_dot_config/opencode/oh-my-openagent.jsonc.tmpl > /dev/null && echo opencode-ok"
+description = "Verify opencode provider state and template render"
+
+[tasks.doctor-nvim]
+run = "nvim --headless +qa"
+description = "Verify Neovim headless startup"
+
+[tasks.doctor-all]
+run = "mise run doctor-chezmoi && mise run doctor-opencode && mise run doctor-nvim"
+description = "Full environment health check"
+
+[tasks.doctor]
+run = "mise doctor"
+description = "Run mise doctor"
+
+[tasks.skills-list]
+run = "mise exec -- skills list"
+description = "List installed skills via mise"
+
+[tasks.skills-find]
+run = "mise exec -- skills find {{"{{vars.query}}"}}"
+description = "Find skills by query"
+vars = { query = "" }
+
+[tasks.skills-add]
+run = "mise exec -- skills add {{"{{vars.repo}}"}} -a opencode -g -y"
+description = "Add a skill repo via mise"
+vars = { repo = "" }
+
+[tasks.skills-update]
+run = "mise exec -- skills update -g"
+description = "Update all global skills via mise"
+
+[tasks.skills-remove]
+run = "mise exec -- skills remove {{"{{vars.skill}}"}} -a opencode"
+description = "Remove a skill via mise"
+vars = { skill = "" }
+
+[tasks.lint]
+description = "Local lint runner: shellcheck, taplo, yamllint, luac, stylua, chezmoi templates"
+run = """
+set -euo pipefail
+cd "$(chezmoi source-dir)"
+
+echo "=== Linting shell scripts ==="
+find . -name "*.sh" -o -name "*.bash" -o -name "*.zsh" | grep -v ".git" | xargs shellcheck --severity=warning || true
+
+echo "=== Linting TOML files ==="
+find . -name "*.toml" | grep -v ".git" | xargs taplo check || true
+
+echo "=== Linting YAML files ==="
+find . -name "*.yaml" -o -name "*.yml" | grep -v ".git" | xargs yamllint -d relaxed || true
+
+echo "=== Linting Lua files (syntax check) ==="
+find . -name "*.lua" | grep -v ".git" | xargs luac -p || true
+
+echo "=== Linting Lua files (style check) ==="
+find . -name "*.lua" | grep -v ".git" | xargs stylua --check || true
+
+echo "=== Validating chezmoi templates ==="
+for tmpl in $(find . -name "*.tmpl" | grep -v ".git"); do
+  # Skip templates that require runtime secrets
+  if grep -q "Bitwarden\\|YubiKey\\|\\.active_provider" "$tmpl" 2>/dev/null; then
+    echo "  ⊘ $tmpl (skipped: requires runtime secrets)"
+    continue
+  fi
+  if chezmoi execute-template < "$tmpl" > /dev/null 2>&1; then
+    echo "  ✓ $tmpl"
+  else
+    echo "  ✗ $tmpl (template render failed)"
+  fi
+done
+
+echo "=== Lint complete ==="
+"""
+
+[plugins]
+# Add any custom plugins here

@@ -1,0 +1,13 @@
+# Scdaemon Configuration (smartcard daemon usado pelo GPG para a YubiKey)
+# https://www.gnupg.org/documentation/manuals/gnupg/Scdaemon-Options.html
+
+# Permite que outras aplicacoes (ssh, navegador/WebAuthn, yubikey-manager)
+# compartilhem o cartao em vez de trava-lo com exclusividade. Evita o erro
+# "card not available" quando mais de um app toca a YubiKey.
+pcsc-shared
+
+# Se voce usa a YubiKey tambem para FIDO2/WebAuthn e o GPG nao enxerga o cartao
+# quando o pcscd esta rodando, descomente a linha abaixo para forcar o uso do
+# pcscd (em vez do driver CCID interno do scdaemon). Requer pcsclite + ccid e
+# 'systemctl enable --now pcscd.socket'.
+# disable-ccid

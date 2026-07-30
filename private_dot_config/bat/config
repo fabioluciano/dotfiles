@@ -1,0 +1,19 @@
+# Bat configuration
+# https://github.com/sharkdp/bat
+
+# Theme (use a dark theme compatible with terminal)
+--theme="tokyonight_night"
+
+# Enable paging by default
+--paging=auto
+
+# Show line numbers
+--style="numbers,changes,header,grid"
+
+# Use italic text on the terminal (if supported)
+--italic-text=always
+
+# Map file extensions to languages
+--map-syntax "*.ino:C++"
+--map-syntax ".ignore:Git Ignore"
+--map-syntax "*.tmpl:Go HTML Template"

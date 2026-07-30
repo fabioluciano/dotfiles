@@ -1,0 +1,361 @@
+#!/usr/bin/env bash
+# Atualiza os clones do Antidote e reconstrói os bundles estáticos após cada apply.
+set -euo pipefail
+
+{{ if eq .chezmoi.os "darwin" }}
+antidote_dir=
+if [[ -r /opt/homebrew/share/antidote/antidote.zsh ]]; then
+    antidote_dir=/opt/homebrew/share/antidote
+elif [[ -r /usr/local/share/antidote/antidote.zsh ]]; then
+    antidote_dir=/usr/local/share/antidote
+fi
+{{ else if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") }}
+antidote_dir=
+if [[ -r /usr/share/zsh-antidote/antidote.zsh ]]; then
+    antidote_dir=/usr/share/zsh-antidote
+fi
+{{ else }}
+exit 0
+{{ end }}
+
+[[ -n $antidote_dir ]] || exit 0
+command -v zsh >/dev/null 2>&1 || exit 0
+
+zsh_dir="${ZDOTDIR:-$HOME}"
+lockfile="${zsh_dir}/.zsh_plugins.lock"
+antidote_script="${antidote_dir}/antidote.zsh"
+pre_manifest="${zsh_dir}/.zsh_plugins_pre.txt"
+plugins_manifest="${zsh_dir}/.zsh_plugins.txt"
+pre_bundle="${zsh_dir}/.zsh_plugins_pre.zsh"
+plugins_bundle="${zsh_dir}/.zsh_plugins.zsh"
+pre_zwc_target="${pre_bundle}.zwc"
+plugins_zwc_target="${plugins_bundle}.zwc"
+
+[[ -r $antidote_script && -r $pre_manifest && -r $plugins_manifest ]] || exit 0
+
+warn() {
+    printf ':: aviso: %s\n' "$*" >&2
+}
+
+is_signal_status() {
+    case $1 in
+        129|130|131|143) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Acquire the kernel lock in zsh, then keep its file descriptor through exec.
+# Status 75 means that the hook cannot safely enter the critical section.
+if [[ ${1:-} != --antidote-lock-held ]]; then
+    lock_status=0
+    if zsh -f -c '
+        trap "exit 129" HUP
+        trap "exit 130" INT
+        trap "exit 131" QUIT
+        trap "exit 143" TERM
+        zmodload zsh/system 2>/dev/null || exit 75
+        zsystem supports flock 2>/dev/null || exit 75
+        [[ -e "$1" ]] || : >"$1" || exit 75
+        typeset lock_fd
+        zsystem flock -e -t 5 -f lock_fd "$1" || exit 75
+        exec "$2" "$3"
+    ' -- "$lockfile" "$0" --antidote-lock-held; then
+        lock_status=0
+    else
+        lock_status=$?
+    fi
+    if is_signal_status "$lock_status"; then
+        exit "$lock_status"
+    fi
+    if (( lock_status == 75 )); then
+        warn 'não foi possível obter o lock comum dos bundles; mantendo os artefatos atuais.'
+    elif (( lock_status != 0 )); then
+        warn 'o hook dos bundles terminou sem concluir; mantendo os artefatos atuais.'
+    fi
+    exit 0
+fi
+shift
+
+tmp_files=()
+pre_temp=
+plugins_temp=
+pre_zwc_base=
+plugins_zwc_base=
+pre_zwc_temp=
+plugins_zwc_temp=
+pre_backup=
+plugins_backup=
+pre_zwc_backup=
+plugins_zwc_backup=
+pre_present=false
+plugins_present=false
+pre_zwc_present=false
+plugins_zwc_present=false
+backups_ready=false
+rollback_in_progress=false
+
+cleanup() {
+    local file
+    for file in "${tmp_files[@]}"; do
+        [[ -z $file ]] || rm -f -- "$file" 2>/dev/null || :
+    done
+}
+
+make_temp() {
+    if ! temp_path=$(mktemp "$1" 2>/dev/null); then
+        warn 'não foi possível criar um temporário; os artefatos atuais foram preservados.'
+        return 1
+    fi
+    tmp_files+=("$temp_path")
+}
+
+restore_artifact() {
+    local target=$1 backup=$2 present=$3
+    if [[ $present == true ]]; then
+        [[ -n $backup && -e $backup ]] || return 1
+        mv -f -- "$backup" "$target" || return 1
+    else
+        rm -f -- "$target" || return 1
+    fi
+}
+
+remove_final_wordcodes() {
+    rm -f -- "$pre_zwc_target" "$plugins_zwc_target"
+}
+
+rollback() {
+    [[ $backups_ready == true ]] || return 0
+    [[ $rollback_in_progress == false ]] || return 1
+    rollback_in_progress=true
+    local rollback_status=0
+    remove_final_wordcodes || rollback_status=1
+    restore_artifact "$pre_bundle" "$pre_backup" "$pre_present" || rollback_status=1
+    restore_artifact "$plugins_bundle" "$plugins_backup" "$plugins_present" || rollback_status=1
+    restore_artifact "$pre_zwc_target" "$pre_zwc_backup" "$pre_zwc_present" || rollback_status=1
+    restore_artifact "$plugins_zwc_target" "$plugins_zwc_backup" "$plugins_zwc_present" || rollback_status=1
+    rollback_in_progress=false
+    return "$rollback_status"
+}
+
+fail_transaction() {
+    local message=$1 rollback_status=0
+    warn "$message"
+    rollback || rollback_status=$?
+    if (( rollback_status != 0 )); then
+        warn 'o rollback não conseguiu restaurar todos os artefatos; verifique as permissões.'
+    fi
+    exit 0
+}
+
+handle_signal() {
+    local signal_status=$1 rollback_status=0
+    rollback || rollback_status=$?
+    if (( rollback_status != 0 )); then
+        warn 'o rollback após a interrupção não conseguiu restaurar todos os artefatos.'
+    fi
+    exit "$signal_status"
+}
+
+trap 'handle_signal 129' HUP
+trap 'handle_signal 130' INT
+trap 'handle_signal 131' QUIT
+trap 'handle_signal 143' TERM
+trap cleanup EXIT
+
+if ! make_temp "${zsh_dir}/.zsh_plugins_pre.zsh.XXXXXX"; then
+    fail_transaction 'não foi possível preparar o pre-bundle; os artefatos atuais foram preservados.'
+fi
+pre_temp=$temp_path
+
+if ! make_temp "${zsh_dir}/.zsh_plugins.zsh.XXXXXX"; then
+    fail_transaction 'não foi possível preparar o bundle principal; os artefatos atuais foram preservados.'
+fi
+plugins_temp=$temp_path
+
+if ! make_temp "${zsh_dir}/.zsh_plugins_pre.zsh.compile.XXXXXX"; then
+    fail_transaction 'não foi possível preparar a compilação do pre-bundle; os artefatos atuais foram preservados.'
+fi
+pre_zwc_base=$temp_path
+if ! rm -f -- "$pre_zwc_base"; then
+    fail_transaction 'não foi possível preparar a compilação do pre-bundle; os artefatos atuais foram preservados.'
+fi
+pre_zwc_temp="${pre_zwc_base}.zwc"
+tmp_files+=("$pre_zwc_temp")
+
+if ! make_temp "${zsh_dir}/.zsh_plugins.zsh.compile.XXXXXX"; then
+    fail_transaction 'não foi possível preparar a compilação do bundle principal; os artefatos atuais foram preservados.'
+fi
+plugins_zwc_base=$temp_path
+if ! rm -f -- "$plugins_zwc_base"; then
+    fail_transaction 'não foi possível preparar a compilação do bundle principal; os artefatos atuais foram preservados.'
+fi
+plugins_zwc_temp="${plugins_zwc_base}.zwc"
+tmp_files+=("$plugins_zwc_temp")
+
+printf '%s\n' ':: atualizando os plugins do Antidote e preparando os bundles'
+if zsh -f -c '
+    source "$1" || exit 1
+    antidote update --bundles || exit 1
+' -- "$antidote_script"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'falha no update dos plugins do Antidote; os artefatos atuais foram preservados.'
+fi
+
+if zsh -f -c '
+    source "$1" || exit 1
+    antidote bundle <"$2" >"$3" || exit 1
+    antidote bundle <"$4" >"$5" || exit 1
+' -- "$antidote_script" "$pre_manifest" "$pre_temp" \
+    "$plugins_manifest" "$plugins_temp"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'falha na renderização do Antidote; os artefatos atuais foram preservados.'
+fi
+
+if [[ ! -s $pre_temp || ! -s $plugins_temp ]]; then
+    fail_transaction 'o Antidote gerou um bundle vazio; os artefatos atuais foram preservados.'
+fi
+
+pre_valid=true
+plugins_valid=true
+if zsh -n "$pre_temp" >/dev/null 2>&1; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    pre_valid=false
+fi
+if zsh -n "$plugins_temp" >/dev/null 2>&1; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    plugins_valid=false
+fi
+if [[ $pre_valid != true || $plugins_valid != true ]]; then
+    fail_transaction 'a validação de sintaxe dos bundles falhou; os artefatos atuais foram preservados.'
+fi
+
+backup_file() {
+    local source=$1 pattern=$2
+    if ! make_temp "$pattern"; then
+        return 1
+    fi
+    backup_path=$temp_path
+    cp -p "$source" "$backup_path" || return 1
+}
+
+if [[ -e $pre_bundle ]]; then
+    pre_present=true
+    if ! backup_file "$pre_bundle" "${zsh_dir}/.zsh_plugins_pre.zsh.backup.XXXXXX"; then
+        fail_transaction 'não foi possível criar o backup do pre-bundle; os artefatos atuais foram preservados.'
+    fi
+    pre_backup=$backup_path
+fi
+if [[ -e $plugins_bundle ]]; then
+    plugins_present=true
+    if ! backup_file "$plugins_bundle" "${zsh_dir}/.zsh_plugins.zsh.backup.XXXXXX"; then
+        fail_transaction 'não foi possível criar o backup do bundle principal; os artefatos atuais foram preservados.'
+    fi
+    plugins_backup=$backup_path
+fi
+if [[ -e $pre_zwc_target ]]; then
+    pre_zwc_present=true
+    if ! backup_file "$pre_zwc_target" "${zsh_dir}/.zsh_plugins_pre.zsh.zwc.backup.XXXXXX"; then
+        fail_transaction 'não foi possível criar o backup do pre-bundle compilado; os artefatos atuais foram preservados.'
+    fi
+    pre_zwc_backup=$backup_path
+fi
+if [[ -e $plugins_zwc_target ]]; then
+    plugins_zwc_present=true
+    if ! backup_file "$plugins_zwc_target" "${zsh_dir}/.zsh_plugins.zsh.zwc.backup.XXXXXX"; then
+        fail_transaction 'não foi possível criar o backup do bundle compilado; os artefatos atuais foram preservados.'
+    fi
+    plugins_zwc_backup=$backup_path
+fi
+backups_ready=true
+
+if ! remove_final_wordcodes; then
+    fail_transaction 'não foi possível remover os wordcodes antigos; os artefatos atuais foram preservados.'
+fi
+if mv -f -- "$pre_temp" "$pre_bundle"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'não foi possível promover o pre-bundle; os artefatos atuais foram restaurados.'
+fi
+if mv -f -- "$plugins_temp" "$plugins_bundle"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'não foi possível promover o bundle principal; os artefatos atuais foram restaurados.'
+fi
+
+# Compile only the promoted source paths. The compiled files remain temporary
+# until both zcompile and zcompile -t have succeeded.
+if zsh -f -c '
+    validate_wordcode() {
+        zcompile -t "$1" "$2" >/dev/null 2>&1 ||
+            zcompile -t "$1" >/dev/null 2>&1
+    }
+    zcompile -R -- "$1" "$2" || exit 1
+    validate_wordcode "${1}.zwc" "$2" || exit 1
+    zcompile -R -- "$3" "$4" || exit 1
+    validate_wordcode "${3}.zwc" "$4" || exit 1
+' -- "$pre_zwc_base" "$pre_bundle" "$plugins_zwc_base" "$plugins_bundle" \
+    >/dev/null 2>&1; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'a compilação ou validação dos bundles falhou; os quatro artefatos foram restaurados.'
+fi
+if [[ ! -s $pre_zwc_temp || ! -s $plugins_zwc_temp ]]; then
+    fail_transaction 'a compilação não gerou os dois arquivos .zwc; os quatro artefatos foram restaurados.'
+fi
+
+if ! remove_final_wordcodes; then
+    fail_transaction 'não foi possível preparar a promoção dos wordcodes; os quatro artefatos foram restaurados.'
+fi
+if mv -f -- "$pre_zwc_temp" "$pre_zwc_target"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'não foi possível promover o pre-bundle compilado; os quatro artefatos foram restaurados.'
+fi
+if mv -f -- "$plugins_zwc_temp" "$plugins_zwc_target"; then
+    :
+else
+    command_status=$?
+    if is_signal_status "$command_status"; then
+        handle_signal "$command_status"
+    fi
+    fail_transaction 'não foi possível promover o bundle compilado; os quatro artefatos foram restaurados.'
+fi
+
+backups_ready=false
+printf '%s\n' ':: bundles estáticos do Antidote atualizados com sucesso'

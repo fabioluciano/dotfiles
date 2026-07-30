@@ -1,0 +1,78 @@
+# ~/.nbrc — configuracao do nb (command-line notebook knowledge base)
+# Gerenciado pelo chezmoi. Edite a fonte com `chezmoi edit ~/.nbrc`.
+# `nb set <nome> <valor>` tambem grava aqui, mas e sobrescrito no proximo
+# `chezmoi apply`, entao prefira editar por aqui para mudancas persistentes.
+
+# =============================================================================
+# Editor & formato
+# =============================================================================
+# nvim explicito (nao depende de $EDITOR). Trocar: nb set editor <cmd>
+export NB_EDITOR="nvim"
+# Markdown como extensao padrao. Alternativas: org, rst, txt, adoc, tex
+export NB_DEFAULT_EXTENSION="md"
+
+# =============================================================================
+# Listagem & UI
+# =============================================================================
+# "auto": o numero de itens listados se adapta a altura do terminal
+# (em vez do fixo 15). Modificadores: auto^15 (max), auto-2 (offset prompt)
+export NB_LIMIT="auto"
+# 2 = cabecalho centralizado (default). 0=oculto, 1=dinamico, 3=esquerda
+export NB_HEADER="2"
+# 0 oculta o rodapé com exemplos de comandos (util para quem ja conhece o nb)
+export NB_FOOTER="0"
+
+# =============================================================================
+# Cores & sintaxe
+# =============================================================================
+# Tema de sintaxe alinhado ao bat (~/.config/bat/config -> tokyonight_night),
+# assim `nb show` realca codigo igual ao `bat`/`batcat`.
+export NB_SYNTAX_THEME="tokyonight_night"
+# color_theme: "nb" (default). Outros: blacklight, desert, electro, forest,
+# ocean, raspberry, smoke, unicorn, utility. Trocar: nb set color_theme <nome>
+# color_primary / color_secondary ficam nos defaults do tema.
+
+# =============================================================================
+# Git sync
+# =============================================================================
+# 1 (default): add/edit/delete fazem commit + push quando o notebook tem remote
+# configurado. Sem remote e no-op (so versiona localmente via git).
+# Para desativar: export NB_AUTO_SYNC="0"
+export NB_AUTO_SYNC="1"
+
+# =============================================================================
+# Ferramentas (auto-deteccao explicita)
+# =============================================================================
+# Renderiza markdown com o bat em `nb show` (ja instalado; reaproveita o tema).
+export NB_MARKDOWN_TOOL="bat"
+# nb auto-detecta pandoc (conversao/bookmarks), rg (busca), ncat (browse),
+# w3m (browser terminal), tig (historico). Deixar auto onde nao definido.
+
+# =============================================================================
+# Criptografia
+# =============================================================================
+# AES-256 via openssl (senha por nota, prompt na visualizacao/edicao).
+# Para integrar com GPG/YubiKey:  nb set encryption_tool gpg
+export NB_ENCRYPTION_TOOL="openssl"
+
+# =============================================================================
+# Plugins oficiais
+# =============================================================================
+# `daily`: datas ISO e timestamps de minuto, sem segundos desnecessarios.
+export NB_DAILY_DATESTAMP_FORMAT="+%Y-%m-%d"
+export NB_DAILY_TIMESTAMP_FORMAT="+%H:%M"
+# `clip`: pbcopy/pbpaste no macOS; xclip no Arch (gerenciado no Pacmanfile).
+# `backlink`: requer titulos `# ...` e note-link-janitor (gerenciado pelo mise).
+# `bump`: nao requer configuracao adicional.
+
+# =============================================================================
+# Opcional (nao ativos — instale a parte se quiser)
+# =============================================================================
+# readability-cli (npm i -g @gardenappl/readability-cli): CLI do Readability da
+#   Mozilla. O nb detecta e usa NATIVAMENTE para limpar o markup dos bookmarks,
+#   extraindo so o conteudo do artigo (tira nav/ads/scripts). Recomendado.
+#
+# monolith (brew install monolith): salva pagina completa em um unico HTML
+#   self-contained (CSS/JS/imagens inline) para arquivamento offline fiel.
+#   NOTA: o nb NAO integra automaticamente — e uma ferramenta manual, usada
+#   a parte (`monolith <url> > arquivo.html`).

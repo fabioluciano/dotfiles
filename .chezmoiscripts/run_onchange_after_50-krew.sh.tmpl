@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Re-run whenever ~/.Krewfile changes.
+# Krewfile hash: {{ include "dot_Krewfile" | sha256sum }}
+set -euo pipefail
+
+command -v kubectl >/dev/null 2>&1 || exit 0
+kubectl krew version >/dev/null 2>&1 || exit 0
+[[ -f "$HOME/.Krewfile" ]] || exit 0
+
+echo ":: kubectl krew install (Krewfile changed)"
+failed=0
+while IFS= read -r plugin; do
+    [[ -z "$plugin" ]] && continue
+    install_output=$(kubectl krew install "$plugin" 2>&1) && install_exit=0 || install_exit=$?
+    if [[ $install_exit -ne 0 ]]; then
+        if echo "$install_output" | grep -qi "already installed"; then
+            echo "  $plugin: already installed, skipping"
+        elif echo "$install_output" | grep -qi "does not offer installation"; then
+            echo "  $plugin: not available for this platform, skipping" >&2
+        else
+            echo "  $plugin: FAILED (exit $install_exit)" >&2
+            echo "$install_output" >&2
+            failed=1
+        fi
+    fi
+done < <(grep -vE '^\s*(#|$)' "$HOME/.Krewfile")
+if [[ $failed -ne 0 ]]; then
+    echo ":: krew install completed with errors" >&2
+    exit 1
+fi

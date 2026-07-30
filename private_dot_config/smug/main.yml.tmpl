@@ -1,0 +1,19 @@
+session: main
+root: ~/
+
+windows:
+  - name: system
+  - name: develop
+    root: ~/developer
+    commands:
+      - nvim .
+
+  - name: monitoring
+    commands:
+      - btop
+{{- if eq .chezmoi.os "linux" }}
+    panes:
+      - type: horizontal
+        commands:
+          - nvtop
+{{- end }}

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Instala plugins do tmux via TPM (Tmux Plugin Manager).
+# Re-executa quando a lista de plugins no tmux.conf mudar.
+# tmux.conf hash: {{ include "private_dot_config/tmux/tmux.conf.tmpl" | sha256sum }}
+set -euo pipefail
+
+command -v tmux >/dev/null 2>&1 || exit 0
+
+# Localiza o binário do TPM (Homebrew macOS, Homebrew Linux, ou clone manual)
+if [[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]]; then
+    tpm_install="/opt/homebrew/opt/tpm/share/tpm/bin/install_plugins"
+elif [[ -f /usr/share/tmux-plugin-manager/tpm ]]; then
+    tpm_install="/usr/share/tmux-plugin-manager/bin/install_plugins"
+elif [[ -f "$HOME/.tmux/plugins/tpm/tpm" ]]; then
+    tpm_install="$HOME/.tmux/plugins/tpm/bin/install_plugins"
+else
+    echo ":: TPM não encontrado; instale tpm via brew ou clone em ~/.tmux/plugins/tpm" >&2
+    exit 0
+fi
+
+echo ":: instalando plugins do tmux via TPM"
+TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins" "$tpm_install" || {
+    echo "  TPM install_plugins falhou; execute prefix+I manualmente no tmux" >&2
+    exit 1
+}
+echo ":: plugins do tmux instalados com sucesso"

@@ -1,0 +1,26 @@
+{{- $machineName := promptStringOnce . "machineName" "Nome desta máquina (ex.: iorek, aesahaettr, nome do Mac do trabalho)" .chezmoi.hostname -}}
+
+encryption = "gpg"
+
+[gpg]
+recipient = "fabio@naoimporta.com"
+
+[edit]
+command = "nvim"
+
+[diff]
+exclude = ["scripts"]
+
+[merge]
+command = "nvim"
+args = ["-d", "{{"{{"}} .Destination {{"}}"}}", "{{"{{"}} .Source {{"}}"}}", "{{"{{"}} .Target {{"}}"}}"]
+
+[status]
+exclude = ["scripts"]
+
+[data]
+name = "Fábio Luciano"
+email = "fabio@naoimporta.com"
+github_user = "fabioluciano"
+weather_city = "Brasilia,Brazil"
+machineName = {{ $machineName | quote }}

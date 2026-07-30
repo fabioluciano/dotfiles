@@ -1,0 +1,43 @@
+k9s:
+  # Live view settings
+  liveViewAutoRefresh: true
+  refreshRate: 2
+  maxConnRetry: 5
+
+  # Access mode
+  readOnly: false
+
+  # UI Configuration
+  ui:
+    enableMouse: true
+    headless: true
+    reactive: true
+    skin: transparent
+    logoless: false
+    crumbsless: false
+    noIcons: false
+
+  # Logging
+  logger:
+    tail: 200
+    buffer: 5000
+    sinceSeconds: -1
+    textWrap: false
+    showTime: false
+
+  # Shell pod settings
+  shellPod:
+    image: busybox:1.37.0
+    namespace: default
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+  # Resource thresholds
+  thresholds:
+    cpu:
+      critical: 90
+      warn: 70
+    memory:
+      critical: 90
+      warn: 70

@@ -1,0 +1,149 @@
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Ghostty Configuration                  │
+# ╰──────────────────────────────────────────────────────────╯
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                      Color Scheme                         │
+# ╰──────────────────────────────────────────────────────────╯
+
+theme = TokyoNight
+background-opacity = 1
+cursor-color = #c0caf5
+cursor-text = #1a1b26
+selection-foreground = #c0caf5
+selection-background = #33467c
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                         Fonts                             │
+# ╰──────────────────────────────────────────────────────────╯
+
+font-family = Maple Mono NF
+{{- if eq .chezmoi.os "darwin" }}
+font-size = 12
+font-thicken = true
+font-thicken-strength = 150
+{{- else }}
+font-size = 11
+{{- end }}
+font-style = Regular
+font-style-bold = Bold
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic
+adjust-cell-height = 40%
+font-feature = calt
+font-feature = liga
+font-feature = dlig
+font-feature = lnum
+font-feature = zero
+font-feature = ss01
+font-feature = ss02
+font-feature = ss03
+font-feature = ss04
+font-feature = ss05
+font-feature = ss06
+font-feature = ss07
+font-feature = ss08
+font-feature = ss09
+font-feature = ss10
+font-feature = ss11
+bold-is-bright = true
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Window Settings                        │
+# ╰──────────────────────────────────────────────────────────╯
+
+window-padding-x = 0
+window-padding-y = 0
+window-padding-balance = true
+window-inherit-working-directory = true
+window-inherit-font-size = true
+window-decoration = server
+window-save-state = never
+abnormal-command-exit-runtime = 0
+confirm-close-surface = false
+resize-overlay = never
+
+# Initial size (columns x rows)
+window-width = 140
+window-height = 40
+
+# macOS specific
+{{- if eq .chezmoi.os "darwin" }}
+macos-titlebar-style = native
+macos-window-shadow = true
+macos-option-as-alt = true
+{{- end }}
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Cursor Settings                        │
+# ╰──────────────────────────────────────────────────────────╯
+
+cursor-style = block
+cursor-style-blink = true
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Shell / Command                        │
+# ╰──────────────────────────────────────────────────────────╯
+
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+command = /bin/zsh {{ .chezmoi.homeDir }}/.local/bin/ghostty-tmux
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Scrollback                             │
+# ╰──────────────────────────────────────────────────────────╯
+
+scrollback-limit = 100000
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Links / URLs                           │
+# ╰──────────────────────────────────────────────────────────╯
+
+link-url = true
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Key Bindings                           │
+# │         (Minimal - tmux handles most things)              │
+# ╰──────────────────────────────────────────────────────────╯
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS keybindings (Cmd key)
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
+keybind = super+n=new_window
+keybind = super+q=quit
+keybind = super+plus=increase_font_size:1
+keybind = super+minus=decrease_font_size:1
+keybind = super+zero=reset_font_size
+keybind = super+enter=toggle_fullscreen
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+{{- else }}
+# Linux keybindings (Ctrl+Shift)
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+zero=reset_font_size
+keybind = f11=toggle_fullscreen
+{{- end }}
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Clipboard                              │
+# ╰──────────────────────────────────────────────────────────╯
+
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+copy-on-select = false
+
+# ╭──────────────────────────────────────────────────────────╮
+# │                    Behavior                               │
+# ╰──────────────────────────────────────────────────────────╯
+
+click-repeat-interval = 500
+auto-update = check
+auto-update-channel = stable
+quit-after-last-window-closed = true

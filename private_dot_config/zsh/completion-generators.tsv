@@ -1,0 +1,15 @@
+darwin	always	-	uv	generator	uv generate-shell-completion zsh
+darwin	manifest	hexyl	hexyl	generator	hexyl --completion zsh
+darwin	manifest	sem-cli	sem	generator	sem completions zsh
+darwin	manifest	lazygit	lazygit	generator	lazygit completion zsh
+darwin	manifest	argoproj/tap/kubectl-argo-rollouts	kubectl-argo-rollouts	generator	kubectl-argo-rollouts completion zsh
+darwin	manifest	xwmx/taps/nb	nb	generator	nb completions zsh
+darwin	manifest	anomalyco/tap/opencode	opencode	generator	opencode completion zsh
+darwin	manifest	buildpacks/tap/pack	pack	pack	-
+arch	always	-	chezmoi	generator	chezmoi completion zsh
+arch	always	-	gh	generator	gh completion -s zsh
+arch	always	-	docker	generator	docker completion zsh
+arch	always	-	uv	generator	uv generate-shell-completion zsh
+arch	always	-	just	generator	just --completions zsh
+arch	always	-	opencode	generator	opencode completion zsh
+arch	always	-	nb	generator	nb completions zsh

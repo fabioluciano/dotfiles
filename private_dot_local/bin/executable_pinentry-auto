@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Dispatcher de pinentry: usa a versao grafica quando ha um display disponivel
+# e cai para a versao curses (TTY) caso contrario. Evita falhas de pinentry em
+# sessoes sem ambiente grafico (SSH, console, chezmoi apply headless).
+
+if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v pinentry-gnome3 >/dev/null 2>&1; then
+  exec pinentry-gnome3 "$@"
+elif command -v pinentry-curses >/dev/null 2>&1; then
+  exec pinentry-curses "$@"
+else
+  exec pinentry "$@"
+fi

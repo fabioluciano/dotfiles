@@ -1,0 +1,786 @@
+#!/usr/bin/env bash
+# Reconcile package-manager completion facts into an immutable Zsh generation.
+
+if (( BASH_VERSINFO[0] < 4 )); then
+    for _zsh_audit_bash in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+        if [[ -x $_zsh_audit_bash && $_zsh_audit_bash != "$BASH" ]]; then
+            exec "$_zsh_audit_bash" "$0" "$@"
+        fi
+    done
+    printf '%s\n' 'zsh-completion-audit: Bash 4+ is required; install Homebrew Bash at /opt/homebrew/bin/bash or /usr/local/bin/bash.' >&2
+    exit 1
+fi
+
+set -euo pipefail
+umask 077
+
+export LC_ALL=C
+
+readonly SCHEMA_VERSION=5
+
+usage() {
+    printf 'usage: %s --platform <darwin|arch> --manifest <path> --registry <path> --signature <value> [--helper <path>] [--schema-version <n>]\n' "$0" >&2
+    exit 2
+}
+
+die() {
+    printf 'zsh-completion-audit: error: %s\n' "$1" >&2
+    exit 1
+}
+
+hash_stream() {
+    local digest
+    if command -v sha256sum >/dev/null 2>&1; then
+        digest=$(sha256sum | { read -r value _; printf '%s' "$value"; }) || return 1
+    elif command -v shasum >/dev/null 2>&1; then
+        digest=$(shasum -a 256 | { read -r value _; printf '%s' "$value"; }) || return 1
+    else
+        return 1
+    fi
+    printf '%s\n' "$digest"
+}
+
+hash_file() {
+    local path=$1 digest
+    if command -v sha256sum >/dev/null 2>&1; then
+        digest=$(sha256sum -- "$path") || return 1
+    elif command -v shasum >/dev/null 2>&1; then
+        digest=$(shasum -a 256 "$path") || return 1
+    else
+        return 1
+    fi
+    printf '%s\n' "${digest%% *}"
+}
+
+hash_text() {
+    printf '%s' "$1" | hash_stream
+}
+
+hash_pair() {
+    local left right
+    left=$(hash_file "$1") || return 1
+    right=$(hash_file "$2") || return 1
+    printf '%s\0%s' "$left" "$right" | hash_stream
+}
+
+sha256_signature() {
+    local manifest_hash registry_hash helper_hash
+    manifest_hash=$(hash_file "$manifest") || return 1
+    registry_hash=$(hash_file "$registry") || return 1
+    helper_hash=$(hash_file "$helper") || return 1
+    printf 'zsh-completion-schema-%s|%s|%s|%s|%s|%s\n' \
+        "$SCHEMA_VERSION" "$platform" "$manifest_hash" "$registry_hash" \
+        "$helper_hash" "$SCHEMA_VERSION"
+}
+
+valid_id() {
+    [[ $1 =~ ^[a-f0-9]{64}$ ]]
+}
+
+valid_command() {
+    [[ $1 =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]]
+}
+
+valid_darwin_package() {
+    [[ $1 =~ ^[a-z0-9][a-z0-9@._+-]*(/[a-z0-9][a-z0-9@._+-]*){0,2}$ ]]
+}
+
+valid_arch_package() {
+    [[ $1 =~ ^[a-z0-9][a-z0-9@._+:-]*$ ]]
+}
+
+valid_payload_token() {
+    [[ $1 =~ ^-{0,2}[A-Za-z0-9][A-Za-z0-9._/@+=:-]*$ ]]
+}
+
+valid_safe_field() {
+    local field=$1
+    [[ -n $field ]] || return 1
+    [[ $field != *$'\r'* && $field != *$'\n'* ]] || return 1
+    [[ $field =~ [[:cntrl:]] ]] && return 1
+    [[ $field != *'..'* ]]
+}
+
+validate_registry() {
+    local line field platform_value scope_value package_value command_value
+    local kind_value payload_value key
+    local tab_count
+    local -a fields payload_tokens
+    local row=0
+
+    if ! cmp -s "$registry" <(LC_ALL=C tr -d '\000' < "$registry"); then
+        die 'registry contains NUL bytes'
+    fi
+
+    while IFS= read -r line || [[ -n $line ]]; do
+        [[ -n $line ]] || die "registry line $((row + 1)) is empty"
+        [[ ${line:0:1} != '#' ]] || die "registry line $((row + 1)) is a comment"
+        tab_count=${line//[^$'\t']/}
+        (( ${#tab_count} == 5 )) ||
+            die "registry line $((row + 1)) must contain exactly five tabs"
+        [[ $line != $'\t'* && $line != *$'\t' && $line != *$'\t\t'* ]] ||
+            die "registry line $((row + 1)) contains an empty TSV field"
+        fields=()
+        IFS=$'\t' read -r -a fields <<< "$line"
+        (( ${#fields[@]} == 6 )) || die "registry line $((row + 1)) must have six fields"
+
+        for field in "${fields[@]}"; do
+            valid_safe_field "$field" || die "registry line $((row + 1)) contains an invalid field"
+        done
+
+        platform_value=${fields[0]}
+        scope_value=${fields[1]}
+        package_value=${fields[2]}
+        command_value=${fields[3]}
+        kind_value=${fields[4]}
+        payload_value=${fields[5]}
+
+        [[ $platform_value == darwin || $platform_value == arch ]] ||
+            die "registry line $((row + 1)) has an invalid platform"
+        [[ $scope_value == always || $scope_value == manifest ]] ||
+            die "registry line $((row + 1)) has an invalid scope"
+        [[ $kind_value == generator || $kind_value == pack ]] ||
+            die "registry line $((row + 1)) has an invalid kind"
+        valid_command "$command_value" ||
+            die "registry line $((row + 1)) has an invalid command"
+
+        if [[ $scope_value == always ]]; then
+            [[ $package_value == - ]] ||
+                die "registry line $((row + 1)) requires - for always"
+        else
+            [[ $package_value != - ]] ||
+                die "registry line $((row + 1)) requires a package for manifest"
+            if [[ $platform_value == darwin ]]; then
+                valid_darwin_package "$package_value" ||
+                    die "registry line $((row + 1)) has an invalid Darwin package"
+            else
+                valid_arch_package "$package_value" ||
+                    die "registry line $((row + 1)) has an invalid Arch package"
+            fi
+        fi
+
+        if [[ $kind_value == pack ]]; then
+            [[ $payload_value == - ]] ||
+                die "registry line $((row + 1)) requires - for pack"
+        else
+            [[ $payload_value != - ]] ||
+                die "registry line $((row + 1)) requires a generator payload"
+            [[ $payload_value != ' '* && $payload_value != *' ' &&
+                $payload_value != *'  '* ]] ||
+                die "registry line $((row + 1)) has invalid payload spacing"
+            read -r -a payload_tokens <<< "$payload_value"
+            (( ${#payload_tokens[@]} > 0 )) ||
+                die "registry line $((row + 1)) has an empty payload"
+            [[ ${payload_tokens[*]} == "$payload_value" ]] ||
+                die "registry line $((row + 1)) has invalid payload separators"
+            for field in "${payload_tokens[@]}"; do
+                valid_payload_token "$field" ||
+                    die "registry line $((row + 1)) has an invalid payload token"
+            done
+        fi
+
+        key="${platform_value}|${command_value}"
+        [[ -z ${registry_seen[$key]+present} ]] ||
+            die "registry contains duplicate $key"
+        registry_seen[$key]=$row
+        row_platform[row]=$platform_value
+        row_scope[row]=$scope_value
+        row_package[row]=$package_value
+        row_command[row]=$command_value
+        row_kind[row]=$kind_value
+        row_payload[row]=$payload_value
+        ((row += 1))
+    done < "$registry"
+
+    (( row > 0 )) || die 'registry is empty'
+    registry_rows=$row
+}
+
+report_once() {
+    local key=$1
+    shift
+    if [[ -z ${reported[$key]+present} ]]; then
+        reported[$key]=1
+        printf 'zsh-completion-audit: %s\n' "$*"
+    fi
+}
+
+normalize_package_path() {
+    local prefix=$1 path=$2
+    if [[ $path == /* ]]; then
+        printf '%s\n' "$path"
+    else
+        printf '%s/%s\n' "$prefix" "$path"
+    fi
+}
+
+valid_static_file() {
+    local path=$1
+    [[ -f $path ]] || return 1
+    grep -qE '^#compdef([[:space:]]|$)' "$path" || return 1
+    zsh -n "$path" >/dev/null 2>&1
+}
+
+scan_static_files() {
+    local package_name=$1 file_list=$2 prefix=$3 static_root=$4
+    local raw path name command_name static_key has_static=0
+
+    while IFS= read -r raw || [[ -n $raw ]]; do
+        [[ -n $raw ]] || continue
+        path=$(normalize_package_path "$prefix" "$raw")
+        [[ $path == */zsh/* || $path == */completion* ||
+            $path == */site-functions/* ]] || continue
+        name=${path##*/}
+        [[ $name == _* && ${#name} -gt 1 ]] || continue
+        command_name=${name#_}
+        valid_command "$command_name" || continue
+        static_key="${package_name}|${command_name}"
+        if [[ -f "$static_root/$name" ]]; then
+            if valid_static_file "$static_root/$name"; then
+                static_valid[$command_name]=1
+                has_static=1
+                report_once "static|$static_key" "static $package_name $command_name"
+            else
+                report_once "unknown-static|$static_key" "unknown $package_name $command_name"
+            fi
+        elif [[ $path == "$static_root/"* ]]; then
+            report_once "unknown-static|$static_key" "unknown $package_name $command_name"
+        else
+            if grep -qE '^#compdef([[:space:]]|$)' "$path"; then
+                if zsh -n "$path" >/dev/null 2>&1; then
+                    report_once "static-unreachable|$static_key" \
+                        "static-unreachable $package_name $command_name"
+                else
+                    report_once "unknown-static|$static_key" "unknown $package_name $command_name"
+                fi
+            fi
+        fi
+    done < "$file_list"
+
+    if [[ $has_static == 1 ]]; then
+        package_has_static[$package_name]=1
+    fi
+    return 0
+}
+
+scan_known_static_path() {
+    local static_root=$1 command_name=$2 package_name=$3 path
+    path="$static_root/_$command_name"
+    [[ -f $path ]] || return 0
+    if valid_static_file "$path"; then
+        static_valid[$command_name]=1
+        package_has_static[$package_name]=1
+        report_once "static|${package_name}|${command_name}" \
+            "static $package_name $command_name"
+    else
+        report_once "unknown-static|${package_name}|${command_name}" \
+            "unknown $package_name $command_name"
+    fi
+}
+
+scan_brew_static_cellar() {
+    local cellar=$1 prefix=$2
+    local path relative formula_base declared_formula name command_name
+    local static_key effective
+
+    [[ -d $cellar ]] || die "brew cellar does not exist: $cellar"
+    while IFS= read -r -d '' path; do
+        relative=${path#"$cellar"/}
+        [[ $relative != "$path" ]] || continue
+        formula_base=${relative%%/*}
+        [[ -n ${declared_package_by_base[$formula_base]+present} &&
+            -n ${installed_package_by_base[$formula_base]+present} ]] || continue
+        name=${path##*/}
+        [[ $name == _* && ${#name} -gt 1 ]] || continue
+        command_name=${name#_}
+        valid_command "$command_name" || continue
+        declared_formula=${declared_package_by_base[$formula_base]}
+        static_key="${declared_formula}|${command_name}"
+        effective="$prefix/share/zsh/site-functions/$name"
+        if [[ -e $effective ]]; then
+            if valid_static_file "$effective"; then
+                static_valid[$command_name]=1
+                package_has_static[$declared_formula]=1
+                report_once "static|$static_key" \
+                    "static $declared_formula $command_name"
+            else
+                report_once "unknown-static|$static_key" \
+                    "unknown $declared_formula $command_name"
+            fi
+        elif valid_static_file "$path"; then
+            report_once "static-unreachable|$static_key" \
+                "static-unreachable $declared_formula $command_name"
+        fi
+    done < <(find "$cellar" -type f -path '*/share/zsh/site-functions/*' -print0)
+}
+
+brew_facts() {
+    local formulas_file="$stage/formulas"
+    local installed_file formula formula_key formula_base
+
+    installed_file="$stage/installed"
+    brew_prefix=$(brew --prefix) || die 'brew --prefix failed'
+    brew_cellar=$(brew --cellar) || die 'brew --cellar failed'
+    brew bundle list --file "$manifest" --formula > "$formulas_file" ||
+        die 'brew bundle list --formula failed'
+    brew list --formula > "$installed_file" ||
+        die 'brew list --formula failed'
+
+    while IFS= read -r formula || [[ -n $formula ]]; do
+        [[ -n $formula ]] || continue
+        valid_darwin_package "$formula" ||
+            die "brew returned an invalid formula: $formula"
+        declared_package[$formula]=1
+        declared_package_by_base["${formula##*/}"]=$formula
+    done < "$formulas_file"
+
+    while IFS= read -r formula || [[ -n $formula ]]; do
+        [[ -n $formula ]] || continue
+        valid_darwin_package "$formula" ||
+            die "brew returned an invalid installed formula: $formula"
+        formula_base=${formula##*/}
+        installed_package[$formula]=1
+        installed_package_by_base[$formula_base]=$formula
+    done < "$installed_file"
+
+    scan_brew_static_cellar "$brew_cellar" "$brew_prefix"
+
+    for formula_key in "${!declared_package[@]}"; do
+        formula_base=${formula_key##*/}
+        [[ -n ${installed_package_by_base[$formula_base]+present} ]] || continue
+        if [[ -z ${package_has_static[$formula_key]+present} &&
+            -z ${mapped_package[$formula_key]+present} &&
+            -z ${mapped_package[$formula_base]+present} ]]; then
+            report_once "unknown-package|$formula_key" "unknown $formula_key"
+        fi
+    done
+}
+
+pacman_facts() {
+    local static_root=$1
+    local installed_file="$stage/installed"
+    local package_name file_list
+
+    pacman -Qq > "$installed_file" || die 'pacman -Qq failed'
+    while IFS= read -r package_name || [[ -n $package_name ]]; do
+        [[ -n $package_name ]] || continue
+        valid_arch_package "$package_name" ||
+            die "pacman returned an invalid package: $package_name"
+        installed_package[$package_name]=1
+    done < "$installed_file"
+
+    while IFS= read -r package_name || [[ -n $package_name ]]; do
+        [[ -z $package_name || ${package_name:0:1} == '#' ]] && continue
+        valid_arch_package "$package_name" ||
+            die "Pacmanfile contains an invalid package: $package_name"
+        declared_package[$package_name]=1
+    done < "$manifest"
+
+    for package_name in "${!declared_package[@]}"; do
+        if [[ -z ${installed_package[$package_name]+present} ]]; then
+            report_once "not-installed|$package_name" "not-installed $package_name"
+            continue
+        fi
+        file_list="$stage/files/$(hash_text "$package_name")"
+        pacman -Qlq "$package_name" > "$file_list" ||
+            die "pacman -Qlq failed for $package_name"
+        scan_static_files "$package_name" "$file_list" / "$static_root"
+    done
+
+    for package_name in "${!known_package[@]}"; do
+        if [[ -n ${declared_package[$package_name]+present} &&
+            -n ${installed_package[$package_name]+present} ]]; then
+            scan_known_static_path "$static_root" \
+                "${known_package_command[$package_name]}" "$package_name"
+        fi
+    done
+
+    for package_name in "${!declared_package[@]}"; do
+        if [[ -z ${package_has_static[$package_name]+present} &&
+            -z ${mapped_package[$package_name]+present} ]]; then
+            report_once "unknown-package|$package_name" "unknown $package_name"
+        fi
+    done
+}
+
+ledger_is_valid() {
+    local ledger=$1 line expected row_text
+    local -a fields
+    while IFS= read -r line || [[ -n $line ]]; do
+        fields=()
+        IFS=$'\t' read -r -a fields <<< "$line"
+        (( ${#fields[@]} == 7 )) || return 1
+        [[ ${fields[0]} == "$platform" ]] || return 1
+        [[ ${fields[1]} == always || ${fields[1]} == manifest ]] || return 1
+        [[ ${fields[4]} == generator || ${fields[4]} == pack ]] || return 1
+        valid_command "${fields[3]}" || return 1
+        [[ ${fields[6]} =~ ^[a-f0-9]{64}$ ]] || return 1
+        row_text="${fields[0]}"$'\t'"${fields[1]}"$'\t'"${fields[2]}"$'\t'"${fields[3]}"$'\t'"${fields[4]}"$'\t'"${fields[5]}"
+        expected=$(hash_text "$row_text") || return 1
+        [[ $expected == "${fields[6]}" ]] || return 1
+    done < "$ledger"
+}
+
+tombstones_is_valid() {
+    local tombstones=$1 line
+    while IFS= read -r line || [[ -n $line ]]; do
+        [[ $line == reset-all ]] && continue
+        valid_command "$line" || return 1
+    done < "$tombstones"
+}
+
+generation_integrity() {
+    local generation=$1 expected_signature=${2:-}
+    local generation_dir="$cache_root/generations/$generation"
+    local schema_line signature_line predecessor_line content_line generation_line
+    local declarations_line
+    local signature_value predecessor_value content_value declarations_value
+    local actual_content actual_declarations expected_generation
+
+    valid_id "$generation" || return 1
+    [[ -d $generation_dir && -f "$generation_dir/declarations.zsh" &&
+        -f "$generation_dir/ledger.tsv" && -f "$generation_dir/tombstones" &&
+        -f "$generation_dir/metadata" ]] || return 1
+    {
+        IFS= read -r schema_line
+        IFS= read -r signature_line
+        IFS= read -r predecessor_line
+        IFS= read -r content_line
+        IFS= read -r generation_line
+        IFS= read -r declarations_line
+    } < "$generation_dir/metadata" || return 1
+    [[ $schema_line == "schema=$SCHEMA_VERSION" ]] || return 1
+    [[ $signature_line == signature=* ]] || return 1
+    [[ -z $expected_signature || $signature_line == "signature=$expected_signature" ]] || return 1
+    [[ $predecessor_line == predecessor=* && $content_line == content=* &&
+        $generation_line == "generation=$generation" &&
+        $declarations_line == declarations=* ]] || return 1
+    signature_value=${signature_line#signature=}
+    predecessor_value=${predecessor_line#predecessor=}
+    content_value=${content_line#content=}
+    declarations_value=${declarations_line#declarations=}
+    [[ $declarations_value =~ ^[a-f0-9]{64}$ ]] || return 1
+    actual_content=$(hash_pair "$generation_dir/ledger.tsv" "$generation_dir/tombstones") || return 1
+    [[ $actual_content == "$content_value" ]] || return 1
+    expected_generation=$(hash_text "zsh-completion-generation|$signature_value|$predecessor_value|$content_value") || return 1
+    [[ $expected_generation == "$generation" ]] || return 1
+    actual_declarations=$(hash_file "$generation_dir/declarations.zsh") || return 1
+    [[ $actual_declarations == "$declarations_value" ]] || return 1
+    zsh -n "$generation_dir/declarations.zsh" >/dev/null 2>&1 || return 1
+    ledger_is_valid "$generation_dir/ledger.tsv" || return 1
+    tombstones_is_valid "$generation_dir/tombstones" || return 1
+}
+
+generation_ready() {
+    local generation=$1 expected_signature=${2:-}
+    generation_integrity "$generation" "$expected_signature" || return 1
+    [[ -f $cache_root/targets/.owned ]]
+}
+
+current_value() {
+    local value
+    if [[ -r $cache_root/current ]]; then
+        IFS= read -r value < "$cache_root/current" || value=
+        printf '%s\n' "${value:-empty}"
+    else
+        printf '%s\n' missing
+    fi
+}
+
+acquire_publish_lock() {
+    local owner_pid owner_token attempt=0
+    while (( attempt < 2 )); do
+        if mkdir "$publish_lock" 2>/dev/null; then
+            lock_token="${BASHPID:-$$}.${RANDOM}.$(hash_text "$$-$RANDOM-$(date +%s%N)")"
+            printf '%s\t%s\n' "$$" "$lock_token" > "$publish_lock/owner" || {
+                rm -rf -- "$publish_lock"
+                return 1
+            }
+            lock_held=true
+            return 0
+        fi
+        if [[ -r "$publish_lock/owner" ]]; then
+            IFS=$'\t' read -r owner_pid owner_token < "$publish_lock/owner" || owner_pid=
+            if [[ $owner_pid =~ ^[0-9]+$ ]] && ! kill -0 "$owner_pid" 2>/dev/null; then
+                rm -rf -- "$publish_lock"
+                (( attempt += 1 ))
+                continue
+            fi
+        fi
+        return 75
+    done
+    return 75
+}
+
+release_publish_lock() {
+    local owner_pid owner_token
+    [[ $lock_held == true && -r "$publish_lock/owner" ]] || return 0
+    IFS=$'\t' read -r owner_pid owner_token < "$publish_lock/owner" || return 0
+    if [[ $owner_pid == "$$" && $owner_token == "$lock_token" ]]; then
+        rm -rf -- "$publish_lock"
+    fi
+    lock_held=false
+}
+
+write_tombstones() {
+    local old_command old_fingerprint
+    if [[ $reset_all == true ]]; then
+        printf 'reset-all\n' > "$stage/tombstones"
+        return 0
+    fi
+    : > "$stage/tombstones"
+    for old_command in "${!old_row_fingerprint[@]}"; do
+        old_fingerprint=${old_row_fingerprint[$old_command]}
+        if [[ -z ${new_row_fingerprint[$old_command]+present} ||
+            ${new_row_fingerprint[$old_command]} != "$old_fingerprint" ]]; then
+            printf '%s\n' "$old_command" >> "$stage/tombstones"
+        fi
+    done
+    sort -u "$stage/tombstones" -o "$stage/tombstones" ||
+        die 'could not order tombstones'
+}
+
+write_declarations() {
+    local index token
+    : > "$stage/declarations.zsh"
+    for index in "${selected_rows[@]}"; do
+        if [[ ${row_kind[$index]} == pack ]]; then
+            printf "_zsh_generate_pack_completion '%s' '%s' '%s'\n" \
+                "$generation_id" "${row_fingerprint[$index]}" \
+                "${row_command[$index]}" >> "$stage/declarations.zsh"
+            continue
+        fi
+        printf "_zsh_generate_completion '%s' '%s' '%s'" \
+            "$generation_id" "${row_fingerprint[$index]}" \
+            "${row_command[$index]}" >> "$stage/declarations.zsh"
+        read -r -a payload_tokens <<< "${row_payload[$index]}"
+        for token in "${payload_tokens[@]}"; do
+            printf " '%s'" "$token" >> "$stage/declarations.zsh"
+        done
+        printf '\n' >> "$stage/declarations.zsh"
+    done
+    zsh -n "$stage/declarations.zsh" >/dev/null 2>&1 ||
+        die 'generated declarations failed zsh -n'
+}
+
+publish_generation() {
+    local generation_dir="$cache_root/generations/$generation_id"
+    local generation_stage="$stage/generation"
+    local artifact pointer_temp
+    mkdir -p "$generation_stage" || die 'could not create generation staging directory'
+    for artifact in declarations.zsh ledger.tsv tombstones metadata; do
+        mv -- "$stage/$artifact" "$generation_stage/$artifact" ||
+            die "could not stage generation artifact $artifact"
+    done
+    if [[ -e $generation_dir ]]; then
+        for artifact in declarations.zsh ledger.tsv tombstones metadata; do
+            cmp -s "$generation_stage/$artifact" "$generation_dir/$artifact" ||
+                die "generation $generation_id already exists with different content"
+        done
+        rm -rf -- "$stage"
+        stage=
+    else
+        mv -- "$generation_stage" "$generation_dir" ||
+            die 'could not publish generation directory'
+        rm -rf -- "$stage"
+        stage=
+    fi
+
+    [[ $(current_value) == "$initial_current" ]] ||
+        die 'current changed while publishing'
+    [[ $(sha256_signature) == "$desired_signature" ]] ||
+        die 'completion inputs changed while publishing'
+
+    pointer_temp=$(mktemp "$cache_root/.current.XXXXXX") || die 'could not create current pointer'
+    printf '%s\n' "$generation_id" > "$pointer_temp" || die 'could not write current pointer'
+    mv -f -- "$pointer_temp" "$cache_root/current" || die 'could not promote current pointer'
+    printf 'zsh-completion-audit: published %s\n' "$generation_id"
+}
+
+platform=
+manifest=
+registry=
+expected_signature=
+helper=${0}
+requested_schema=
+
+while (($#)); do
+    case $1 in
+        --platform)
+            (($# >= 2)) || usage
+            platform=$2
+            shift 2
+            ;;
+        --manifest)
+            (($# >= 2)) || usage
+            manifest=$2
+            shift 2
+            ;;
+        --registry)
+            (($# >= 2)) || usage
+            registry=$2
+            shift 2
+            ;;
+        --signature)
+            (($# >= 2)) || usage
+            expected_signature=$2
+            shift 2
+            ;;
+        --helper)
+            (($# >= 2)) || usage
+            helper=$2
+            shift 2
+            ;;
+        --schema-version)
+            (($# >= 2)) || usage
+            requested_schema=$2
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+[[ $platform == darwin || $platform == arch ]] || usage
+[[ $requested_schema == "$SCHEMA_VERSION" ]] || usage
+[[ -r $manifest && -r $registry && -r $helper ]] ||
+    die 'manifest, registry, and helper must be readable'
+[[ -n $expected_signature ]] || usage
+
+cache_root="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh}/completion-system"
+publish_lock="$cache_root/.publish.lock"
+targets_marker="$cache_root/targets/.owned"
+lock_held=false
+lock_token=
+stage=
+
+mkdir -p "$cache_root/targets" "$cache_root/generations" "$cache_root/acks" ||
+    die 'could not create completion cache root'
+trap 'rm -rf -- "$stage"; release_publish_lock' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+desired_signature=$(sha256_signature) || die 'could not hash completion inputs'
+[[ $desired_signature == "$expected_signature" ]] ||
+    die 'provided completion signature is stale'
+
+acquire_publish_lock || die 'another completion audit owns the publication lock'
+
+initial_current=$(current_value)
+if [[ $initial_current != missing && $initial_current != empty ]] &&
+    generation_ready "$initial_current" "$desired_signature"; then
+    printf 'zsh-completion-audit: current generation %s is valid\n' "$initial_current"
+    exit 0
+fi
+
+stage=$(mktemp -d "$cache_root/.audit.XXXXXX") || die 'could not create audit staging directory'
+mkdir -p "$stage/files"
+
+declare -a row_platform row_scope row_package row_command row_kind row_payload
+declare -a selected_rows
+declare -A registry_seen=()
+declare -A installed_package=()
+declare -A declared_package=()
+declare -A package_has_static=()
+declare -A mapped_package=()
+declare -A known_package=()
+declare -A known_package_command=()
+declare -A declared_package_by_base=()
+declare -A installed_package_by_base=()
+declare -A static_valid=()
+declare -A reported=()
+declare -A old_row_fingerprint=()
+declare -A new_row_fingerprint=()
+declare -A row_fingerprint=()
+registry_rows=0
+
+validate_registry
+
+for ((index = 0; index < registry_rows; index++)); do
+    [[ ${row_platform[$index]} == "$platform" ]] || continue
+    [[ ${row_scope[$index]} == manifest ]] || continue
+    mapped_package[${row_package[$index]}]=1
+    known_package[${row_package[$index]}]=1
+    known_package_command[${row_package[$index]}]=${row_command[$index]}
+done
+
+if [[ $platform == darwin ]]; then
+    brew_facts
+else
+    static_root=/usr/share/zsh/site-functions
+    pacman_facts "$static_root"
+fi
+
+for ((index = 0; index < registry_rows; index++)); do
+    [[ ${row_platform[$index]} == "$platform" ]] || continue
+    if [[ ${row_scope[$index]} == manifest ]]; then
+        if [[ $platform == darwin ]]; then
+            package_key=${row_package[$index]}
+            if [[ -z ${declared_package[$package_key]+present} ||
+                -z ${installed_package_by_base[${package_key##*/}]+present} ]]; then
+                continue
+            fi
+        else
+            if [[ -z ${declared_package[${row_package[$index]}]+present} ||
+                -z ${installed_package[${row_package[$index]}]+present} ]]; then
+                continue
+            fi
+        fi
+    fi
+    [[ -z ${static_valid[${row_command[$index]}]+present} ]] || continue
+    selected_rows+=("$index")
+    row_text="${row_platform[$index]}"$'\t'"${row_scope[$index]}"$'\t'"${row_package[$index]}"$'\t'"${row_command[$index]}"$'\t'"${row_kind[$index]}"$'\t'"${row_payload[$index]}"
+    row_fingerprint[$index]=$(hash_text "$row_text") || die 'could not fingerprint registry row'
+    new_row_fingerprint[${row_command[$index]}]=${row_fingerprint[$index]}
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+        "${row_platform[$index]}" "${row_scope[$index]}" "${row_package[$index]}" \
+        "${row_command[$index]}" "${row_kind[$index]}" "${row_payload[$index]}" \
+        "${row_fingerprint[$index]}" >> "$stage/ledger.tsv"
+done
+[[ -f "$stage/ledger.tsv" ]] || : > "$stage/ledger.tsv"
+
+current_generation=
+reset_all=false
+reset_nonce=
+if [[ $initial_current != missing && $initial_current != empty ]] &&
+    generation_integrity "$initial_current" &&
+    [[ -f $targets_marker ]]; then
+    current_generation=$initial_current
+    while IFS=$'\t' read -r _ _ _ old_command _ _ old_fingerprint ||
+        [[ -n ${old_command:-} ]]; do
+        [[ -n ${old_command:-} ]] || continue
+        old_row_fingerprint[$old_command]=$old_fingerprint
+    done < "$cache_root/generations/$current_generation/ledger.tsv"
+else
+    reset_all=true
+    reset_nonce=$(hash_text "reset-all|$lock_token|$RANDOM|$(date +%s%N)") ||
+        die 'could not derive reset nonce'
+fi
+
+if [[ ! -e $targets_marker ]]; then
+    printf '%s\n' owned > "$targets_marker" || die 'could not mark targets root'
+fi
+
+write_tombstones
+if [[ $reset_all == true ]]; then
+    predecessor="inconsistent-${initial_current}-${reset_nonce}"
+else
+    predecessor=$current_generation
+fi
+content_hash=$(hash_pair "$stage/ledger.tsv" "$stage/tombstones") ||
+    die 'could not hash generation content'
+generation_id=$(hash_text "zsh-completion-generation|$desired_signature|$predecessor|$content_hash") ||
+    die 'could not derive generation id'
+write_declarations
+declarations_hash=$(hash_file "$stage/declarations.zsh") ||
+    die 'could not hash generated declarations'
+printf 'schema=%s\nsignature=%s\npredecessor=%s\ncontent=%s\ngeneration=%s\ndeclarations=%s\n' \
+    "$SCHEMA_VERSION" "$desired_signature" "$predecessor" "$content_hash" \
+    "$generation_id" "$declarations_hash" > "$stage/metadata"
+
+publish_generation

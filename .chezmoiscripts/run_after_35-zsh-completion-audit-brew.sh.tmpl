@@ -1,0 +1,30 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Reconcile Brewfile completion generators after package synchronization.
+# Brewfile template hash: {{ include "dot_Brewfile.tmpl" | sha256sum }}
+# Registry template hash: {{ include "private_dot_config/zsh/completion-generators.tsv" | sha256sum }}
+# Audit helper hash: {{ include "private_dot_local/bin/executable_zsh-completion-audit" | sha256sum }}
+# Output schema: 5
+set -euo pipefail
+
+manifest="$HOME/.Brewfile"
+registry="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/completion-generators.tsv"
+helper="$HOME/.local/bin/zsh-completion-audit"
+
+[[ -r "$manifest" && -r "$registry" && -x "$helper" ]] || exit 0
+command -v brew >/dev/null 2>&1 || exit 0
+
+hash_file() {
+    local digest
+    if command -v sha256sum >/dev/null 2>&1; then
+        digest=$(sha256sum -- "$1")
+    else
+        digest=$(shasum -a 256 "$1")
+    fi
+    printf '%s\n' "${digest%% *}"
+}
+
+signature="zsh-completion-schema-5|darwin|$(hash_file "$manifest")|$(hash_file "$registry")|$(hash_file "$helper")|5"
+"$helper" --platform darwin --manifest "$manifest" --registry "$registry" \
+    --helper "$helper" --schema-version 5 --signature "$signature"
+{{- end -}}

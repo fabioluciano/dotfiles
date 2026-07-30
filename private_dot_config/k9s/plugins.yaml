@@ -1,0 +1,25 @@
+plugin:
+  stern:
+    shortCut: Ctrl-L
+    description: Stern logs
+    command: stern
+    args:
+      - --tail
+      - "100"
+      - $NAME
+      - -n
+      - $NAMESPACE
+  dive:
+    shortCut: Ctrl-D
+    description: Dive into image
+    command: dive
+    args:
+      - $VALUE
+  argocd:
+    shortCut: Ctrl-A
+    description: ArgoCD app details
+    command: argocd
+    args:
+      - app
+      - get
+      - $NAME

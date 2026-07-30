@@ -1,0 +1,346 @@
+# =============================================================================
+# TAPS
+# =============================================================================
+tap "anomalyco/tap", trusted: true
+tap "argoproj/tap", trusted: true
+tap "bendews/tap", trusted: true
+tap "buildpacks/tap", trusted: true
+tap "charmbracelet/tap", trusted: true
+tap "hashicorp/tap", trusted: true
+tap "libkrun/krun", trusted: true
+tap "xo/xo", trusted: true
+tap "xwmx/taps", trusted: true
+
+# =============================================================================
+# BOOTSTRAP & HOST FOUNDATIONS
+# =============================================================================
+brew "antidote"
+brew "bash"
+brew "bitwarden-cli"
+brew "chezmoi"
+brew "coreutils"
+brew "curl"
+brew "gcc"
+brew "git"
+brew "gnupg"
+brew "mas"
+brew "mise"
+brew "openssh"
+brew "openssl"
+brew "pinentry-mac"
+brew "zsh"
+
+# =============================================================================
+# SHELL UX & TERMINAL TOOLING
+# =============================================================================
+brew "bandwhich"
+brew "bat"
+brew "bottom"
+brew "broot"
+brew "btop"
+brew "clipboard"
+brew "difftastic"
+brew "direnv"
+brew "doggo"
+brew "duf"
+brew "dust"
+brew "eza"
+brew "fastfetch"
+brew "fd"
+brew "fzf"
+brew "glow"
+brew "gpg-tui"
+brew "gping"
+brew "gron"
+brew "gum"
+brew "hexyl"
+brew "htmlq"
+brew "httpie"
+brew "hyperfine"
+brew "jc"
+brew "jless"
+brew "jq"
+brew "jsongrep"
+brew "lnav"
+brew "mtr"
+brew "ncdu"
+brew "nload"
+brew "nmap"
+brew "nvtop"
+brew "procs"
+brew "ripgrep"
+brew "rsync"
+brew "sd"
+brew "starship"
+brew "tailspin"
+brew "termshark"
+brew "tldr"
+brew "tmux"
+brew "topgrade"
+brew "tpm"
+brew "sesh"
+brew "viddy"
+brew "watch"
+brew "websocat"
+brew "wget"
+brew "xh"
+brew "yazi"
+brew "zoxide"
+
+# =============================================================================
+# EDITORS, DATABASES & DOCUMENT TOOLING
+# =============================================================================
+brew "asciidoctor"
+brew "chafa"
+brew "code-minimap"
+brew "d2"
+brew "duckdb"
+brew "graphviz"
+brew "ghostscript"
+brew "helix"
+brew "hugo"
+brew "imagemagick"
+brew "jj"
+brew "litecli"
+brew "mermaid-cli"
+brew "mycli"
+brew "xwmx/taps/nb", trusted: true
+brew "neovim"
+brew "pgcli"
+brew "plantuml"
+brew "pngpaste"
+brew "postgresql@17"
+brew "redis"
+brew "sqlite"
+brew "tectonic"
+brew "typst"
+brew "universal-ctags"
+brew "xo/xo/usql", trusted: true
+
+# =============================================================================
+# BUILD, LANGUAGE & PROJECT TOOLING
+# =============================================================================
+brew "act"
+brew "age"
+brew "autoconf"
+brew "automake"
+brew "beads"
+brew "cmake"
+brew "composer"
+brew "codespell"
+brew "dasel"
+brew "dotnet"
+brew "exiftool"
+brew "ffmpeg"
+brew "fx"
+brew "gitleaks"
+brew "just"
+brew "mole"
+brew "sem-cli"
+brew "shellcheck"
+brew "jdtls"                # Java LSP (Eclipse JDT Language Server)
+brew "luarocks"
+
+# =============================================================================
+# CLOUD, KUBERNETES & PLATFORM OPS
+# =============================================================================
+brew "ansible"
+brew "argo"
+brew "argocd"
+brew "awscli"
+brew "awscurl"
+brew "azure-cli"
+brew "cosign"
+brew "dive"
+brew "docker"
+brew "docker-compose"
+brew "docker-credential-helper"
+brew "hcloud"
+brew "helm"
+brew "helmfile"
+brew "ipcalc"
+brew "iproute2mac"
+brew "istioctl"
+brew "k6"
+brew "k9s"
+brew "kind"
+brew "krew"
+brew "kube-linter"
+brew "kubecolor"
+brew "kubie"
+brew "kustomize"
+brew "kyverno"
+brew "lazydocker"
+brew "libyubikey"
+brew "ocm"
+brew "openshift-cli"
+brew "opentofu"
+brew "podman"
+brew "pulumi"
+brew "rosa-cli"
+brew "smug"
+brew "sops"
+brew "stern"
+brew "tektoncd-cli"
+brew "trivy"
+brew "trufflehog"
+brew "vfkit"
+brew "ykman"
+brew "yubico-piv-tool"
+
+# =============================================================================
+# GIT, REVIEW & AGENT WORKFLOW
+# =============================================================================
+brew "gh"
+brew "git-absorb"
+brew "git-delta"
+brew "git-lfs"
+brew "glab"
+brew "lazygit"
+brew "mergiraf"
+brew "mimo-code"
+brew "rtk"
+brew "anomalyco/tap/opencode", trusted: true
+brew "argoproj/tap/kubectl-argo-rollouts", trusted: true
+brew "bendews/tap/apw", trusted: true
+brew "buildpacks/tap/pack", trusted: true
+brew "charmbracelet/tap/crush", trusted: true
+brew "hashicorp/tap/hcp", trusted: true
+brew "hashicorp/tap/packer", trusted: true
+brew "libkrun/krun/gvproxy", trusted: true
+brew "libkrun/krun/krunkit", trusted: true
+
+# =============================================================================
+# MACOS HOST INTEGRATION
+# =============================================================================
+brew "blueutil"
+brew "brightness"
+brew "displayplacer"
+brew "dnsmasq"
+brew "dockutil"
+brew "pass"
+brew "yt-dlp"
+
+# =============================================================================
+# DESKTOP APPS — AI & AGENT TOOLS
+# =============================================================================
+cask "captin"
+cask "chatgpt"
+cask "claude"
+cask "claude-code"
+cask "steipete/tap/codexbar", trusted: true
+cask "nkzw-tech/tap/codiff", trusted: true
+cask "copilot-cli"
+cask "finetune"
+cask "opensuperwhisper"
+cask "tolaria"
+cask "yaak"
+
+# =============================================================================
+# DESKTOP APPS — DEV & OPS
+# =============================================================================
+cask "bruno"
+cask "dbeaver-community"
+cask "devtoys"
+cask "drawio"
+cask "wouterdebie/tap/davit", trusted: true
+cask "gcloud-cli"
+cask "ghostty"
+cask "github"
+cask "ngrok"
+cask "obsidian"
+brew "container"
+cask "podman-desktop"
+cask "proxyman"
+cask "shortcat"
+cask "visual-studio-code"
+cask "vscodium"
+cask "zed"
+
+# =============================================================================
+# DESKTOP APPS — PRODUCTIVITY & COMMUNICATION
+# =============================================================================
+cask "espanso"
+cask "expressions"
+cask "itsycal"
+cask "keepingyouawake"
+cask "maccy"
+cask "muzzle"
+cask "pronotes"
+cask "reminders-menubar"
+cask "spotify"
+cask "spotmenu"
+cask "stats"
+cask "swift-quit"
+
+# =============================================================================
+# DESKTOP APPS — BROWSERS, MEDIA & DESIGN
+# =============================================================================
+cask "balenaetcher"
+cask "cleanshot"
+cask "firefox"
+cask "gimp"
+cask "google-chrome"
+cask "inkscape"
+cask "keka"
+cask "snapzy"
+cask "vlc"
+
+# =============================================================================
+# DESKTOP APPS — SYSTEM, DEVICE & VIRTUALIZATION
+# =============================================================================
+cask "amethyst"
+cask "betterdisplay"
+cask "fliqlo"
+cask "flux-app"
+cask "keyboardcleantool"
+cask "logi-options+"
+#cask "logitech-g-hub"
+cask "mac-mouse-fix"
+#cask "macfuse"
+cask "mos"
+brew "switchaudio-osx"
+{{- /* chezmoi:template:missing-key=zero */ -}}
+cask "yubico-authenticator"
+
+# =============================================================================
+# DESKTOP APPS — FONTS
+# =============================================================================
+cask "font-caskaydia-cove-nerd-font"
+cask "font-liberation"
+cask "font-liberation-nerd-font"
+cask "font-maple-mono-nf"
+cask "font-symbols-only-nerd-font"
+
+# =============================================================================
+# DESKTOP APPS — WORK MACHINE ONLY
+# =============================================================================
+cask "onlyoffice"
+cask "microsoft-outlook"
+cask "microsoft-teams"
+cask "microsoft-auto-update"
+
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
+cask "slack"
+cask "thaw"
+cask "zoom"
+{{- end }}
+
+# =============================================================================
+# DESKTOP APPS — PERSONAL MACHINE ONLY
+# =============================================================================
+{{- if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
+cask "bartender"
+cask "discord"
+cask "dropbox"
+cask "handbrake-app"
+cask "keycastr"
+cask "netnewswire"
+cask "obs"
+cask "parallels"
+cask "raycast"
+cask "rustdesk"
+cask "telegram"
+cask "transmission"
+cask "whatsapp"
+{{- end }}

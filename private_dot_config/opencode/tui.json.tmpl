@@ -1,0 +1,6 @@
+{
+{{ includeTemplate "tui_base.json" . | trim }},
+  "plugin": [
+{{ includeTemplate "opencode_tui_base_plugins.jsonc" . | trim | indent 4 }}
+  ]
+}

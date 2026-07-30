@@ -1,0 +1,10 @@
+# espanso configuration file
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/master/schemas/config.schema.json
+
+toggle_key: OFF
+backend: auto
+auto_restart: true
+clipboard_threshold: 80
+max_regex_buffer_size: 50
+undo_backspace: true

@@ -1,0 +1,11 @@
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "tokyonight",
+  "attention": {
+    "enabled": true,
+    "notifications": true,
+    "sound": true,
+    "volume": 0.4
+  },
+  "plugin_enabled": {
+    "internal:sidebar-context": false
+  }

@@ -1,0 +1,7 @@
+{
+{{ includeTemplate "opencode_base.jsonc" . | trim }},
+  "plugin": [
+    "oh-my-opencode-slim",
+{{ includeTemplate "opencode_core_base_plugins.jsonc" . | trim | indent 4 }}
+  ]
+}

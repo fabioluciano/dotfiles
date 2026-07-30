@@ -1,0 +1,35 @@
+_zsh_completion_source_generation="${_zsh_completion_snapshot_generation:-}"
+if [[ $_zsh_completion_source_generation =~ '^[a-f0-9]{64}$' ]]; then
+    _zsh_completion_generation_dir="$_zsh_completion_system_root/generations/$_zsh_completion_source_generation"
+    _zsh_completion_metadata="$_zsh_completion_generation_dir/metadata"
+    _zsh_completion_declarations="$_zsh_completion_generation_dir/declarations.zsh"
+    _zsh_completion_ledger="$_zsh_completion_generation_dir/ledger.tsv"
+    _zsh_completion_tombstones="$_zsh_completion_generation_dir/tombstones"
+    _zsh_completion_schema=
+    _zsh_completion_signature=
+    _zsh_completion_declaration_hash=
+    if [[ -r $_zsh_completion_metadata ]]; then
+        {
+            IFS= read -r _zsh_completion_schema
+            IFS= read -r _zsh_completion_signature
+            IFS= read -r _zsh_completion_predecessor
+            IFS= read -r _zsh_completion_content
+            IFS= read -r _zsh_completion_generation_line
+            IFS= read -r _zsh_completion_declaration_hash
+        } < "$_zsh_completion_metadata"
+    fi
+    if [[ $_zsh_completion_schema == schema=5 &&
+          $_zsh_completion_signature == signature=* &&
+          $_zsh_completion_generation_line == "generation=$_zsh_completion_source_generation" &&
+          $_zsh_completion_declaration_hash =~ '^(declarations=)[a-f0-9]{64}$' &&
+          -r $_zsh_completion_ledger && -r $_zsh_completion_tombstones &&
+          -r $_zsh_completion_declarations ]]; then
+        source "$_zsh_completion_declarations"
+    fi
+fi
+unset _zsh_completion_snapshot_generation _zsh_completion_source_generation
+unset _zsh_completion_generation_dir _zsh_completion_metadata
+unset _zsh_completion_declarations _zsh_completion_schema _zsh_completion_signature
+unset _zsh_completion_predecessor _zsh_completion_content
+unset _zsh_completion_generation_line _zsh_completion_declaration_hash
+unset _zsh_completion_ledger _zsh_completion_tombstones

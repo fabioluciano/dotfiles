@@ -1,0 +1,23 @@
+{{- /* Reads ~/.config/opencode/.active_provider and returns a JSON object with
+     provider, profile and providerModels. Valid provider falls back to default;
+     profile stays as-is so callers can apply their own aliases. */ -}}
+{{- $defaultProvider := get $.opencode "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.config/opencode/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "moderate" -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
+{{- end -}}
+{{- else -}}
+{{- $provider = $state -}}
+{{- $profile = "moderate" -}}
+{{- end -}}
+{{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
+{{- $validProviders := keys $.opencode.models -}}
+{{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
+{{- $providerModels := index $.opencode.models $provider -}}
+{{- dict "provider" $provider "profile" $profile "providerModels" $providerModels | toJson -}}

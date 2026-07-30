@@ -1,0 +1,202 @@
+# Starship Configuration
+# https://starship.rs/config/
+
+# Global settings
+format = """
+$os\
+$username\
+$hostname\
+$directory\
+$direnv\
+$git_branch\
+$git_status\
+$git_state\
+$git_commit\
+${custom.jj}\
+$terraform\
+$kubernetes\
+$docker_context\
+$aws\
+$python\
+$nodejs\
+$rust\
+$golang\
+$java\
+$helm\
+$package\
+$cmd_duration
+$character"""
+
+add_newline = true
+command_timeout = 500
+scan_timeout = 10
+
+# OS symbol
+[os]
+disabled = false
+format = "[$symbol](bold white) "
+
+[os.symbols]
+Macos = "󰀵"
+Linux = "󰌽"
+
+# Username
+[username]
+style_user = "green bold"
+style_root = "red bold"
+format = "[$user]($style) "
+disabled = false
+show_always = true
+
+# Hostname
+[hostname]
+ssh_only = false
+format = "on [$hostname](bold dimmed white) "
+trim_at = "."
+disabled = false
+
+# Directory
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+format = "at [$path]($style)[$read_only]($read_only_style) "
+style = "bold cyan"
+read_only = " 󰌾"
+read_only_style = "red"
+home_symbol = "~"
+
+# Character
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
+vimcmd_symbol = "[←](bold green)"
+
+# Git Branch
+[git_branch]
+format = "on [$symbol$branch(:$remote_branch)]($style) "
+symbol = " "
+style = "bold yellow"
+truncation_length = 20
+truncation_symbol = "…"
+
+# Git Status
+[git_status]
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+style = "bold red"
+conflicted = "⚔️ "
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = "✓"
+untracked = "?${count}"
+stashed = "📦"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
+
+# Git State
+[git_state]
+format = "[\\($state( $progress_current of $progress_total)\\)]($style) "
+style = "bright-black"
+
+# Git Commit
+[git_commit]
+commit_hash_length = 7
+format = "[\\($hash$tag\\)]($style) "
+style = "bold green"
+only_detached = true
+tag_disabled = false
+tag_symbol = " 🏷 "
+
+# Command Duration
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration]($style) "
+style = "bold yellow"
+show_milliseconds = false
+
+# AWS
+[aws]
+format = "on [$symbol($profile )(\\($region\\) )]($style)"
+style = "bold yellow"
+symbol = "☁️ "
+disabled = false
+
+[aws.region_aliases]
+us-east-1 = "use1"
+us-east-2 = "use2"
+us-west-1 = "usw1"
+us-west-2 = "usw2"
+
+# Kubernetes
+[kubernetes]
+format = "on [$symbol$context( \\($namespace\\))]($style) "
+style = "bold blue"
+symbol = "⛵ "
+disabled = false
+
+[kubernetes.context_aliases]
+'arn:.*?cluster/(?P<cluster_name>[\w-]+)' = 'aws-$cluster_name'
+
+# Docker
+[docker_context]
+format = "via [$symbol$context]($style) "
+symbol = "🐋 "
+style = "bold blue"
+disabled = false
+only_with_files = true
+
+# Languages
+[python]
+format = "via [$symbol($version )(\\($virtualenv\\) )]($style)"
+symbol = "🐍 "
+style = "bold yellow"
+pyenv_version_name = false
+python_binary = ["python", "python3"]
+
+[nodejs]
+format = "via [$symbol($version )]($style)"
+symbol = "⬢ "
+style = "bold green"
+
+[rust]
+format = "via [$symbol($version )]($style)"
+symbol = "🦀 "
+style = "bold red"
+
+[golang]
+format = "via [$symbol($version )]($style)"
+symbol = "🐹 "
+style = "bold cyan"
+
+[java]
+format = "via [$symbol($version )]($style)"
+symbol = "☕ "
+style = "bold red"
+
+# DevOps Tools
+[terraform]
+format = "via [$symbol$workspace]($style) "
+symbol = "💠 "
+style = "bold purple"
+disabled = false
+
+[helm]
+format = "via [$symbol($version )]($style)"
+symbol = "⎈ "
+style = "bold white"
+
+[package]
+format = "via [$symbol$version]($style) "
+symbol = "📦 "
+style = "bold 208"
+disabled = true
+
+[custom.jj]
+command = "jj log -r @ --no-graph -T 'change_id.short(8)'"
+when = "jj root --quiet 2>/dev/null"
+format = "on [$output]($style) "
+style = "bold purple"
+disabled = false
+
