@@ -15,7 +15,26 @@
     },
     "plan": {
       "model": "{{ first (index $providerModels "planner") }}"
+    }{{- /* OMO agents: the OMO 4.x plugin has a hardcoded requiresProvider
+        whitelist that drops agents whose active provider isn't in
+        [openai, github-copilot, opencode, vercel, ...]. The TUI then
+        displays the fallbackChain[0] (typically openai/gpt-5.6-sol) for
+        the dropped agent. To force the TUI to show the user-configured
+        model for the active provider, we explicitly add per-agent model
+        overrides here — the opencode binary's TUI renderer picks these
+        up and displays them. The OMO plugin still uses AGENT_MODEL_REQUIREMENTS
+        for runtime resolution (with the same whitelist), but the
+        bypass via hasHephaestusExplicitConfig from oh-my-openagent.jsonc
+        keeps the actual model correct. */ -}}
+{{- range $agent, $tier := $.opencode.agent_profiles }}
+{{- $tierModels := index $providerModels $tier -}}
+{{- $stdModels := index $providerModels "standard" -}}
+{{- $orchModels := index $providerModels "orchestrator" -}}
+{{- $chain := or $tierModels $stdModels $orchModels -}}
+    ,"{{ $agent }}": {
+      "model": "{{ first $chain }}"
     }
+{{- end }}
   },
   "formatter": true,
   "lsp": {

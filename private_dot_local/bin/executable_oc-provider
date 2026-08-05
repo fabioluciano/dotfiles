@@ -10,6 +10,7 @@ TARGET_FILES=(
   "${HOME}/.config/opencode/omo.jsonc"
   "${HOME}/.config/opencode/omo-slim.jsonc"
   "${HOME}/.config/opencode/oh-my-opencode-slim.json"
+  "${HOME}/.config/cortexkit/magic-context.jsonc"
 )
 
 usage() {
@@ -60,7 +61,14 @@ EOF
 }
 
 apply_target() {
-  chezmoi apply "${TARGET_FILES[@]}"
+  # `--force` is needed because at least one of these targets
+  # (`oh-my-openagent.jsonc`) is a chezmoi-managed file that the user might
+  # have removed or edited by hand; chezmoi would otherwise block on a TTY
+  # prompt that fails in non-interactive shells (SSH, scripts, agent
+  # sessions). The state file is the source of truth; the target files are
+  # derived from it. If a target is genuinely unmanaged, chezmoi prints
+  # "not managed" and we move on.
+  chezmoi apply --force "${TARGET_FILES[@]}"
 }
 
 load_providers() {
