@@ -332,9 +332,13 @@ set -g @powerkit_plugin_fan_selection "active"
 if-shell '[ -f /usr/share/tmux-plugin-manager/tpm ]' {
     run '/usr/share/tmux-plugin-manager/tpm'
 } {
-    if-shell '[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]' {
-        run '/opt/homebrew/opt/tpm/share/tpm/tpm'
+    if-shell '[ -f /opt/zerobrew/opt/tpm/share/tpm/tpm ]' {
+        run '/opt/zerobrew/opt/tpm/share/tpm/tpm'
     } {
-        run '~/.tmux/plugins/tpm/tpm'
+        if-shell '[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]' {
+            run '/opt/homebrew/opt/tpm/share/tpm/tpm'
+        } {
+            run '~/.tmux/plugins/tpm/tpm'
+        }
     }
 }

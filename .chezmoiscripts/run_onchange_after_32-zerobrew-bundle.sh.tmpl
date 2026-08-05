@@ -1,0 +1,15 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Re-run whenever ~/.Zerobrewfile changes.
+# Zerobrewfile hash: {{ include "dot_Zerobrewfile.tmpl" | sha256sum }} machine: {{ default .chezmoi.hostname (index . "machineName") }}
+set -euo pipefail
+
+zb_bin="$HOME/.local/bin/zb"
+[ -x "$zb_bin" ] || exit 0
+
+echo ":: zb bundle install (Zerobrewfile changed)"
+if ! "$zb_bin" --root /opt/zerobrew --prefix /opt/zerobrew bundle install -f "$HOME/.Zerobrewfile"; then
+    echo ":: zb bundle failed" >&2
+    exit 1
+fi
+{{- end -}}

@@ -32,7 +32,8 @@ chezmoi init --apply https://github.com/fabioluciano/dot.git
 
 | Manifest        | Target            | Installed by                                   |
 | --------------- | ----------------- | ---------------------------------------------- |
-| `dot_Brewfile.tmpl`| `~/.Brewfile`  | `brew bundle --global` (macOS)                 |
+| `dot_Brewfile.tmpl`| `~/.Brewfile`  | `brew bundle --global` (macOS; taps + casks only) |
+| `dot_Zerobrewfile.tmpl`| `~/.Zerobrewfile` | `zb bundle install` (macOS; homebrew-core formulae via zerobrew) |
 | `dot_Pacmanfile`| `~/.Pacmanfile`   | `yay -S --needed`/`paru -S --needed` (Arch; AUR helper required) |
 | `dot_Krewfile`  | `~/.Krewfile`     | `kubectl krew install` (kubectl plugins)       |
 | mise            | `~/.config/mise`  | `mise install`                                 |
@@ -202,7 +203,8 @@ before committing.
 
 **Note:** Package installs (brew/pacman) are not automatically undone by
 reverting a dotfile commit. If you added a formula and want to remove it,
-edit `dot_Brewfile.tmpl`/`dot_Pacmanfile` and run `chezmoi apply` again.
+edit `dot_Brewfile.tmpl`/`dot_Zerobrewfile.tmpl`/`dot_Pacmanfile` and run
+`chezmoi apply` again.
 
 ## Switching opencode provider (`oc-provider`)
 

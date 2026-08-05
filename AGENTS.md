@@ -61,7 +61,9 @@ Package sync scripts and the post-apply Antidote hook:
 
 | Script (`.chezmoiscripts/`)        | Manifest        | Target          | Tool                          |
 | ---------------------------------- | --------------- | --------------- | ----------------------------- |
-| `run_onchange_after_30-brew-bundle`| `dot_Brewfile.tmpl`| `~/.Brewfile` | `brew bundle --global` (macOS)|
+| `run_onchange_after_30-brew-bundle`| `dot_Brewfile.tmpl`| `~/.Brewfile` | `brew bundle --global` (macOS; taps + casks only) |
+| `run_onchange_after_31-zerobrew` | (bin script)    | `~/.local/bin/zb`, `~/.local/bin/zbx` | GitHub release binaries (macOS) |
+| `run_onchange_after_32-zerobrew-bundle` | `dot_Zerobrewfile.tmpl` | `~/.Zerobrewfile` | `zb bundle install` (macOS; homebrew-core formulae) |
 | `run_onchange_after_40-pacman`     | `dot_Pacmanfile`| `~/.Pacmanfile` | `yay`/`paru`/`pacman` (Arch)  |
 | `run_onchange_after_50-krew`       | `dot_Krewfile`  | `~/.Krewfile`   | `kubectl krew install`        |
 | `run_onchange_after_20-mise-install`| `mise/config.toml`| `~/.config/mise`| `mise install`              |
@@ -139,6 +141,22 @@ signing with that key.
   may call `antidote bundle` when a manifest is newer or the Antidote cache is
   missing. It takes a zero-wait common lock first; if the lock is occupied, it
   does not wait or regenerate and loads the current bundle instead.
+- **zerobrew** (macOS): fast Homebrew-compatible installer running *alongside*
+  brew. Split of responsibilities: homebrew-core formulae (plus the few tap
+  formulas zb can resolve, e.g. `anomalyco/tap/opencode`,
+  `charmbracelet/tap/crush`) live in `dot_Zerobrewfile.tmpl` (applied by
+  `zb bundle install`); the remaining taps and all casks stay in
+  `dot_Brewfile.tmpl` (zb cannot resolve taps lacking bottle data or source
+  sha256, tap-typed dependencies, or non-standard Ruby DSL; cask management
+  stays with brew). The `zb`/`zbx` binaries are pinned to a GitHub
+  release and installed into `~/.local/bin` by
+  `run_onchange_after_31-zerobrew.sh.tmpl` — NOT the Homebrew tap, which is
+  stuck at a broken v0.1.1. Store/root is `/opt/zerobrew` and the prefix must
+  stay ≤ 13 chars on macOS (Mach-O patching limit), i.e. `/opt/zerobrew`
+  itself. The shell env block is managed by `private_dot_zshenv.tmpl`; never
+  run `zb init` without `--no-modify-path` (it rewrites `~/.zshenv` and
+  creates chezmoi drift). zsh completion is static at `private_dot_zfunc/_zb`
+  (regenerate with `zb completion zsh` on version bumps).
 
 See `README.md` for bootstrap, full system-dependency table, troubleshooting,
 and rollback procedures.

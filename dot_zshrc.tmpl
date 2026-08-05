@@ -45,11 +45,13 @@ export YSU_MESSAGE_POSITION="after"
 export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-abbr/user-abbreviations"
 
 {{- if eq .chezmoi.os "darwin" }}
-# Prefer the installed package-manager paths without spawning a discovery process.
-_zsh_set_homebrew_path() {
+# Prefer the installed package-manager paths without spawning a discovery
+# process. Ordem: zerobrew primeiro (primario para formulas core), depois
+# Homebrew (taps/casks), e o PATH existente por ultimo.
+_zsh_set_pkg_manager_path() {
     emulate -L zsh
     local _zsh_homebrew_prefix _zsh_path_entry
-    local -a _zsh_homebrew_preferred _zsh_homebrew_path
+    local -a _zsh_preferred _zsh_pkg_path
 
     if [[ $CPUTYPE == arm64 || $CPUTYPE == aarch64 ]]; then
         _zsh_homebrew_prefix=/opt/homebrew
@@ -59,20 +61,24 @@ _zsh_set_homebrew_path() {
         [[ -d ${_zsh_homebrew_prefix}/bin ]] || _zsh_homebrew_prefix=/opt/homebrew
     fi
 
+    [[ -d /opt/zerobrew/bin ]] && _zsh_preferred+=(/opt/zerobrew/bin)
+    [[ -d ${HOME}/.zerobrew/bin ]] && _zsh_preferred+=("${HOME}/.zerobrew/bin")
     [[ -d ${_zsh_homebrew_prefix}/bin ]] &&
-        _zsh_homebrew_preferred+=("${_zsh_homebrew_prefix}/bin")
+        _zsh_preferred+=("${_zsh_homebrew_prefix}/bin")
     [[ -d ${_zsh_homebrew_prefix}/sbin ]] &&
-        _zsh_homebrew_preferred+=("${_zsh_homebrew_prefix}/sbin")
-    (( ${#_zsh_homebrew_preferred} )) || return 0
+        _zsh_preferred+=("${_zsh_homebrew_prefix}/sbin")
+    (( ${#_zsh_preferred} )) || return 0
 
     for _zsh_path_entry in "${path[@]}"; do
-        [[ $_zsh_path_entry == "${_zsh_homebrew_prefix}/bin" ||
+        [[ $_zsh_path_entry == /opt/zerobrew/bin ||
+           $_zsh_path_entry == "${HOME}/.zerobrew/bin" ||
+           $_zsh_path_entry == "${_zsh_homebrew_prefix}/bin" ||
            $_zsh_path_entry == "${_zsh_homebrew_prefix}/sbin" ]] ||
-            _zsh_homebrew_path+=("$_zsh_path_entry")
+            _zsh_pkg_path+=("$_zsh_path_entry")
     done
-    path=("${_zsh_homebrew_preferred[@]}" "${_zsh_homebrew_path[@]}")
+    path=("${_zsh_preferred[@]}" "${_zsh_pkg_path[@]}")
 }
-_zsh_set_homebrew_path
+_zsh_set_pkg_manager_path
 {{- end }}
 
 # =============================================================================
@@ -84,7 +90,9 @@ _zsh_set_homebrew_path
 ANTIDOTE_DIR=
 _antidote_manager_available=false
 {{- if eq .chezmoi.os "darwin" }}
-if [[ -r /opt/homebrew/share/antidote/antidote.zsh ]]; then
+if [[ -r /opt/zerobrew/share/antidote/antidote.zsh ]]; then
+    ANTIDOTE_DIR=/opt/zerobrew/share/antidote
+elif [[ -r /opt/homebrew/share/antidote/antidote.zsh ]]; then
     ANTIDOTE_DIR=/opt/homebrew/share/antidote
 elif [[ -r /usr/local/share/antidote/antidote.zsh ]]; then
     ANTIDOTE_DIR=/usr/local/share/antidote
@@ -526,12 +534,16 @@ fi
 # Extra fpath entries (also before compinit).
 fpath+=~/.zfunc
 {{- if eq .chezmoi.os "darwin" }}
-# Avoid a Homebrew discovery subprocess on every startup — test paths directly.
-# Apple Silicon installs to /opt/homebrew; Intel to /usr/local.
+# Avoid a package-manager discovery subprocess on every startup — test paths
+# directly. Apple Silicon: /opt/homebrew; Intel: /usr/local. zerobrew e
+# prependido por ultimo para ficar na frente do brew no FPATH.
 if [[ -d /opt/homebrew/share/zsh/site-functions ]]; then
     FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
 elif [[ -d /usr/local/share/zsh/site-functions ]]; then
     FPATH="/usr/local/share/zsh/site-functions:${FPATH}"
+fi
+if [[ -d /opt/zerobrew/share/zsh/site-functions ]]; then
+    FPATH="/opt/zerobrew/share/zsh/site-functions:${FPATH}"
 fi
 {{- end }}
 
@@ -1212,12 +1224,13 @@ if (( $+commands[zoxide] )); then
     fi
 fi
 
-# Re-assert Homebrew priority — path_helper (/etc/zprofile) and mise activate
-# both prepend large PATH chunks, pushing Homebrew after /bin and causing
-# `bash` to resolve to the macOS system 3.2 instead of Homebrew 5.x.
+# Re-assert package-manager priority — path_helper (/etc/zprofile) and mise
+# activate both prepend large PATH chunks, pushing Homebrew after /bin and
+# causing `bash` to resolve to the macOS system 3.2 instead of Homebrew 5.x.
+# Zerobrew fica na frente do Homebrew (primario para formulas core).
 {{- if eq .chezmoi.os "darwin" }}
-_zsh_set_homebrew_path
-unfunction _zsh_set_homebrew_path
+_zsh_set_pkg_manager_path
+unfunction _zsh_set_pkg_manager_path
 {{- end }}
 
 # Starship prompt

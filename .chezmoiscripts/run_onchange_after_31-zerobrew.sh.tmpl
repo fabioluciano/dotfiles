@@ -1,0 +1,39 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Instala/atualiza zerobrew (zb/zbx) a partir dos releases oficiais do GitHub.
+# O tap do Homebrew (lucasgelfond/zerobrew) esta pinado em v0.1.1, quebrado no
+# macOS: o prefix default de 20 chars excede o limite Mach-O de 13 chars.
+# Bloco de ambiente: private_dot_zshenv.tmpl. Completion: private_dot_zfunc/_zb
+# (regenerar no repo com `zb completion zsh` ao trocar a versao).
+# Re-executa quando a versao abaixo mudar (conteudo do script = hash onchange).
+set -euo pipefail
+
+command -v curl >/dev/null 2>&1 || exit 0
+
+version="v0.3.2"
+bin_dir="$HOME/.local/bin"
+base_url="https://github.com/lucasgelfond/zerobrew/releases/download/${version}"
+
+case "$(uname -m)" in
+    arm64) arch="darwin-arm64" ;;
+    x86_64) arch="darwin-x64" ;;
+    *) echo "zerobrew: arquitetura nao suportada: $(uname -m)" >&2; exit 1 ;;
+esac
+
+if [ "$("${bin_dir}/zb" --version 2>/dev/null | awk '{print $2}')" != "${version#v}" ]; then
+    tmp_dir="$(mktemp -d)"
+    trap 'rm -rf "${tmp_dir}"' EXIT
+    curl -fsSL "${base_url}/SHA256SUMS" -o "${tmp_dir}/SHA256SUMS"
+    for tool in zb zbx; do
+        asset="${tool}-${arch}"
+        echo ":: zerobrew: instalando ${asset} (${version})"
+        curl -fsSL "${base_url}/${asset}" -o "${tmp_dir}/${asset}"
+        (cd "${tmp_dir}" && grep "  ${asset}\$" SHA256SUMS | shasum -a 256 -c -)
+        install -m 0755 "${tmp_dir}/${asset}" "${bin_dir}/${tool}"
+    done
+fi
+
+# Cria o layout do store sem tocar no shell config (chezmoi gerencia ~/.zshenv).
+# Em maquina nova o zb pede sudo para criar /opt/zerobrew.
+"${bin_dir}/zb" --root /opt/zerobrew --prefix /opt/zerobrew init --no-modify-path
+{{- end -}}

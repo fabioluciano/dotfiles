@@ -6,8 +6,10 @@ set -euo pipefail
 
 command -v tmux >/dev/null 2>&1 || exit 0
 
-# Localiza o binário do TPM (Homebrew macOS, Homebrew Linux, ou clone manual)
-if [[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]]; then
+# Localiza o binário do TPM (zerobrew, Homebrew macOS, Linux, ou clone manual)
+if [[ -f /opt/zerobrew/opt/tpm/share/tpm/tpm ]]; then
+    tpm_install="/opt/zerobrew/opt/tpm/share/tpm/bin/install_plugins"
+elif [[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]]; then
     tpm_install="/opt/homebrew/opt/tpm/share/tpm/bin/install_plugins"
 elif [[ -f /usr/share/tmux-plugin-manager/tpm ]]; then
     tpm_install="/usr/share/tmux-plugin-manager/bin/install_plugins"
