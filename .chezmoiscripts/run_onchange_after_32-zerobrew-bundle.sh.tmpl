@@ -1,4 +1,19 @@
 {{- if eq .chezmoi.os "darwin" -}}
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" -}}
+#!/usr/bin/env bash
+# No-op em work machines: o cliente rustls do zerobrew nao oferece ALPN,
+# o que produz um JA3/JA4 que o proxy corporativo Zscaler descarta apos o
+# handshake TLS completar (zb_io/src/network/tls.rs: build_rustls_config).
+# O handshake termina bem (cert Zscaler validado contra rustls_native_certs),
+# mas o peer fecha antes do primeiro byte HTTP sair, e o reqwest devolve
+# "error sending request for url (...)" sem expor a causa raiz
+# (api.rs usa e.to_string(), perde a cadeia).
+# Work machines seguem sem bundle de core formulae ate upstream adicionar
+# ALPN h2,http1.1 ao shared_tls_config (ou ate o proxy parar de filtrar).
+# Drop este gate quando a condicao deixar de valer.
+# machine: {{ default .chezmoi.hostname (index . "machineName") }}
+exit 0
+{{- else -}}
 #!/usr/bin/env bash
 # Re-run whenever ~/.Zerobrewfile changes.
 # Zerobrewfile hash: {{ include "dot_Zerobrewfile.tmpl" | sha256sum }} machine: {{ default .chezmoi.hostname (index . "machineName") }}
@@ -12,4 +27,5 @@ if ! "$zb_bin" --root /opt/zerobrew --prefix /opt/zerobrew bundle install -f "$H
     echo ":: zb bundle failed" >&2
     exit 1
 fi
+{{- end -}}
 {{- end -}}

@@ -32,8 +32,8 @@ chezmoi init --apply https://github.com/fabioluciano/dot.git
 
 | Manifest        | Target            | Installed by                                   |
 | --------------- | ----------------- | ---------------------------------------------- |
-| `dot_Brewfile.tmpl`| `~/.Brewfile`  | `brew bundle --global` (macOS; taps + casks only) |
-| `dot_Zerobrewfile.tmpl`| `~/.Zerobrewfile` | `zb bundle install` (macOS; homebrew-core formulae via zerobrew) |
+| `dot_Brewfile.tmpl`| `~/.Brewfile`  | `brew bundle --global` (macOS; taps + casks + core formulae em work machines) |
+| `dot_Zerobrewfile.tmpl`| `~/.Zerobrewfile` | `zb bundle install` (macOS personal only; lista compartilhada em `.chezmoitemplates/core_formulae.tmpl`) |
 | `dot_Pacmanfile`| `~/.Pacmanfile`   | `yay -S --needed`/`paru -S --needed` (Arch; AUR helper required) |
 | `dot_Krewfile`  | `~/.Krewfile`     | `kubectl krew install` (kubectl plugins)       |
 | mise            | `~/.config/mise`  | `mise install`                                 |

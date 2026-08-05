@@ -8,6 +8,10 @@ command -v nb >/dev/null 2>&1 || exit 0
 readonly plugin_base_url="https://github.com/xwmx/nb/blob/master/plugins"
 readonly plugins=(daily clip backlink bump)
 
+if [[ ! -d "${NB_DIR:-"${HOME}/.nb"}/home" ]]; then
+    nb init --no-color
+fi
+
 printf '%s\n' ':: instalando plugins oficiais do nb a partir da master'
 
 for plugin in "${plugins[@]}"; do
