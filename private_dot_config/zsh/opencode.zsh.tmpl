@@ -1,5 +1,7 @@
 # Export the active opencode provider for any consumer that reads it (e.g.
-# statusline scripts, prompts). Reads from the state file written by `oc-provider`.
+# statusline scripts, prompts, and the OMO plugin's internal model DB which
+# reads OPENCODE_PROVIDER at opencode startup). Reads from the state file
+# written by `oc-provider`.
 #
 # Uses zsh builtins (read + parameter expansion) instead of awk to avoid a
 # subprocess on every shell startup. Falls back to the default provider if the
@@ -24,9 +26,73 @@ export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=1
 export OPENCODE_EXPERIMENTAL_PLAN_MODE=1
 unset _opencode_active_provider
 
+# Re-sync OPENCODE_PROVIDER with the state file before every prompt and before
+# every command. `oc-provider` only writes to disk; the OMO plugin picks up
+# the new provider at opencode startup, so the env var in the running shell
+# has to track the state file for any *new* opencode process (omo/oc/omos
+# aliases) to see the latest switch without restarting the shell.
+#
+# Cost: one zsh-only read of a 2-line file per prompt/command (~50 µs). The
+# export is skipped when the value already matches, so downstream consumers
+# (the OMO plugin's env-passed model DB) are not invalidated unnecessarily.
+_opencode_resync_provider() {
+  local state_file="${HOME}/.config/opencode/.active_provider"
+  [[ -r "$state_file" ]] || return 0
+  local new_provider=
+  while IFS=':' read -r key value; do
+    if [[ "$key" == "provider" && -n "$value" ]]; then
+      new_provider=$value
+      break
+    fi
+  done < "$state_file"
+  [[ -z "$new_provider" || "$new_provider" == "$OPENCODE_PROVIDER" ]] && return 0
+  export OPENCODE_PROVIDER="$new_provider"
+}
+# preexec runs before each command line (including omo/oc/omos aliases and
+# oc-provider itself, so the next opencode launch after oc-provider sees the
+# new value). precmd is the safety net for commands that don't trigger preexec
+# (e.g. eval, sourced scripts that fork).
+precmd_functions+=(_opencode_resync_provider)
+preexec_functions+=(_opencode_resync_provider)
+
 # Force the WebSocket transport even from an already-open shell that reloads
-# this file after OpenCode's experimental flags were introduced.
+# this file after OpenCode's experimental flags were introduced. The
+# `_opencode_resync_provider` call here covers the case where the shell has
+# been open across many `oc-provider` switches without the preexec hook
+# firing (e.g. `oc-provider` invoked from a different shell — the env var
+# only updates in the shell that ran the command, not in sibling shells).
+# At the moment the opencode binary is about to start, the state file is the
+# authoritative source, so we sync right before exec.
+#
+# Note: `aliases.zsh` (sourced earlier in the .zshrc chain) defines
+# `alias omo=...` and `alias omos=...` — zsh cannot redefine an alias as a
+# function, so we unalias them first.
+(( $+aliases[omo] )) && unalias omo
+(( $+aliases[omos] )) && unalias omos
+(( $+functions[omo] )) && unfunction omo
+(( $+functions[omos] )) && unfunction omos
+
 opencode() {
   zsh-load-tokens
+  _opencode_resync_provider
+  OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
+}
+
+# Same resync for the `omo` / `omos` entrypoints (which previously aliased to
+# `opencode` directly — bypassing the function above). Defining them as
+# shell functions (not aliases) means `command opencode` inside the wrapper
+# still hits the real binary, while every invocation re-reads the state file.
+omo() {
+  zsh-load-tokens
+  _opencode_resync_provider
+  OPENCODE_CONFIG="$HOME/.config/opencode/omo.jsonc" \
+  OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omo.json" \
+  OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
+}
+omos() {
+  zsh-load-tokens
+  _opencode_resync_provider
+  OPENCODE_CONFIG="$HOME/.config/opencode/omo-slim.jsonc" \
+  OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omos.json" \
   OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
 }

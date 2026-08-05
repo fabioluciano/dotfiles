@@ -26,6 +26,15 @@ docs/
 # OS-specific files
 .DS_Store
 
+# npm/yarn/pnpm install artifacts — managed by the opencode binary's own
+# package cache (~/.cache/opencode/packages/), not by chezmoi. Lives under
+# private_dot_config/opencode/ because the source state is just a meta
+# directory (package.json, package-lock.json) that gets copied verbatim;
+# running `npm install` in there pollutes the diff with thousands of
+# generated files. Same for the `node_modules` dir under the opencode
+# config in HOME.
+**/node_modules
+
 # Platform-specific configurations
 {{- if ne .chezmoi.os "linux" }}
 # Ignore Linux-specific files when not on Linux
