@@ -82,7 +82,8 @@ tflint = "latest"
 "npm:sql-language-server" = "latest"
 helm-ls = "latest"
 "npm:markdownlint-cli" = "latest"
-"npm:@mdx-js/language-server" = "latest"
+"npm:@mdx-js/language-server" = "0.6.3"
+"npm:omniroute" = "3.8.49"
 "pipx:cmake-language-server" = "latest"
 "pipx:cmakelint" = "latest"
 "npm:tree-sitter-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
@@ -94,6 +95,14 @@ experimental = true
 verbose = false
 asdf_compat = false
 jobs = 4
+
+# Bypass aube's npm trust policy (https://aube.jdx.dev/security#trust-policy)
+# by shelling out to the npm CLI directly. Without this, packages whose latest
+# version has weaker trust evidence than an earlier version (e.g. @mdx-js/
+# language-server) cause mise install to abort with "user aborted mise add".
+# This is a last-resort workaround per aube's own docs.
+[settings.npm]
+shell_out = true
 
 [env]
 {{- if not (has .machineName .personal_machines) }}
