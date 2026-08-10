@@ -15,11 +15,13 @@
      (lastChangelogVersion, etc.). O template lê o valor vivo via jq e o
      re-emite, para que apply não resete o estado do pi. */ -}}
 {{- $state := includeTemplate "pi-state.tmpl" . | fromJson -}}
-{{- $liveTheme := output "sh" "-c" "jq -r '.theme // \"tokyo-night\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "tokyo-night" -}}
-{{- $liveLastChangelog := output "sh" "-c" "jq -r '.lastChangelogVersion // \"0.0.0\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "0.0.0" -}}
-{{- $livePackages := output "sh" "-c" "jq -c '.packages // []' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "[]" -}}
-{{- $liveShowHardwareCursor := output "sh" "-c" "jq -r '.showHardwareCursor // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "true" -}}
-{{- $liveShowCacheMissNotices := output "sh" "-c" "jq -r '.showCacheMissNotices // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "true" -}}
+{{- /* `|| true`: no primeiro apply o target ainda não existe e o jq sai com
+     status != 0, o que abortaria o template antes do `default` agir. */ -}}
+{{- $liveTheme := output "sh" "-c" "jq -r '.theme // \"tokyo-night\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "tokyo-night" -}}
+{{- $liveLastChangelog := output "sh" "-c" "jq -r '.lastChangelogVersion // \"0.0.0\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "0.0.0" -}}
+{{- $livePackages := output "sh" "-c" "jq -c '.packages // []' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "[]" -}}
+{{- $liveShowHardwareCursor := output "sh" "-c" "jq -r '.showHardwareCursor // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "true" -}}
+{{- $liveShowCacheMissNotices := output "sh" "-c" "jq -r '.showCacheMissNotices // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "true" -}}
 {
   "theme": "{{ $liveTheme }}",
   "themes": [
