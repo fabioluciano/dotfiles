@@ -1,0 +1,77 @@
+#compdef change-providers
+# shellcheck shell=bash disable=SC2034,SC2206,SC2296
+
+_change-providers() {
+  local -a commands providers profiles
+
+  commands=(
+    'status:mostrar estado de todos os agentes'
+    'reset:restaurar todos para o provider/profile padrão'
+    'dry-run:mostrar mudança sem aplicar'
+  )
+
+  {{- /* Providers = keys do registry no providers.toml (comuns aos três agentes).
+          Em runtime, o script lê do chezmoi data; aqui no completion usamos
+          a interseção estática. Fallback se .pi.providers não existir. */ -}}
+  providers=(
+  {{- if .pi.providers }}
+  {{- range $p, $_ := .pi.providers }}
+    '{{ $p }}'
+  {{- end }}
+  {{- else }}
+    'alibaba-token-plan' 'deepseek' 'kimicode' 'minimax' 'opencode' 'xiaomi' 'zai'
+  {{- end }}
+  )
+
+  profiles=(
+    'optimized:medium thinking + implementation tier (default)'
+    'moderate:alias para optimized'
+    'super:low thinking + standard tier'
+    'ultra:minimal thinking + quick tier'
+    'recommended:high thinking + implementation tier'
+  )
+
+  local cur="${words[CURRENT]-}"
+
+  # Position 2: command or provider (agents fora do autocomplete — troca é
+  # sempre em todos).
+  if (( CURRENT == 2 )); then
+    _describe 'command' commands
+    _describe 'provider' providers
+    return
+  fi
+
+  # Resolve what word[2] is
+  local w2="${words[2]-}"
+  case "$w2" in
+    status|reset)
+      return
+      ;;
+    dry-run)
+      # word[3]: provider (sem agents no autocomplete)
+      if (( CURRENT == 3 )); then
+        _describe 'provider' providers
+      elif (( CURRENT == 4 )); then
+        _describe 'profile' profiles
+      fi
+      return
+      ;;
+    opencode|omp|pi)
+      # Digitado manualmente: word[3]: provider, word[4]: profile
+      if (( CURRENT == 3 )); then
+        _describe 'provider' providers
+      elif (( CURRENT == 4 )); then
+        _describe 'profile' profiles
+      fi
+      return
+      ;;
+    *)
+      # word[2] was a provider; word[3]: profile
+      if (( CURRENT == 3 )); then
+        _describe 'profile' profiles
+      fi
+      ;;
+  esac
+}
+
+_change-providers "$@"

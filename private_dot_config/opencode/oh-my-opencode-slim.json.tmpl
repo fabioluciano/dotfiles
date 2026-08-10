@@ -9,7 +9,7 @@
 {{- /* zen-free maps to the opencode-zen-free preset (tuned static config) */ -}}
 {{- $presetName := ternary "opencode-zen-free" $provider (eq $provider "zen-free") -}}
 
-{{- /* ── Agent → tier mapping (mirrors opencode_providers.toml tiers) ── */ -}}
+{{- /* ── Agent → tier mapping (mirrors providers.toml tiers) ── */ -}}
 {{- $agentTiers := list
   (dict "name" "orchestrator" "tier" "orchestrator")
   (dict "name" "oracle"       "tier" "architecture")

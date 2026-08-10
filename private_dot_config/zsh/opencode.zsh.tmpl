@@ -1,14 +1,14 @@
 # Export the active opencode provider for any consumer that reads it (e.g.
 # statusline scripts, prompts, and the OMO plugin's internal model DB which
 # reads OPENCODE_PROVIDER at opencode startup). Reads from the state file
-# written by `oc-provider`.
+# written by `change-providers`.
 #
 # Uses zsh builtins (read + parameter expansion) instead of awk to avoid a
 # subprocess on every shell startup. Falls back to the default provider if the
 # file is missing or has no provider line.
 #
 # The fallback below is rendered by chezmoi at apply time from
-# [opencode].default_provider in .chezmoidata/opencode_providers.toml, so it
+# [opencode].default_provider in .chezmoidata/providers.toml, so it
 # stays in sync automatically — no manual dual-update needed.
 _opencode_active_provider="{{ .opencode.default_provider }}"
 if [[ -r "${HOME}/.config/opencode/.active_provider" ]]; then
@@ -27,7 +27,7 @@ export OPENCODE_EXPERIMENTAL_PLAN_MODE=1
 unset _opencode_active_provider
 
 # Re-sync OPENCODE_PROVIDER with the state file before every prompt and before
-# every command. `oc-provider` only writes to disk; the OMO plugin picks up
+# command. `change-providers` only writes to disk; the OMO plugin picks up
 # the new provider at opencode startup, so the env var in the running shell
 # has to track the state file for any *new* opencode process (omo/oc/omos
 # aliases) to see the latest switch without restarting the shell.
@@ -49,7 +49,7 @@ _opencode_resync_provider() {
   export OPENCODE_PROVIDER="$new_provider"
 }
 # preexec runs before each command line (including omo/oc/omos aliases and
-# oc-provider itself, so the next opencode launch after oc-provider sees the
+# change-providers itself, so the next opencode launch after change-providers sees the
 # new value). precmd is the safety net for commands that don't trigger preexec
 # (e.g. eval, sourced scripts that fork).
 precmd_functions+=(_opencode_resync_provider)
@@ -58,8 +58,8 @@ preexec_functions+=(_opencode_resync_provider)
 # Force the WebSocket transport even from an already-open shell that reloads
 # this file after OpenCode's experimental flags were introduced. The
 # `_opencode_resync_provider` call here covers the case where the shell has
-# been open across many `oc-provider` switches without the preexec hook
-# firing (e.g. `oc-provider` invoked from a different shell — the env var
+# been open across many `change-providers` switches without the preexec hook
+# firing (e.g. `change-providers` invoked from a different shell — the env var
 # only updates in the shell that ran the command, not in sibling shells).
 # At the moment the opencode binary is about to start, the state file is the
 # authoritative source, so we sync right before exec.

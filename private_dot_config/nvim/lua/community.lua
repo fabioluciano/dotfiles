@@ -49,10 +49,6 @@ return {
   { import = "astrocommunity.lsp.nvim-lint" },
   { import = "astrocommunity.lsp.garbage-day-nvim" },
   { import = "astrocommunity.lsp.inc-rename-nvim" },
-
-  -- Markdown & LaTeX
-  { import = "astrocommunity.markdown-and-latex.markdown-preview-nvim" },
-
   -- Motion
   { import = "astrocommunity.motion.flash-nvim" },
   { import = "astrocommunity.motion.nvim-surround" },

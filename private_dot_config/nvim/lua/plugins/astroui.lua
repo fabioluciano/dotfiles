@@ -30,7 +30,6 @@ return {
         TelescopeBorder = { bg = "NONE" },
         WhichKeyFloat = { bg = "NONE" },
         -- Cursorline subtle highlight
-        CursorLine = { bg = "#1a1b26" },
         CursorLineNr = { fg = "#7aa2f7", bold = true },
         -- Better visual selection
         Visual = { bg = "#33467c" },

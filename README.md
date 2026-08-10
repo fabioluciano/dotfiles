@@ -206,35 +206,38 @@ reverting a dotfile commit. If you added a formula and want to remove it,
 edit `dot_Brewfile.tmpl`/`dot_Zerobrewfile.tmpl`/`dot_Pacmanfile` and run
 `chezmoi apply` again.
 
-## Switching opencode provider (`oc-provider`)
+## Switching providers (`change-providers`)
 
-The `oc-provider` command switches all opencode agents to use a specific LLM
-provider in one shot:
+The `change-providers` command switches providers across all coding agents
+(opencode, omp, pi) in one shot, or per-agent via subcommand:
 
 ```sh
-oc-provider opencode    # switch to OpenCode Zen (opencode/ models)
-oc-provider openai      # switch to OpenAI models
-oc-provider xiaomi      # switch to Xiaomi (mimo)
-oc-provider opencode recommended # switch with Oh My OpenAgent recommended tiers
-oc-provider deepseek ultra # DeepSeek with lowest safe reasoning variants
+change-providers zai               # switch all agents to ZAI (default profile)
+change-providers zai recommended   # all agents, recommended profile
+change-providers opencode zai      # only opencode
+change-providers omp xiaomi ultra  # only omp, xiaomi, ultra profile
+change-providers pi deepseek       # only pi
+change-providers status            # show all agents' state
+change-providers reset             # reset all to default
+change-providers dry-run zai       # preview without applying
 ```
 
 **How it works:**
 
-1. Writes the chosen provider name to `~/.config/opencode/.active_provider`.
-2. Runs `chezmoi apply` to re-render `oh-my-openagent.json` from its template,
-   which reads `.active_provider` as the single source of truth (default: `xiaomi`)
-   when the file is absent).
-3. Each provider entry in the matrix specifies which model, API endpoint, and
-   auth mechanism opencode uses for that provider.
+1. Writes the chosen provider name to each agent's state file
+   (`~/.config/{opencode,omp,pi}/.active_provider`).
+2. Runs `chezmoi apply` to re-render each agent's config from its template,
+   which reads `.active_provider` as the single source of truth.
+3. Each agent resolves the native provider id for its binary via the shared
+   `[providers.<key>]` registry in `.chezmoidata/providers.toml`.
 
 **Fallback behavior:** opencode is configured with automatic intra-provider fallback
 between tiers (pro → fast → cheap) when the primary model is unavailable
 (rate-limited, throttled, etc.). Fallback stays within the active provider —
-it never crosses to a different provider. The tier matrix in `.chezmoidata/opencode_providers.toml`
+it never crosses to a different provider. The tier matrix in `.chezmoidata/providers.toml`
 controls the model for each tier.
 
-**Profiles:** pass an optional profile as the second argument. `moderate` is the
+**Profiles:** pass an optional profile as the last argument. `moderate` is the
 default, `optimized`/`super` trade quality for cost, and `recommended` applies
 the Oh My OpenAgent recommended effort/variant tiers per role where the active
 provider supports them.
@@ -245,13 +248,11 @@ runtime default.
 **Verify current provider:**
 
 ```sh
-cat ~/.config/opencode/.active_provider
-chezmoi execute-template < private_dot_config/opencode/oh-my-openagent.jsonc.tmpl
+change-providers status
 ```
 
-The `oc-provider` command is part of the opencode tap installed via Homebrew
-(`anomalyco/tap/opencode`). On Arch, it's managed alongside the opencode
-package.
+The `change-providers` command is part of this dotfiles repo (chezmoi-managed
+at `~/.local/bin/change-providers`).
 
 ## Managing opencode skills
 

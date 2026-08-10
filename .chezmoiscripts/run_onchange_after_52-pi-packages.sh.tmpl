@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Instala/reconcilia os pacotes do pi (extensões) a partir de ~/.PiPackages.
+# Re-executa quando o manifest muda. Mesmo padrão do dot_Krewfile + krew script.
+#
+# Formato do manifest: uma fonte `pi install` por linha (# e vazias ignoradas).
+# Pins (@versao / @commit) tornam a instalação reprodutível entre máquinas —
+# pacotes pinados são pulados pelo `pi update --extensions`.
+#
+# Remoção de pacotes não é feita aqui (consistente com krew/brew): para
+# remover um pacote, rode `pi remove <source>` manualmente e tire a linha
+# do manifest.
+# PiPackages hash: {{ include "dot_PiPackages" | sha256sum }}
+set -euo pipefail
+
+command -v pi >/dev/null 2>&1 || exit 0
+[[ -f "$HOME/.PiPackages" ]] || exit 0
+
+echo ":: pi install (PiPackages changed)"
+failed=0
+while IFS= read -r source; do
+    [[ -z "$source" ]] && continue
+    install_output=$(pi install "$source" 2>&1) && install_exit=0 || install_exit=$?
+    if [[ $install_exit -ne 0 ]]; then
+        if echo "$install_output" | grep -qi "already installed"; then
+            echo "  $source: already installed, skipping"
+        else
+            echo "  $source: FAILED (exit $install_exit)" >&2
+            echo "$install_output" >&2
+            failed=1
+        fi
+    else
+        echo "  $source: ok"
+    fi
+done < <(grep -vE '^\s*(#|$)' "$HOME/.PiPackages")
+if [[ $failed -ne 0 ]]; then
+    echo ":: pi install completed with errors" >&2
+    exit 1
+fi

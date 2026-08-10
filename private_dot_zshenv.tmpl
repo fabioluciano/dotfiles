@@ -31,6 +31,20 @@ export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 # Non-interactive shells intentionally do not source the generated secrets file.
 {{- if eq .chezmoi.os "darwin" }}
 
+# >>> omp env var aliases >>>
+# omp (@oh-my-pi/cli) usa nomes de env var diferentes do opencode/pi. Aliases
+# abaixo derivam das chaves existentes (geradas por zsh-tokens-sync do
+# Bitwarden) sem precisar renomear o item nem mexer no sync. Os tokens
+# originais continuam exportados para compat com opencode/pai/sessões antigas.
+# - QWENCLOUD_API_TOKEN  → ALIBABA_TOKEN_PLAN_API_KEY  (Singapore token plan)
+# - MIMO_API_KEY         → XIAOMI_TOKEN_PLAN_SGP_API_KEY (Singapore region)
+# Garante que o alias não falhe se os originais não estiverem setados.
+[[ -n "${QWENCLOUD_API_TOKEN:-}" ]] && export ALIBABA_TOKEN_PLAN_API_KEY="$QWENCLOUD_API_TOKEN"
+[[ -n "${MIMO_API_KEY:-}" ]] && export XIAOMI_TOKEN_PLAN_SGP_API_KEY="$MIMO_API_KEY"
+# <<< omp env var aliases <<<
+
+
+
 # >>> zerobrew >>>
 # Bloco gerenciado pelo chezmoi — espelha o que `zb init` (v0.3.2) escreveria,
 # com prefix curto /opt/zerobrew (limite Mach-O no macOS: 13 chars). Os binarios

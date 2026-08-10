@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
+  "mcpServers": {
+    "context7": {
+      "command": "context7-mcp",
+      "timeout": 8000
+    },
+    "gh_grep": {
+      "type": "http",
+      "url": "https://mcp.grep.app",
+      "timeout": 8000
+    },
+    "codebase-memory": {
+      "command": "codebase-memory-mcp",
+      "timeout": 15000
+    },
+    "kubernetes": {
+      "command": "kubernetes-mcp-server",
+      "args": ["--read-only"],
+      "timeout": 15000
+    },
+    "terraform": {
+      "command": "terraform-mcp-server",
+      "timeout": 10000
+    }
+  }
+}

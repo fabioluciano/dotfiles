@@ -1,3 +1,132 @@
+# =============================================================================
+# providers.toml — Única matriz de providers do dotfiles, consumida pelo
+# `change-providers` para os agentes opencode, omp e pi.
+#
+# Como ler:
+#   [providers.<key>]   registry compartilhado: display_name + o id NATIVO do
+#                       provider em cada binário (opencode_id / omp_id / pi_id).
+#                       Ids são diferentes por binário (ex: xiaomi ↔
+#                       xiaomi-token-plan-sgp ↔ xiaomi-mimo, zai ↔ zai-coding)
+#                       e podem sumir ou mudar de nome entre versões.
+#   [opencode.*]        matrizes por KEY do opencode (ids inline "provider/model"):
+#                       models, variants, profiles de agentes, overrides,
+#                       historian_models. Consumidas por opencode-state.tmpl,
+#                       opencode_base.jsonc, oh-my-openagent/oh-my-opencode-
+#                       slim templates, change-providers (subcomando opencode).
+#   [omp.*]             matrizes por KEY do omp (ids resolvidos via registry
+#                       omp_id): providers, profiles, profile_aliases.
+#                       Consumidas por omp-state.tmpl, config.yml.tmpl,
+#                       change-providers (subcomando omp).
+#   [pi.*]              matrizes por KEY do pi (ids resolvidos via registry
+#                       pi_id): providers (tiers), profiles, profile_aliases.
+#                       Consumidas por pi-state.tmpl, settings.json.tmpl,
+#                       change-providers (subcomando pi).
+# =============================================================================
+#
+# Regras de edição:
+#   - As KEYS ([providers.X], [opencode.models.X], [omp.providers.X]) são
+#     referenciadas pelos state files (~/.config/{opencode,omp}/.active_provider)
+#     e pelos templates de completão. Não renomear sem migrar os state files.
+#   - As matrizes por KEY NÃO podem ser derivadas (ids por agente diferem;
+#     variantes por tier também), então continuam separadas por seção.
+#   - Drift check: os ids de modelo de cada entry DEVEM existir no catálogo
+#     real do binário alvo (`opencode models`, `omp models`). Este arquivo é
+#     dado estático; quando o binário muda de catálogo, atualizar aqui.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Registry — id nativo do provider em cada binário.
+# `opencode_id` = namespace usado nas strings "provider/model" do opencode.
+# `pi_id`       = provider-id nativo do catálogo `pi` (models.json em ~/.pi/agent).
+# -----------------------------------------------------------------------------
+[providers.zai]
+display_name = "ZAI (Zhipu GLM)"
+opencode_id = "zai"
+pi_id = "zai-coding"
+
+[providers.minimax]
+display_name = "MiniMax"
+opencode_id = "minimax"
+# omp_id = "minimax" (catálogo omp tem só "minimax", 8 modelos).
+# pi_id = "minimax" (não "minimax-coding" — este está quebrado no pi:
+# modelos sem thinking, max=16.4K, endpoint retorna 404).
+omp_id = "minimax"
+pi_id = "minimax"
+
+[providers.deepseek]
+display_name = "DeepSeek"
+opencode_id = "deepseek"
+pi_id = "deepseek"
+
+[providers.xiaomi]
+display_name = "Xiaomi MiMo (Singapore Token Plan)"
+opencode_id = "xiaomi"
+# omp_id = "xiaomi-token-plan-sgp": catálogo omp nativo (4 modelos).
+# pi_id = "xiaomi-mimo": free tier do pi (2 modelos); o pi também lista
+# "xiaomi-token-plan-sgp" (3 modelos) como provider separado.
+omp_id = "xiaomi-token-plan-sgp"
+pi_id = "xiaomi-mimo"
+
+[providers.gitlab-duo]
+display_name = "GitLab Duo (OAuth-gated)"
+# omp-only; requer login no GitLab. Sem auth, 0 modelos disponíveis no catálogo
+# nativo. Catálogo omp tem 16 modelos "duo-chat-*" e 1 "gitlab-duo-agent".
+# Não existe no pi nem no opencode.
+omp_id = "gitlab-duo"
+
+[providers.openai]
+display_name = "OpenAI"
+opencode_id = "openai"
+omp_id = "openai"
+pi_id = "openai"
+
+[providers.opencode]
+display_name = "OpenCode (Zen / Go catalogs)"
+opencode_id = "opencode"
+# omp_id = "opencode-zen": catálogo omp nativo é "opencode-zen" (61 modelos).
+# Sem esse mapeamento, defaultModel fica "opencode/..." (inexistente).
+omp_id = "opencode-zen"
+pi_id = "opencode"
+
+[providers.opencode-go]
+display_name = "OpenCode Go (Token Plan — Kimi/DeepSeek/GLM)"
+# Provider Token Plan: kimi-k2.6/k2.7/k3, deepseek-v4, glm-5.2, gpt-5.6-luna, etc.
+# Distinto de [providers.opencode] (free tier). Não há namespace "opencode-go" nas
+# matrizes do opencode; entry de registry é omp/pi-only.
+omp_id = "opencode-go"
+pi_id = "opencode-go"
+
+[providers.kimicode]
+display_name = "Kimi (Moonshot)"
+opencode_id = "kimicode"
+# Provider nativo `kimi-code` do omp é OAuth-gated e pode ter zero modelos
+# sem login; usar `opencode-go`, que serve os modelos Kimi autenticado
+# (Token Plan). Sem omp_id = "opencode-go", defaultModel fica
+# "kimicode/kimi-for-coding" (inexistente no catálogo nativo).
+omp_id = "opencode-go"
+# kimi-code no pi é OAuth-gated (0 modelos sem login) — mas ao contrário do
+# omp, o pi-catálogo ainda o lista; mantemos pi_id = "kimi-code".
+pi_id = "kimi-code"
+
+[providers.alibaba-token-plan]
+display_name = "Alibaba Token Plan (Qwen, Singapore)"
+opencode_id = "alibaba-token-plan"
+omp_id = "alibaba-token-plan"
+pi_id = "alibaba-token-plan"
+
+[providers.mix]
+display_name = "Mix (minimax + xiaomi + deepseek)"
+# Combinação de matrizes do opencode; não há provider correspondente no omp.
+
+[providers.zen-free]
+display_name = "OpenCode Zen Free"
+opencode_id = "opencode"
+# Modelos "-free" não existem no catálogo do omp; entry de registry é
+# opencode-only.
+
+# =============================================================================
+# OPENCODE — matrizes por KEY (models, variants, agent_profiles, overrides)
+# =============================================================================
 [opencode]
 default_provider = "xiaomi"
 
@@ -911,3 +1040,167 @@ kimicode = "xiaomi/mimo-v2.5"
 alibaba-token-plan = "alibaba-token-plan/qwen3.6-flash"
 mix = "deepseek/deepseek-v4-flash"
 "zen-free" = "opencode/deepseek-v4-flash-free"
+
+# =============================================================================
+# OMP — matrizes por KEY (providers, profiles, profile_aliases)
+# =============================================================================
+# Cada entry referencia o id nativo do omp via o registry [providers.X]
+# (campo `omp_id`); o template omp-state.tmpl faz o lookup. Keys preservam
+# compatibilidade com o state file ~/.config/omp/.active_provider.
+# `cycling_order` = provider-ids do omp para `modelProviderOrder` (Ctrl+P),
+# csv, ativo primeiro.
+# =============================================================================
+
+[omp]
+default_provider = "xiaomi"
+
+[omp.providers.xiaomi]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-token-plan-sgp"
+
+[omp.providers.opencode]
+tiers = { orchestrator = ["gpt-5.5"], implementation = ["gpt-5.5"], planner = ["claude-haiku-4-5"], quick = ["claude-haiku-4-5"], standard = ["claude-sonnet-4-6"], complex = ["gpt-5.5"], deep = ["gpt-5.5"] }
+cycling_order = "opencode-zen"
+
+[omp.providers.minimax]
+tiers = { orchestrator = ["MiniMax-M3"], implementation = ["MiniMax-M3"], planner = ["MiniMax-M2.7"], quick = ["MiniMax-M2.5"], standard = ["MiniMax-M2.7"], complex = ["MiniMax-M3"], deep = ["MiniMax-M3"] }
+cycling_order = "minimax"
+
+[omp.providers.deepseek]
+tiers = { orchestrator = ["deepseek-v4-pro"], implementation = ["deepseek-v4-pro"], planner = ["deepseek-v4-flash"], quick = ["deepseek-v4-flash"], standard = ["deepseek-v4-flash"], complex = ["deepseek-v4-pro"], deep = ["deepseek-v4-pro"] }
+cycling_order = "deepseek"
+
+# Kimi: o provider nativo `kimi-code` do omp é OAuth-gated (0 modelos sem
+# login); os modelos Kimi estão autenticados em `opencode-go` (registry).
+[omp.providers.kimicode]
+tiers = { orchestrator = ["kimi-k3"], implementation = ["kimi-k2.7-code"], planner = ["kimi-k2.5"], quick = ["kimi-k2.5"], standard = ["kimi-k2.7-code"], complex = ["kimi-k3"], deep = ["kimi-k3"] }
+cycling_order = "opencode-go"
+
+[omp.providers.zai]
+tiers = { orchestrator = ["glm-5.2"], implementation = ["glm-5.2"], planner = ["glm-5.1"], quick = ["glm-5.1"], standard = ["glm-5.2"], complex = ["glm-5.2"], deep = ["glm-5.2"] }
+cycling_order = "zai"
+
+[omp.providers.alibaba-token-plan]
+tiers = { orchestrator = ["qwen3.7-max"], implementation = ["qwen3.7-max"], planner = ["qwen3.7-plus"], quick = ["qwen3.6-flash"], standard = ["qwen3.7-plus"], complex = ["qwen3.7-max"], deep = ["qwen3.7-max"] }
+cycling_order = "alibaba-token-plan"
+
+# OpenAI — 105 modelos no catálogo nativo do omp. Tiers alinhados com
+# `[opencode.models.openai]` (gpt-5.6-{terra,sol,luna} como topo).
+[omp.providers.openai]
+tiers = { orchestrator = ["gpt-5.6-terra", "gpt-5.6-sol"], implementation = ["gpt-5.6-sol", "gpt-5.6-terra"], planner = ["gpt-5.6-luna", "gpt-5.4-mini"], quick = ["gpt-5.4-mini", "gpt-5-mini"], standard = ["gpt-5.6-luna"], complex = ["gpt-5.6-terra", "gpt-5.5-pro"], deep = ["gpt-5.6-terra", "gpt-5.5-pro"] }
+cycling_order = "openai"
+
+# OpenCode Token Plan — kimi-k2.6/k2.7/k3, deepseek-v4, glm-5.x, grok-4.5, hy3,
+# gpt-5.6-luna, mimo-v2.5, minimax-m2.7/m3, qwen3.x. Distinto de [providers.opencode]
+# (free tier "opencode-zen"). Catálogo nativo: 25 modelos.
+[omp.providers.opencode-go]
+tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2.7-code", "deepseek-v4-pro"], planner = ["deepseek-v4-flash", "glm-5.2"], quick = ["glm-5.1", "grok-4.5"], standard = ["deepseek-v4-flash"], complex = ["kimi-k3"], deep = ["deepseek-v4-pro", "hy3"] }
+cycling_order = "opencode-go"
+
+# GitLab Duo — OAuth-gated. Sem login no GitLab, 0 modelos disponíveis.
+# Catálogo nativo: 16 modelos "duo-chat-*" (claude/gpt-5 variantes).
+[omp.providers.gitlab-duo]
+tiers = { orchestrator = ["duo-chat-opus-4-6"], implementation = ["duo-chat-sonnet-4-6", "duo-chat-gpt-5-2-codex"], planner = ["duo-chat-gpt-5-2"], quick = ["duo-chat-haiku-4-5", "duo-chat-gpt-5-mini"], standard = ["duo-chat-sonnet-4-5"], complex = ["duo-chat-opus-4-6"], deep = ["duo-chat-opus-4-6"] }
+cycling_order = "gitlab-duo"
+
+# -----------------------------------------------------------------------------
+# Profiles → thinking_level + default_tier
+# -----------------------------------------------------------------------------
+[omp.profiles.optimized]
+thinking_level = "medium"
+default_tier = "implementation"
+
+[omp.profiles.moderate]
+thinking_level = "medium"
+default_tier = "implementation"
+
+[omp.profiles.super]
+thinking_level = "low"
+default_tier = "standard"
+
+[omp.profiles.ultra]
+thinking_level = "minimal"
+default_tier = "quick"
+
+[omp.profiles.recommended]
+thinking_level = "high"
+default_tier = "implementation"
+
+[omp.profile_aliases]
+moderate = "optimized"
+default = "optimized"
+
+
+# =============================================================================
+# PI — matrizes por KEY (providers, profiles, profile_aliases)
+# =============================================================================
+# pi (earendil-works/pi, upstream do omp) é mais simples: settings.json só tem
+# defaultProvider + defaultModel + defaultThinkingLevel (sem modelRoles/fallback).
+# O catálogo vive em models.json (auto-gerenciado por `pi update`), NÃO template.
+# Ids nativos resolvidos via registry [providers.X].pi_id.
+# Tiers: mesmo vocabulário do omp (orchestrator, implementation, planner, quick,
+# standard, complex, deep) — pi-state.tmpl picka o modelo do tier do profile.
+# =============================================================================
+
+[pi]
+default_provider = "xiaomi"
+
+[pi.providers.xiaomi]
+tiers = { orchestrator = ["mimo-v2.5-pro"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+
+[pi.providers.opencode]
+tiers = { orchestrator = ["gpt-5.5"], implementation = ["gpt-5.5"], planner = ["gpt-5.4-mini"], quick = ["gpt-5.4-mini"], standard = ["claude-sonnet-4-6"], complex = ["gpt-5.5"], deep = ["gpt-5.5"] }
+
+[pi.providers.minimax]
+# Todos os modelos no provider "minimax" têm thinking=yes (sem opção think=no
+# como no minimax-coding). Quick usa M2.7-highspeed (otimizado para velocidade).
+tiers = { orchestrator = ["MiniMax-M3"], implementation = ["MiniMax-M3"], planner = ["MiniMax-M2.7"], quick = ["MiniMax-M2.7-highspeed"], standard = ["MiniMax-M2.7"], complex = ["MiniMax-M3"], deep = ["MiniMax-M3"] }
+
+[pi.providers.deepseek]
+tiers = { orchestrator = ["deepseek-v4-pro"], implementation = ["deepseek-v4-pro"], planner = ["deepseek-v4-flash"], quick = ["deepseek-v4-flash"], standard = ["deepseek-v4-flash"], complex = ["deepseek-v4-pro"], deep = ["deepseek-v4-pro"] }
+
+[pi.providers.kimicode]
+tiers = { orchestrator = ["k3"], implementation = ["kimi-for-coding"], planner = ["kimi-for-coding"], quick = ["kimi-for-coding"], standard = ["kimi-for-coding"], complex = ["k3"], deep = ["k3"] }
+
+[pi.providers.zai]
+tiers = { orchestrator = ["glm-5.2"], implementation = ["glm-5.2"], planner = ["glm-4.7-flash"], quick = ["glm-4.7-flash"], standard = ["glm-4.7"], complex = ["glm-5.2"], deep = ["glm-5.2"] }
+
+[pi.providers.alibaba-token-plan]
+tiers = { orchestrator = ["qwen3.8-max-preview"], implementation = ["qwen3.7-max"], planner = ["qwen3.7-plus"], quick = ["qwen3.6-flash"], standard = ["qwen3.7-plus"], complex = ["qwen3.8-max-preview"], deep = ["qwen3.8-max-preview"] }
+
+# OpenAI — 38 modelos no catálogo nativo do pi (gpt-5.x com thinking).
+# Tiers alinhados com `[opencode.models.openai]`.
+[pi.providers.openai]
+tiers = { orchestrator = ["gpt-5.6-terra", "gpt-5.6-sol"], implementation = ["gpt-5.6-sol", "gpt-5.6-terra"], planner = ["gpt-5.6-luna", "gpt-5.4-mini"], quick = ["gpt-5.4-mini", "gpt-5-mini"], standard = ["gpt-5.6-luna"], complex = ["gpt-5.6-terra", "gpt-5.5-pro"], deep = ["gpt-5.6-terra", "gpt-5.5-pro"] }
+
+# OpenCode Token Plan — mesmo catálogo do omp.opencode-go (kimi, deepseek, glm,
+# grok, hy3, gpt-5.6-luna, mimo, minimax, qwen). 18 modelos no pi.
+[pi.providers.opencode-go]
+tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2.7-code", "deepseek-v4-pro"], planner = ["deepseek-v4-flash", "glm-5.2"], quick = ["glm-5.1", "grok-4.5"], standard = ["deepseek-v4-flash"], complex = ["kimi-k3"], deep = ["deepseek-v4-pro"] }
+
+# -----------------------------------------------------------------------------
+# Profiles → thinking_level + default_tier (mesmo vocabulário do omp)
+# -----------------------------------------------------------------------------
+[pi.profiles.optimized]
+thinking_level = "medium"
+default_tier = "implementation"
+
+[pi.profiles.moderate]
+thinking_level = "medium"
+default_tier = "implementation"
+
+[pi.profiles.super]
+thinking_level = "low"
+default_tier = "standard"
+
+[pi.profiles.ultra]
+thinking_level = "minimal"
+default_tier = "quick"
+
+[pi.profiles.recommended]
+thinking_level = "high"
+default_tier = "implementation"
+
+[pi.profile_aliases]
+moderate = "optimized"
+default = "optimized"

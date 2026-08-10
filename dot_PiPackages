@@ -1,0 +1,10 @@
+# Pi packages — manifesto declarativo consumido por run_onchange_after_52-pi-packages.
+# Formato: uma fonte por linha, mesmo formato aceito por `pi install`.
+# Linhas com # ou vazias são ignoradas.
+#
+# Pins: @<versao> para npm, @<tag|commit> para git.
+# Pacotes pinados são pulados pelo `pi update --extensions` (reprodutíveis).
+# Para atualizar um pin: mude o ref aqui e rode `chezmoi apply`.
+
+npm:pi-code@1.0.2
+git:github.com/code-yeongyu/pi-lsp-client@1c981dfcacc456fe4ce9f4120a2f0250b54d6844
