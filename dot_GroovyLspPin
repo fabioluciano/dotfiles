@@ -1,0 +1,5 @@
+# Commit pin do GroovyLanguageServer/groovy-language-server (master).
+# Atualize junto com o hash no comentario do run_onchange_after_53-groovy-lsp.sh.tmpl
+# para forcar rebuild quando o upstream mudar. Nao usar branch ref (master)_HEAD
+# porque o hash muda silenciosamente e bagunca o diff do chezmoi.
+347d098a928707223ce44b52cc45174a6327a5f3
