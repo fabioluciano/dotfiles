@@ -29,8 +29,11 @@
 {{- $state := includeTemplate "omp-state.tmpl" . | fromJson -}}
 {{- /* Preserva o setupVersion já escrito pelo omp no target (bumps futuros
      de CURRENT_SETUP_VERSION fluem); default 1 = wizard nunca abre, pois o
-     template pré-configura tudo que as scenes pedem. */ -}}
-{{- $setupVersion := output "sh" "-c" "awk '/^setupVersion:/ {print $2; exit}' \"$HOME/.omp/agent/config.yml\" 2>/dev/null" | trim | default "1" -}}
+     template pré-configura tudo que as scenes pedem. `|| true` é necessário
+     porque o target pode não existir ainda (primeiro apply): awk sai com
+     status 2 quando o arquivo não existe, e o `output` do chezmoi aborta o
+     template em exit != 0 ANTES do `default "1"` agir. */ -}}
+{{- $setupVersion := output "sh" "-c" "awk '/^setupVersion:/ {print $2; exit}' \"$HOME/.omp/agent/config.yml\" 2>/dev/null || true" | trim | default "1" -}}
 {{- if not (regexMatch "^[0-9]+$" $setupVersion) -}}{{- $setupVersion = "1" -}}{{- end -}}
 {{- "" -}}
 disabledExtensions:
