@@ -1,8 +1,112 @@
 {
   "lsp": {
-    "groovy": {
-      "command": ["java", "-jar", "{{ .chezmoi.homeDir }}/.local/share/groovy-lsp/groovy-language-server-all.jar"],
-      "extensions": [".groovy"]
+    "marksman": {
+      "command": ["marksman", "server"],
+      "extensions": [".md", ".markdown"]
+    },
+    "yaml-language-server": {
+      "command": ["yaml-language-server", "--stdio"],
+      "extensions": [".yaml", ".yml"]
+    },
+    "dockerfile-language-server": {
+      "command": ["docker-langserver", "--stdio"],
+      "extensions": [".dockerfile"]
+    },
+    "helm-ls": {
+      "command": ["helm_ls", "serve"],
+      "extensions": [".yaml", ".yml"]
+    },
+    "tailwindcss-language-server": {
+      "command": ["tailwindcss-language-server", "--stdio"],
+      "extensions": [".html", ".css", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"]
+    },
+    "vue-language-server": {
+      "command": ["vue-language-server", "--stdio"],
+      "extensions": [".vue"]
+    },
+    "zls": {
+      "command": ["zls"],
+      "extensions": [".zig", ".zon"]
+    },
+    "tinymist": {
+      "command": ["tinymist", "lsp"],
+      "extensions": [".typ"]
+    },
+    "basedpyright": {
+      "command": ["basedpyright-langserver", "--stdio"],
+      "extensions": [".py", ".pyi"]
+    },
+    "jdtls": {
+      "command": ["jdtls"],
+      "extensions": [".java", ".groovy"]
+    },
+    "taplo": {
+      "command": ["taplo", "lsp", "stdio"],
+      "extensions": [".toml"]
+    },
+    "sql-language-server": {
+      "command": ["sql-language-server", "up", "--method", "stdio"],
+      "extensions": [".sql"]
+    },
+    "cmake-language-server": {
+      "command": ["cmake-language-server"],
+      "extensions": ["CMakeLists.txt", ".cmake"]
+    },
+    "mdx-language-server": {
+      "command": ["mdx-language-server", "--stdio"],
+      "extensions": [".mdx"]
+    },
+    "docker-compose-langserver": {
+      "command": ["docker-compose-langserver", "--stdio"],
+      "extensions": ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]
+    },
+    "vscode-css-language-server": {
+      "command": ["vscode-css-language-server", "--stdio"],
+      "extensions": [".css", ".scss", ".less"]
+    },
+    "vscode-html-language-server": {
+      "command": ["vscode-html-language-server", "--stdio"],
+      "extensions": [".html", ".htm"]
+    },
+    "vscode-json-language-server": {
+      "command": ["vscode-json-language-server", "--stdio"],
+      "extensions": [".json", ".jsonc"]
+    },
+    "vscode-eslint-language-server": {
+      "command": ["vscode-eslint-language-server", "--stdio"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
+    },
+    "gopls": {
+      "command": ["gopls"],
+      "extensions": [".go"]
+    },
+    "rust-analyzer": {
+      "command": ["rust-analyzer"],
+      "extensions": [".rs"]
+    },
+    "lua-language-server": {
+      "command": ["lua-language-server"],
+      "extensions": [".lua"]
+    },
+    "bash-language-server": {
+      "command": ["bash-language-server", "start"],
+      "extensions": [".sh", ".bash", ".zsh"]
+    },
+    "typescript-language-server": {
+      "command": ["typescript-language-server", "--stdio"],
+      "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]
+    },
+    "elixir-ls": {
+      "command": ["elixir-ls"],
+      "extensions": [".ex", ".exs"]
+    },
+    "intelephense": {
+      "command": ["intelephense", "--stdio"],
+      "extensions": [".php"]
+    },
+    "ruff": {
+      "command": ["ruff", "server"],
+      "extensions": [".py", ".pyi"]
     }
   }
 }
