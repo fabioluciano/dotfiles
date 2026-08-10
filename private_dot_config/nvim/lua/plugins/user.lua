@@ -134,7 +134,7 @@ return {
     opts = {
       sources = { "document_symbols", "filesystem" },
       window = {
-        width = 40,
+        width = 50,
         mappings = {
           ["<ScrollWheelLeft>"]  = "noop",
           ["<ScrollWheelRight>"] = "noop",
