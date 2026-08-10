@@ -3,8 +3,15 @@
 # Linhas com # ou vazias são ignoradas.
 #
 # Pins: @<versao> para npm, @<tag|commit> para git.
-# Pacotes pinados são pulados pelo `pi update --extensions` (reprodutíveis).
+# Pacotes pinados sao pulados pelo `pi update --extensions` (reprodutiveis).
 # Para atualizar um pin: mude o ref aqui e rode `chezmoi apply`.
+#
+# Tambem aceita linhas comentadas `# gerenciado:KEY:VALUE` para ativos
+# gerenciados pelo mesmo script mas que NAO sao fontes de `pi install`
+# (ex: build do groovy-language-server via gradle; mise/registry nao
+# tem entry e o upstream nao tem GH Releases).
 
 npm:pi-code@1.0.2
 git:github.com/code-yeongyu/pi-lsp-client@1c981dfcacc456fe4ce9f4120a2f0250b54d6844
+
+# gerenciado:groovy-lsp-pin:347d098a928707223ce44b52cc45174a6327a5f3

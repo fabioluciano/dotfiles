@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# Instala/reconcilia os pacotes do pi (extensões) a partir de ~/.PiPackages.
-# Re-executa quando o manifest muda. Mesmo padrão do dot_Krewfile + krew script.
+# Instala/reconcilia os pacotes do pi (extensoes) a partir de ~/.PiPackages.
+# Re-executa quando o manifest muda. Mesmo padrao do dot_Krewfile + krew script.
 #
-# Formato do manifest: uma fonte `pi install` por linha (# e vazias ignoradas).
-# Pins (@versao / @commit) tornam a instalação reprodutível entre máquinas —
-# pacotes pinados são pulados pelo `pi update --extensions`.
+# Formato do manifest:
+#   - Linhas nao-comentadas: fontes de `pi install` (mesmo formato aceito).
+#     Pins (@versao / @commit) tornam a instalacao reprodutivel entre
+#     maquinas -- pacotes pinados sao pulados pelo `pi update --extensions`.
+#   - Linhas comentadas `# gerenciado:KEY:VALUE`: ativos instalados pelo
+#     mesmo script mas que NAO sao fontes de `pi install` (server-side LSP
+#     builds via gradle, etc.). O script parseia o prefixo `gerenciado:` e
+#     trata cada caso.
 #
-# Remoção de pacotes não é feita aqui (consistente com krew/brew): para
+# Remocao de pacotes nao e feita aqui (consistente com krew/brew): para
 # remover um pacote, rode `pi remove <source>` manualmente e tire a linha
 # do manifest.
 # PiPackages hash: {{ include "dot_PiPackages" | sha256sum }}
@@ -15,6 +20,10 @@ set -euo pipefail
 command -v pi >/dev/null 2>&1 || exit 0
 [[ -f "$HOME/.PiPackages" ]] || exit 0
 
+# ===== SECTION A: pi install sources =====
+# Filtragem do Manifest: linhas que NAO comecam com # e NAO sao vazias
+# sao tratadas como fontes de `pi install`. Linhas que comecam com
+# `# gerenciado:` sao ignoradas aqui (tratadas na SECTION B).
 echo ":: pi install (PiPackages changed)"
 failed=0
 while IFS= read -r source; do
@@ -34,5 +43,78 @@ while IFS= read -r source; do
 done < <(grep -vE '^\s*(#|$)' "$HOME/.PiPackages")
 if [[ $failed -ne 0 ]]; then
     echo ":: pi install completed with errors" >&2
+  # Continue to SECTION B mesmo se o pi install falhou -- o build do
+  # groovy-lsp e independente do client-side das extensoes.
+fi
+
+# ===== SECTION B: managed assets (builds from source) =====
+# Cada `gerenciado:KEY:VALUE` no manifest dispara uma acao de install/sync
+# do asset. Mantem a logica do pin+build coesa em um script so, em vez de
+# espalhar varios run_onchange_after_* com seus proprios pins.
+#
+# Mantenha esta secao pequena: use apenas para assets que NAO cabem em
+# nenhum backend mise (aqua/github/http). Para quase tudo, prefira
+# adicionar uma entrada em ~/.config/mise/config.toml.
+
+# === groovy-language-server (LSP server pro .groovy) ===
+# Upstream NAO tem GH Releases e NAO ha entry no aqua-registry. Solucao:
+# build do source via gradle (toolchain mise), cache do shadowJar em
+# ~/.local/share/groovy-lsp/. O pi-lsp-client (extension client) so
+# descobre o server via ~/.pi/lsp-client.json (private_dot_pi/lsp-client.json.tmpl).
+#
+# Java 21 explicito: gradle 9.1 quebra em Java 26 ("Unsupported class file
+# major version 70"). 21.0.2 ja esta no mise via core tool.
+groovy_lsp_pin=$(grep -E '^#\s*gerenciado:groovy-lsp-pin:' "$HOME/.PiPackages" | tail -1 | sed -E 's/.*gerenciado:groovy-lsp-pin:([^[:space:]]+).*/\1/')
+if [[ -n "$groovy_lsp_pin" ]]; then
+    GROOVY_LSP_SRC="${XDG_CACHE_HOME:-$HOME/.cache}/groovy-lsp-src"
+    GROOVY_LSP_DEST="$HOME/.local/share/groovy-lsp"
+    GROOVY_LSP_JAR="$GROOVY_LSP_DEST/groovy-language-server-all.jar"
+    GROOVY_LSP_PIN_MARKER="$GROOVY_LSP_DEST/.pin"
+    JAVA_HOME="${JAVA_HOME:-$HOME/.local/share/mise/installs/java/21.0.2/Contents/Home}"
+
+    if [[ ! -x "$JAVA_HOME/bin/java" ]]; then
+        echo ":: groovy-lsp: Java 21 not at $JAVA_HOME, skipping" >&2
+    else
+        mkdir -p "$GROOVY_LSP_SRC" "$GROOVY_LSP_DEST"
+        if [[ ! -d "$GROOVY_LSP_SRC/.git" ]]; then
+            git clone --depth 1 https://github.com/GroovyLanguageServer/groovy-language-server.git "$GROOVY_LSP_SRC"
+        fi
+
+        (cd "$GROOVY_LSP_SRC" && {
+            git fetch --depth 1 origin "$groovy_lsp_pin" 2>/dev/null || true
+            git checkout "$groovy_lsp_pin" 2>/dev/null || {
+                echo ":: groovy-lsp: cannot checkout $groovy_lsp_pin" >&2
+                exit 1
+            }
+
+            current_pin=$(cat "$GROOVY_LSP_PIN_MARKER" 2>/dev/null || echo "")
+            build_jar="$(find build/libs -maxdepth 1 -name '*-all.jar' 2>/dev/null | head -1 || true)"
+
+            need_build=0
+            [[ "$current_pin" != "$groovy_lsp_pin" ]] && need_build=1
+            [[ ! -f "$GROOVY_LSP_JAR" ]] && need_build=1
+            [[ -n "$(git status --porcelain)" ]] && need_build=1
+            [[ -n "$build_jar" && "$build_jar" -nt "$GROOVY_LSP_JAR" ]] && need_build=1
+
+            if [[ "$need_build" -eq 1 ]]; then
+                echo ":: building groovy-language-server @ $groovy_lsp_pin..."
+                JAVA_HOME="$JAVA_HOME" PATH="$JAVA_HOME/bin:$PATH" \
+                    ./gradlew shadowJar --no-daemon --console=plain 2>&1 | tail -20
+                build_jar="$(find build/libs -maxdepth 1 -name '*-all.jar' | head -1 || true)"
+                [[ -z "$build_jar" || ! -f "$build_jar" ]] && {
+                    echo ":: groovy-lsp: build artifact not found" >&2
+                    exit 1
+                }
+                cp "$build_jar" "$GROOVY_LSP_JAR"
+                echo "$groovy_lsp_pin" > "$GROOVY_LSP_PIN_MARKER"
+                echo "  groovy-lsp: installed $GROOVY_LSP_JAR ($(du -h "$GROOVY_LSP_JAR" | cut -f1))"
+            fi
+        })
+    fi
+fi
+
+# Reaplica failed da SECTION A depois da SECTION B (nao-blocoante: o
+# build do groovy-lsp e independente das extensions do pi).
+if [[ $failed -ne 0 ]]; then
     exit 1
 fi
