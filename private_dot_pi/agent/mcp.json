@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/config/mcp-schema.json",
+  "mcpServers": {
+    "context7": {
+      "transport": "stdio",
+      "command": "context7-mcp",
+      "timeout": 8000
+    },
+    "playwright": {
+      "transport": "stdio",
+      "command": "playwright-mcp",
+      "timeout": 10000
+    },
+    "gh_grep": {
+      "type": "http",
+      "url": "https://mcp.grep.app",
+      "timeout": 8000
+    },
+    "github": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "description": "GitHub API operations",
+      "timeout": 10000
+    },
+    "codebase-memory": {
+      "transport": "stdio",
+      "command": "codebase-memory-mcp",
+      "timeout": 15000
+    },
+    "kubernetes": {
+      "transport": "stdio",
+      "command": "kubernetes-mcp-server",
+      "args": ["--read-only"],
+      "timeout": 15000
+    },
+    "terraform": {
+      "transport": "stdio",
+      "command": "terraform-mcp-server",
+      "timeout": 10000
+    },
+    "filesystem": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "description": "Project filesystem access",
+      "alwaysAllow": ["list_directory", "read_file", "file_info"]
+    }
+  }
+}

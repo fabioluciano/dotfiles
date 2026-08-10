@@ -1,4 +1,4 @@
-command alias du="ncdu --color dark"
+[[ -t 1 ]] && alias du="ncdu --color dark -x"
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --icons --git'
     alias ll='eza -l --icons --git'

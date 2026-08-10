@@ -1,0 +1,43 @@
+{{- /* Configuração global do pi (earendil-works/pi). Renderiza
+     `~/.pi/agent/settings.json` a partir de uma state file em
+     `~/.config/pi/.active_provider` (provider:foo\nprofile:bar) +
+     `.chezmoidata/providers.toml`.
+
+     DIFERENÇAS DO omp:
+       - pi usa JSON (settings.json), não YAML.
+       - pi só tem defaultProvider + defaultModel + defaultThinkingLevel
+         (sem modelRoles/fallbackChains/modelProviderOrder).
+       - O catálogo vive em models.json (auto-gerenciado por `pi update`),
+         NÃO é template.
+       - Tema Tokyo Night é um arquivo separado em themes/tokyo-night.json.
+
+     Preservação de chaves auto-gerenciadas: o pi escreve em settings.json
+     (lastChangelogVersion, etc.). O template lê o valor vivo via jq e o
+     re-emite, para que apply não resete o estado do pi. */ -}}
+{{- $state := includeTemplate "pi-state.tmpl" . | fromJson -}}
+{{- $liveTheme := output "sh" "-c" "jq -r '.theme // \"tokyo-night\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "tokyo-night" -}}
+{{- $liveLastChangelog := output "sh" "-c" "jq -r '.lastChangelogVersion // \"0.0.0\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "0.0.0" -}}
+{{- $livePackages := output "sh" "-c" "jq -c '.packages // []' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "[]" -}}
+{{- $liveShowHardwareCursor := output "sh" "-c" "jq -r '.showHardwareCursor // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "true" -}}
+{{- $liveShowCacheMissNotices := output "sh" "-c" "jq -r '.showCacheMissNotices // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null" | trim | default "true" -}}
+{
+  "theme": "{{ $liveTheme }}",
+  "themes": [
+    "themes"
+  ],
+  "defaultProjectTrust": "always",
+  "enableInstallTelemetry": false,
+  "packages": {{ $livePackages }},
+  "defaultProvider": "{{ $state.providerId }}",
+  "defaultModel": "{{ $state.defaultModel }}",
+  "defaultThinkingLevel": "{{ $state.thinkingLevel }}",
+  "showHardwareCursor": {{ $liveShowHardwareCursor }},
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "showCacheMissNotices": {{ $liveShowCacheMissNotices }},
+  "warnings": {
+    "anthropicExtraUsage": true
+  },
+  "lastChangelogVersion": "{{ $liveLastChangelog }}"
+}

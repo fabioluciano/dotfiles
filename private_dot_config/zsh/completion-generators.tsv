@@ -6,6 +6,8 @@ darwin	manifest	argoproj/tap/kubectl-argo-rollouts	kubectl-argo-rollouts	generat
 darwin	manifest	xwmx/taps/nb	nb	generator	nb completions zsh
 darwin	manifest	anomalyco/tap/opencode	opencode	generator	opencode completion zsh
 darwin	manifest	buildpacks/tap/pack	pack	pack	-
+darwin	always	-	gh	generator	gh completion -s zsh
+darwin	always	-	docker	generator	docker completion zsh
 arch	always	-	chezmoi	generator	chezmoi completion zsh
 arch	always	-	gh	generator	gh completion -s zsh
 arch	always	-	docker	generator	docker completion zsh

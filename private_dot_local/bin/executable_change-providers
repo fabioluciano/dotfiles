@@ -1,0 +1,276 @@
+#!/usr/bin/env bash
+# change-providers — troca provider/profile nos agentes de coding (opencode,
+# omp, pi). Único executável; subcomando positional opcional seleciona agente.
+#
+# Uso:
+#   change-providers <provider> [profile]          # troca em TODOS os agentes
+#   change-providers opencode <provider> [profile] # só opencode
+#   change-providers omp <provider> [profile]      # só omp
+#   change-providers pi <provider> [profile]       # só pi
+#   change-providers status                        # estado de cada agente
+#   change-providers reset                         # reset de todos
+#   change-providers dry-run <provider> [profile]  # mostra sem aplicar
+#   change-providers dry-run opencode <provider>   # dry-run de um agente
+#
+# Providers e profiles são as KEYS canônicas do registry [providers.<key>] no
+# providers.toml. Cada agente resolve o id nativo do seu binário via o registry.
+#
+# Profiles: optimized moderate super ultra recommended (padrão: optimized).
+set -euo pipefail
+
+PROFILES=(optimized moderate super ultra recommended)
+DEFAULT_PROFILE="optimized"
+
+# Agent metadata: state_file, target_files (space-separated), jq namespace.
+declare -A AGENT_STATE=(
+  [opencode]="${HOME}/.config/opencode/.active_provider"
+  [omp]="${HOME}/.config/omp/.active_provider"
+  [pi]="${HOME}/.config/pi/.active_provider"
+)
+declare -A AGENT_NAMESPACE=(
+  [opencode]="opencode.models"
+  [omp]="omp.providers"
+  [pi]="pi.providers"
+)
+declare -A AGENT_DEFAULT_TOML_KEY=(
+  [opencode]="opencode.default_provider"
+  [omp]="omp.default_provider"
+  [pi]="pi.default_provider"
+)
+declare -A AGENT_TARGETS=(
+  [opencode]="${HOME}/.config/opencode/oh-my-openagent.jsonc ${HOME}/.config/opencode/opencode.jsonc ${HOME}/.config/opencode/omo.jsonc ${HOME}/.config/opencode/omo-slim.jsonc ${HOME}/.config/opencode/oh-my-opencode-slim.json ${HOME}/.config/cortexkit/magic-context.jsonc"
+  [omp]="${HOME}/.omp/agent/config.yml"
+  [pi]="${HOME}/.pi/agent/settings.json"
+)
+ALL_AGENTS=(opencode omp pi)
+
+usage() {
+  cat >&2 <<EOF
+Uso:
+  $(basename "$0") <provider> [profile]             # todos os agentes
+  $(basename "$0") <agente> <provider> [profile]    # um agente
+  $(basename "$0") status
+  $(basename "$0") reset
+  $(basename "$0") dry-run <provider> [profile]
+  $(basename "$0") dry-run <agente> <provider> [profile]
+
+Agentes: ${ALL_AGENTS[*]}
+Profiles: ${PROFILES[*]} (padrão: ${DEFAULT_PROFILE})
+EOF
+  exit 1
+}
+
+is_agent() { [[ " ${ALL_AGENTS[*]} " == *" $1 "* ]]; }
+
+normalize_profile() {
+  local input=${1:-$DEFAULT_PROFILE}
+  if [[ "$input" == "default" ]]; then
+    echo "$DEFAULT_PROFILE"; return 0
+  fi
+  local p
+  for p in "${PROFILES[@]}"; do
+    [[ "$p" == "$input" ]] && { echo "$p"; return 0; }
+  done
+  echo "Perfil inválido: $input. Perfis válidos: ${PROFILES[*]}." >&2; exit 1
+}
+
+# load_providers <agent> → imprime lista de providers válidos (jq no providers.toml)
+load_providers() {
+  local agent=$1 ns=${AGENT_NAMESPACE[$1]} data providers
+  data=$(chezmoi data --format=json 2>/dev/null) || true
+  if [[ -n "$data" ]]; then
+    providers=$(printf '%s' "$data" | jq -r ".$ns | keys[]" 2>/dev/null | sort) || true
+    if [[ -n "$providers" ]]; then echo "$providers"; return; fi
+  fi
+  # fallback hardcoded (sorted) — interseção válida em todos os agentes
+  echo "alibaba-token-plan deepseek kimicode minimax opencode openai xiaomi zai"
+}
+
+is_valid_provider() {
+  local agent=$1 candidate=$2 p
+  for p in $(load_providers "$agent"); do
+    [[ "$p" == "$candidate" ]] && return 0
+  done
+  return 1
+}
+
+# provider_supporters <provider> → imprime agents que suportam o provider
+# (espaço-separado). Vazio se nenhum agente suporta (provider totalmente
+# inválido).
+provider_supporters() {
+  local provider=$1 a out=""
+  for a in "${ALL_AGENTS[@]}"; do
+    if is_valid_provider "$a" "$provider"; then
+      [[ -n "$out" ]] && out="$out "
+      out="$out$a"
+    fi
+  done
+  printf '%s' "$out"
+}
+
+# format_supporters <providers> → string legível para mensagens.
+# 1 agente  → "opencode-only"
+# 2 agentes → "suportado em: opencode, omp"
+format_supporters() {
+  local supporters=$1 n
+  n=$(printf '%s' "$supporters" | wc -w | tr -d ' ')
+  if (( n == 1 )); then
+    printf '%s-only' "$supporters"
+  else
+    printf 'suportado em: %s' "${supporters// /, }"
+  fi
+}
+
+read_state() {
+  local agent=$1 state_file=${AGENT_STATE[$1]}
+  if [[ ! -f "$state_file" ]]; then
+    printf 'provider:%s\nprofile:%s\n' "$(get_default_provider "$agent")" "$DEFAULT_PROFILE"
+    return
+  fi
+  cat "$state_file"
+}
+
+get_default_provider() {
+  local agent=$1 key=${AGENT_DEFAULT_TOML_KEY[$1]} data
+  data=$(chezmoi data --format=json 2>/dev/null) || true
+  if [[ -n "$data" ]]; then
+    printf '%s' "$data" | jq -r ".$key // \"xiaomi\"" 2>/dev/null || echo "xiaomi"
+  else echo "xiaomi"; fi
+}
+
+print_status_agent() {
+  local agent=$1 state provider profile
+  state=$(read_state "$agent")
+  provider=$(printf '%s\n' "$state" | awk -F: '/^provider:/{print $2}')
+  profile=$(printf '%s\n' "$state" | awk -F: '/^profile:/{print $2}')
+  provider=${provider:-$(get_default_provider "$agent")}
+  profile=${profile:-$DEFAULT_PROFILE}
+  echo "  $agent: provider=$provider profile=$profile"
+}
+
+write_state() {
+  local agent=$1 provider=$2 profile=$3 state_file=${AGENT_STATE[$1]}
+  mkdir -p "$(dirname "$state_file")"
+  printf 'provider:%s\nprofile:%s\n' "$provider" "$profile" > "$state_file"
+  chmod 600 "$state_file"
+}
+
+apply_agent() {
+  local agent=$1
+  # shellcheck disable=SC2086
+  chezmoi apply --force ${AGENT_TARGETS[$agent]} 2>/dev/null || true
+}
+
+switch_agent() {
+  local agent=$1 provider=$2 profile=$3
+  if ! is_valid_provider "$agent" "$provider"; then
+    local supporters
+    supporters=$(provider_supporters "$provider")
+    if [[ -n "$supporters" ]]; then
+      echo "  ⊘ $agent: provider '$provider' não disponível ($(format_supporters "$supporters"))" >&2
+    else
+      echo "  ✗ $agent: provider '$provider' inválido. Válidos: $(load_providers "$agent" | tr '\n' ' ')" >&2
+    fi
+    return 1
+  fi
+  # fast no-op
+  local cur_provider cur_profile
+  cur_provider=$(printf '%s\n' "$(read_state "$agent")" | awk -F: '/^provider:/{print $2}')
+  cur_profile=$(printf '%s\n' "$(read_state "$agent")" | awk -F: '/^profile:/{print $2}')
+  if [[ "$cur_provider" == "$provider" && "$cur_profile" == "$profile" ]]; then
+    echo "  ⊘ $agent: já ativo ($provider/$profile)"
+    return 0
+  fi
+  write_state "$agent" "$provider" "$profile"
+  apply_agent "$agent"
+  echo "  ✓ $agent: $provider/$profile"
+}
+
+# --- main ---
+
+[[ $# -lt 1 ]] && usage
+cmd=$1; shift || true
+
+case "$cmd" in
+  status)
+    [[ $# -eq 0 ]] || usage
+    echo "Estado dos agentes:"
+    for a in "${ALL_AGENTS[@]}"; do print_status_agent "$a"; done
+    ;;
+  reset)
+    [[ $# -eq 0 ]] || usage
+    for a in "${ALL_AGENTS[@]}"; do
+      write_state "$a" "$(get_default_provider "$a")" "$DEFAULT_PROFILE"
+      apply_agent "$a"
+      echo "  ↺ $a resetado"
+    done
+    ;;
+  dry-run)
+    [[ $# -ge 1 ]] || usage
+    if is_agent "$1"; then
+      agent=$1; shift
+      [[ $# -ge 1 ]] || usage
+      provider=$1; profile=$(normalize_profile "${2:-$DEFAULT_PROFILE}")
+      echo "Dry run — $agent: $provider/$profile"
+      if is_valid_provider "$agent" "$provider"; then
+        echo "  ✓ válido"
+      else
+        supporters=$(provider_supporters "$provider")
+        if [[ -n "$supporters" ]]; then
+          echo "  ⊘ não disponível neste agente ($(format_supporters "$supporters"))"
+        else
+          echo "  ✗ inválido (válidos: $(load_providers "$agent" | tr '\n' ' '))"
+        fi
+      fi
+    else
+      provider=$1; profile=$(normalize_profile "${2:-$DEFAULT_PROFILE}")
+      echo "Dry run — todos: $provider/$profile"
+      supporters=$(provider_supporters "$provider")
+      if [[ -z "$supporters" ]]; then
+        echo "  ✗ inválido em todos os agentes (válidos opencode: $(load_providers opencode | tr '\n' ' '))"
+      else
+        for a in "${ALL_AGENTS[@]}"; do
+          is_valid_provider "$a" "$provider" \
+            && echo "  ✓ $a" \
+            || echo "  ⊘ $a (não disponível)"
+        done
+        [[ "$supporters" == "${ALL_AGENTS[*]}" ]] || \
+          echo "  (${provider}: $(format_supporters "$supporters"))"
+      fi
+    fi
+    ;;
+  *)
+    # Se o primeiro arg é um agente, switch só desse agente.
+    if is_agent "$cmd"; then
+      agent=$cmd
+      [[ $# -ge 1 ]] || usage
+      provider=$1; profile=$(normalize_profile "${2:-$DEFAULT_PROFILE}")
+      if ! is_valid_provider "$agent" "$provider"; then
+        supporters=$(provider_supporters "$provider")
+        if [[ -n "$supporters" ]]; then
+          echo "⊘ $agent: provider '$provider' não disponível ($(format_supporters "$supporters"))" >&2
+        else
+          echo "✗ $agent: provider '$provider' inválido. Válidos: $(load_providers "$agent" | tr '\n' ' ')" >&2
+        fi
+        exit 1
+      fi
+      switch_agent "$agent" "$provider" "$profile"
+    else
+      # Senão, switch em todos.
+      provider=$cmd; profile=$(normalize_profile "${1:-$DEFAULT_PROFILE}")
+      supporters=$(provider_supporters "$provider")
+      if [[ -z "$supporters" ]]; then
+        echo "✗ provider '$provider' inválido em todos os agentes." >&2
+        echo "  Válidos (opencode): $(load_providers opencode | tr '\n' ' ')" >&2
+        exit 1
+      fi
+      echo "Trocando para $provider/$profile em todos os agentes:"
+      if [[ "$supporters" != "${ALL_AGENTS[*]}" ]]; then
+        echo "  (provider '$provider': $(format_supporters "$supporters"))"
+      fi
+      for a in "${ALL_AGENTS[@]}"; do
+        switch_agent "$a" "$provider" "$profile" || true
+      done
+    fi
+    ;;
+esac

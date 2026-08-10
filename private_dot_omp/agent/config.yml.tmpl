@@ -1,0 +1,62 @@
+{{- /* Configuração global do Oh My Pi (omp). Renderiza `~/.omp/agent/config.yml`
+     a partir de uma state file em `~/.config/omp/.active_provider`
+     (provider:foo\nprofile:bar) + `.chezmoidata/providers.toml`.
+
+     DIFERENÇAS DO OPENCODE/PI:
+       - omp usa YAML, não JSONC.
+       - omp tem 40+ providers built-in (alibaba-token-plan, xiaomi,
+         opencode-zen/go, minimax, zai, deepseek, etc.) — não precisa declarar
+         models.json. Apenas escolhemos o default via `modelRoles` (record
+         de role → "provider/model").
+       - Profiles viram `defaultThinkingLevel` (em model.defaultThinkingLevel) +
+         `modelRoles` apontando para o tier (orchestrator/implementation/...).
+       - mcp.json (`mcp.json` no pi) é um arquivo SEPARADO em omp (não
+         `mcpServers` no config.yml — omp rejeita o config inteiro se
+         vier).
+       - Tema Tokyo Night vem embutido no binário (dark-tokyo-night /
+         light-tokyo-night), apontado via theme.dark / theme.light.
+       - setupVersion É uma key válida do config.yml (schema:
+         `setupVersion: { type: "number", default: 0 }`) — o próprio omp a
+         escreve pós-setup. O gate do wizard (main.ts):
+         `setupVersion < CURRENT_SETUP_VERSION` (=1) → wizard roda. Por isso
+         o template DEVE renderizá-la; omitir = wizard reabre a cada apply.
+       - symbolPreset: nerd (glyphs Nerdfont escolhidos no wizard); também
+         precisa vir do template, senão o apply apaga.
+
+     O arquivo deve ter ZERO comentários (`# ...`) porque o parser YAML
+     do omp aparentemente falha se houver comentários seguidos de
+     configurações. */ -}}
+{{- $state := includeTemplate "omp-state.tmpl" . | fromJson -}}
+{{- /* Preserva o setupVersion já escrito pelo omp no target (bumps futuros
+     de CURRENT_SETUP_VERSION fluem); default 1 = wizard nunca abre, pois o
+     template pré-configura tudo que as scenes pedem. */ -}}
+{{- $setupVersion := output "sh" "-c" "awk '/^setupVersion:/ {print $2; exit}' \"$HOME/.omp/agent/config.yml\" 2>/dev/null" | trim | default "1" -}}
+{{- if not (regexMatch "^[0-9]+$" $setupVersion) -}}{{- $setupVersion = "1" -}}{{- end -}}
+{{- "" -}}
+disabledExtensions:
+  - context-file:user:CLAUDE.md
+theme:
+  dark: dark-tokyo-night
+  light: light-tokyo-night
+modelRoles:
+  default: "{{ $state.defaultModel }}"
+  smol: "{{ $state.smolModel }}"
+  slow: "{{ $state.slowModel }}"
+  plan: "{{ $state.planModel }}"
+modelProviderOrder: {{ toJson $state.providerOrder }}
+defaultThinkingLevel: {{ $state.thinkingLevel }}
+setupVersion: {{ $setupVersion }}
+symbolPreset: nerd
+retry:
+  fallbackChains: {{ toJson $state.fallbackChains }}
+github:
+  enabled: true
+bash:
+  autoBackground:
+    enabled: true
+lsp:
+  enabled: true
+  diagnosticsOnEdit: true
+  diagnosticsOnWrite: true
+  formatOnWrite: true
+  diagnosticsDeduplicate: true

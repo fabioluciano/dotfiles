@@ -8,8 +8,8 @@ return {
     keys = {
       { "<Leader><Leader>a", function() require("harpoon"):list():add() end,                                                desc = "Harpoon add file" },
       { "<Leader><Leader>e", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end,             desc = "Harpoon menu" },
-      { "<C-p>",             function() require("harpoon"):list():prev() end,                                               desc = "Harpoon prev mark" },
-      { "<C-n>",             function() require("harpoon"):list():next() end,                                               desc = "Harpoon next mark" },
+      { "<Leader><Leader>p", function() require("harpoon"):list():prev() end,                                               desc = "Harpoon prev mark" },
+      { "<Leader><Leader>n", function() require("harpoon"):list():next() end,                                               desc = "Harpoon next mark" },
     },
   },
 
@@ -64,8 +64,8 @@ return {
     "obsidian-nvim/obsidian.nvim",
     opts = {
       workspaces = {
-        { name = "study", path = "~/Obsidian/study" },
-        { name = "work",  path = "~/Obsidian/work" },
+        { name = "study", path = vim.fn.expand("~/Obsidian/study") },
+        { name = "work",  path = vim.fn.expand("~/Obsidian/work") },
       },
       notes_subdir = "notes",
       new_notes_location = "notes_subdir",

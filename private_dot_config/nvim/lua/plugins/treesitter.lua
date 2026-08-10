@@ -45,6 +45,7 @@ return {
         "go",
         "gomod",
         "gosum",
+        "gotmpl",
         "rust",
         "php",
         "java",

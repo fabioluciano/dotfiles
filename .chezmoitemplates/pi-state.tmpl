@@ -1,0 +1,73 @@
+{{- /* Reads `~/.config/pi/.active_provider` (format `provider:foo\nprofile:bar`)
+     and resolves the defaultProvider/defaultModel/defaultThinkingLevel for the
+     active provider+profile using `.chezmoidata/providers.toml` ([pi.providers]
+     matrices + [providers] registry para o pi_id nativo).
+
+     Returns a JSON object with:
+       - provider:         canonical key (ex: "zai", "xiaomi")
+       - profile:          resolved profile (ex: "recommended")
+       - providerId:       native pi provider id (ex: "zai-coding", "xiaomi-mimo")
+       - defaultModel:     "<model_id>" — pi uses bare model id (no provider prefix)
+                           in settings.json defaultModel; the provider is set
+                           separately via defaultProvider.
+       - thinkingLevel:    "off|minimal|low|medium|high|xhigh|max"
+       - enabledModels:    array of "provider/model" strings for Ctrl+P cycling
+                           (pi --models format: "provider/model:thinking")
+
+     Profile mapping (same vocabulary as change-providers):
+       - optimized = tier=implementation, thinking=medium
+       - moderate  = alias de optimized
+       - super     = tier=standard,        thinking=low
+       - ultra     = tier=quick,           thinking=minimal
+       - recommended = tier=implementation, thinking=high
+*/ -}}
+{{- $defaultProvider := get $.pi "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.config/pi/.active_provider" (env "HOME") -}}
+{{- $raw := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "default" -}}
+{{- if hasPrefix "provider:" $raw -}}
+{{- $lines := splitList "\n" $raw -}}
+{{- range $line := $lines -}}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" -}}
+{{- $provider = trimAll " " (last $parts) -}}
+{{- end -}}
+{{- if eq (first $parts) "profile" -}}
+{{- $profile = trimAll " " (last $parts) -}}
+{{- end -}}
+{{- end -}}
+{{- else -}}
+{{- $provider = trim $raw -}}
+{{- $profile = "default" -}}
+{{- end -}}
+{{- if eq $profile "default" -}}
+{{- $profile = "optimized" -}}
+{{- end -}}
+{{- if eq $profile "moderate" -}}
+{{- $profile = "optimized" -}}
+{{- end -}}
+{{- $validProviders := keys (get $.pi "providers" | default dict) -}}
+{{- if not (has $provider $validProviders) -}}
+{{- $provider = $defaultProvider -}}
+{{- end -}}
+{{- $providerData := get (get $.pi "providers" | default dict) $provider | default dict -}}
+{{- $profileData := get (get $.pi "profiles" | default dict) $profile | default dict -}}
+{{- $defaultTier := get $profileData "default_tier" | default "implementation" -}}
+{{- $thinkingLevel := get $profileData "thinking_level" | default "medium" -}}
+{{- $regEntry := get (get $ "providers" | default dict) $provider | default dict -}}
+{{- $providerId := get $regEntry "pi_id" | default (get $providerData "pi_id" | default $provider) -}}
+{{- $tiers := get $providerData "tiers" | default dict -}}
+{{- $pickModel := dict -}}
+{{- range $tier, $chain := $tiers -}}
+{{- $first := first $chain | default "" -}}
+{{- if ne $first "" -}}
+{{- $pickModel = merge $pickModel (dict $tier $first) -}}
+{{- end -}}
+{{- end -}}
+{{- $defaultModel := get $pickModel $defaultTier | default (get $pickModel "implementation") | default "" -}}
+{{- $enabledModels := list -}}
+{{- range $tier, $model := $pickModel -}}
+{{- $enabledModels = append $enabledModels (printf "%s/%s:%s" $providerId $model $thinkingLevel) -}}
+{{- end -}}
+{{- dict "provider" $provider "profile" $profile "providerId" $providerId "defaultModel" $defaultModel "thinkingLevel" $thinkingLevel "enabledModels" $enabledModels | toJson -}}
