@@ -4,7 +4,7 @@
 {{- $providerModels := $state.providerModels -}}
   "$schema": "https://opencode.ai/config.json",
   // NOTE: The effective model is normally controlled by oh-my-openagent or
-  // oh-my-opencode-slim (rendered from providers.toml). This field is
+  // oh-my-opencode-slim (rendered from opencode_providers.toml). This field is
   // only used when those agent plugins are disabled.
   "model": "{{ first (index $providerModels "orchestrator") }}",
   "small_model": "{{ first (index $providerModels "quick") }}",
@@ -26,8 +26,7 @@
         for runtime resolution (with the same whitelist), but the
         bypass via hasHephaestusExplicitConfig from oh-my-openagent.jsonc
         keeps the actual model correct. */ -}}
-{{- range $agent := keys $.opencode.agent_profiles | sortAlpha }}
-{{- $tier := index $.opencode.agent_profiles $agent -}}
+{{- range $agent, $tier := $.opencode.agent_profiles }}
 {{- $tierModels := index $providerModels $tier -}}
 {{- $stdModels := index $providerModels "standard" -}}
 {{- $orchModels := index $providerModels "orchestrator" -}}
@@ -143,179 +142,6 @@
       ],
       "extensions": [
         ".java"
-      ]
-    },
-    "taplo": {
-      "command": [
-        "taplo",
-        "lsp",
-        "stdio"
-      ],
-      "extensions": [
-        ".toml"
-      ]
-    },
-    "sql-language-server": {
-      "command": [
-        "sql-language-server",
-        "up",
-        "--method",
-        "stdio"
-      ],
-      "extensions": [
-        ".sql"
-      ]
-    },
-    "cmake-language-server": {
-      "command": [
-        "cmake-language-server"
-      ],
-      "extensions": [
-        "CMakeLists.txt",
-        ".cmake"
-      ]
-    },
-    "mdx-language-server": {
-      "command": [
-        "mdx-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".mdx"
-      ]
-    },
-    "docker-compose-langserver": {
-      "command": [
-        "docker-compose-langserver",
-        "--stdio"
-      ],
-      "extensions": [
-        "docker-compose.yml",
-        "docker-compose.yaml",
-        "compose.yml",
-        "compose.yaml"
-      ]
-    },
-    "vscode-css-language-server": {
-      "command": [
-        "vscode-css-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".css",
-        ".scss",
-        ".less"
-      ]
-    },
-    "vscode-html-language-server": {
-      "command": [
-        "vscode-html-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".html",
-        ".htm"
-      ]
-    },
-    "vscode-json-language-server": {
-      "command": [
-        "vscode-json-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".json",
-        ".jsonc"
-      ]
-    },
-    "vscode-eslint-language-server": {
-      "command": [
-        "vscode-eslint-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".mjs",
-        ".cjs"
-      ]
-    },
-    "gopls": {
-      "command": [
-        "gopls"
-      ],
-      "extensions": [
-        ".go"
-      ]
-    },
-    "rust-analyzer": {
-      "command": [
-        "rust-analyzer"
-      ],
-      "extensions": [
-        ".rs"
-      ]
-    },
-    "lua-language-server": {
-      "command": [
-        "lua-language-server"
-      ],
-      "extensions": [
-        ".lua"
-      ]
-    },
-    "bash-language-server": {
-      "command": [
-        "bash-language-server",
-        "start"
-      ],
-      "extensions": [
-        ".sh",
-        ".bash",
-        ".zsh"
-      ]
-    },
-    "typescript-language-server": {
-      "command": [
-        "typescript-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".ts",
-        ".tsx",
-        ".js",
-        ".jsx",
-        ".mjs",
-        ".cjs"
-      ]
-    },
-    "elixir-ls": {
-      "command": [
-        "elixir-ls"
-      ],
-      "extensions": [
-        ".ex",
-        ".exs"
-      ]
-    },
-    "intelephense": {
-      "command": [
-        "intelephense",
-        "--stdio"
-      ],
-      "extensions": [
-        ".php"
-      ]
-    },
-    "ruff": {
-      "command": [
-        "ruff",
-        "server"
-      ],
-      "extensions": [
-        ".py",
-        ".pyi"
       ]
     }
   },
@@ -550,14 +376,10 @@
     // vêm do models.dev). Aqui só sobrescrevemos a apiKey para apontar
     // para o env var já existente (QWENCLOUD_API_TOKEN) em vez do nome
     // padrão ALIBABA_TOKEN_PLAN_API_KEY, evitando renomear o item do
-    // Bitwarden e o zsh-tokens-sync. O baseURL também é override — o
-    // default hardcoded no binário opencode é dashscope.aliyuncs.com
-    // (China), mas o QWENCLOUD_API_TOKEN é da região Singapore e
-    // precisa do token-plan.ap-southeast-1.maas.aliyuncs.com.
+    // Bitwarden e o zsh-tokens-sync.
     "alibaba-token-plan": {
       "options": {
-        "apiKey": "{env:QWENCLOUD_API_TOKEN}",
-        "baseURL": "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1"
+        "apiKey": "{env:QWENCLOUD_API_TOKEN}"
       }
     }
   },
@@ -597,13 +419,15 @@
       "timeout": 8000
     },
     "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "enabled": true,
-      "oauth": false,
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      "type": "local",
+      "command": [
+        "github-mcp-server",
+        "stdio"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
       },
+      "enabled": true,
       "timeout": 10000
     },
     "codebase-memory": {

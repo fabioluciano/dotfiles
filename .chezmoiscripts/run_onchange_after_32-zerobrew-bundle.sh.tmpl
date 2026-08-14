@@ -22,6 +22,18 @@ set -euo pipefail
 zb_bin="$HOME/.local/bin/zb"
 [ -x "$zb_bin" ] || exit 0
 
+# Self-heal: um upgrade interrompido deixa symlinks orfaos (dangling) no
+# prefix. Ex: o upgrade de `node` falha no passo de link (o unlink da versao
+# antiga nao roda), entao a versao nova fica "instalada" mas nao linkada, e
+# todo pacote que depende de node (qwen-code, kimi-code, mimo-code) passa a
+# falhar com "link conflicts ... (owned by node)". Remove os symlinks que
+# apontam para targets que nao existem mais antes de qualquer operacao.
+find /opt/zerobrew/bin /opt/zerobrew/lib /opt/zerobrew/libexec \
+     /opt/zerobrew/include /opt/zerobrew/share /opt/zerobrew/etc \
+     -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+
+"$zb_bin" --root /opt/zerobrew --prefix /opt/zerobrew doctor --repair || true
+
 echo ":: zb bundle install (Zerobrewfile changed)"
 if ! "$zb_bin" --root /opt/zerobrew --prefix /opt/zerobrew bundle install -f "$HOME/.Zerobrewfile"; then
     echo ":: zb bundle failed" >&2

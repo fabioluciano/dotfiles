@@ -1,31 +1,27 @@
-# =============================================================================
 # Homebrew manifest — TAPS, formulas de taps nao-core, CASKS e (em work
 # machines) formulas core do homebrew-core + tap formulas resolvidas por zb.
 # Em pessoais, o zb bundle cuida dessas ultimas via dot_Zerobrewfile.tmpl.
 # Work machines instalam via brew bundle (gate abaixo, is-work-machine.tmpl).
 # Lista compartilhada em .chezmoitemplates/core_formulae.tmpl.
-# =============================================================================
 
-# =============================================================================
 # TAPS
-# =============================================================================
 tap "anomalyco/tap", trusted: true
 tap "argoproj/tap", trusted: true
 tap "bendews/tap", trusted: true
 tap "buildpacks/tap", trusted: true
+tap "can1357/tap", trusted: true
 tap "charmbracelet/tap", trusted: true
 tap "hashicorp/tap", trusted: true
 tap "libkrun/krun", trusted: true
 tap "xo/xo", trusted: true
 tap "xwmx/taps", trusted: true
 
-# =============================================================================
 # TAP FORMULAS — nao-core (taps que o zerobrew nao resolve; ficam no brew).
 # opencode e crush (zb-resolviveis) vivem em core_formulae.tmpl, que as inclui
 # em dot_Zerobrewfile para pessoais e aqui em work machines.
-# =============================================================================
-brew "argoproj/tap/kubectl-argo-rollouts", trusted: true
+brew "anomalyco/tap/opencode"
 brew "buildpacks/tap/pack", trusted: true
+brew "can1357/tap/omp", trusted: true
 brew "hashicorp/tap/hcp", trusted: true
 brew "hashicorp/tap/packer", trusted: true
 brew "libkrun/krun/gvproxy", trusted: true
@@ -33,17 +29,13 @@ brew "libkrun/krun/krunkit", trusted: true
 brew "xwmx/taps/nb", trusted: true
 brew "xo/xo/usql", trusted: true
 
-# =============================================================================
 # CORE FORMULAE — gate work machines (zb bundle e no-op atras da Zscaler).
 # Em pessoais, isto vem de dot_Zerobrewfile.tmpl via zb bundle.
-# =============================================================================
 {{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 {{ includeTemplate "core_formulae.tmpl" . }}
 {{- end }}
 
-# =============================================================================
 # DESKTOP APPS — AI & AGENT TOOLS
-# =============================================================================
 cask "captin"
 cask "chatgpt"
 cask "claude"
@@ -56,9 +48,7 @@ cask "opensuperwhisper"
 cask "tolaria"
 cask "yaak"
 
-# =============================================================================
 # DESKTOP APPS — DEV & OPS
-# =============================================================================
 cask "bruno"
 cask "dbeaver-community"
 cask "devtoys"
@@ -76,9 +66,7 @@ cask "visual-studio-code"
 cask "vscodium"
 cask "zed"
 
-# =============================================================================
 # DESKTOP APPS — PRODUCTIVITY & COMMUNICATION
-# =============================================================================
 cask "espanso"
 cask "expressions"
 cask "itsycal"
@@ -92,9 +80,7 @@ cask "spotmenu"
 cask "stats"
 cask "swift-quit"
 
-# =============================================================================
 # DESKTOP APPS — BROWSERS, MEDIA & DESIGN
-# =============================================================================
 cask "balenaetcher"
 cask "cleanshot"
 cask "firefox"
@@ -105,9 +91,7 @@ cask "keka"
 cask "snapzy"
 cask "vlc"
 
-# =============================================================================
 # DESKTOP APPS — SYSTEM, DEVICE & VIRTUALIZATION
-# =============================================================================
 cask "amethyst"
 cask "betterdisplay"
 cask "fliqlo"
@@ -121,18 +105,14 @@ cask "mos"
 {{- /* chezmoi:template:missing-key=zero */ -}}
 cask "yubico-authenticator"
 
-# =============================================================================
 # DESKTOP APPS — FONTS
-# =============================================================================
 cask "font-caskaydia-cove-nerd-font"
 cask "font-liberation"
 cask "font-liberation-nerd-font"
 cask "font-maple-mono-nf"
 cask "font-symbols-only-nerd-font"
 
-# =============================================================================
 # DESKTOP APPS — WORK MACHINE ONLY
-# =============================================================================
 cask "onlyoffice"
 cask "microsoft-outlook"
 cask "microsoft-teams"
@@ -144,9 +124,7 @@ cask "thaw"
 cask "zoom"
 {{- end }}
 
-# =============================================================================
 # DESKTOP APPS — PERSONAL MACHINE ONLY
-# =============================================================================
 {{- if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "bartender"
 cask "discord"

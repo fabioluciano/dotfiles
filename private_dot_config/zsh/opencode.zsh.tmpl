@@ -72,6 +72,8 @@ preexec_functions+=(_opencode_resync_provider)
 (( $+functions[omo] )) && unfunction omo
 (( $+functions[omos] )) && unfunction omos
 
+# opencode → opencode.jsonc/tui.json; omo → omo.jsonc/tui-omo.json (+oh-my-openagent.jsonc);
+# omos → omo-slim.jsonc/tui-omos.json (+oh-my-opencode-slim.json). Os tui*.json são provider-independentes.
 opencode() {
   zsh-load-tokens
   _opencode_resync_provider

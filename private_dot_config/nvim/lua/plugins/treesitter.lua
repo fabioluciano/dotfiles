@@ -13,13 +13,11 @@ return {
       indent = true,
       auto_install = true,
       ensure_installed = {
-        -- Core
         "lua",
         "vim",
         "vimdoc",
         "query",
 
-        -- Web
         "html",
         "css",
         "scss",
@@ -31,7 +29,6 @@ return {
         "svelte",
         "astro",
 
-        -- Markup
         "markdown",
         "markdown_inline",
         "json",
@@ -40,7 +37,6 @@ return {
         "toml",
         "xml",
 
-        -- Languages
         "python",
         "go",
         "gomod",
@@ -52,7 +48,6 @@ return {
         "sql",
         "just",
 
-        -- Shell/Config
         "bash",
         "fish",
         "dockerfile",
@@ -61,7 +56,6 @@ return {
         "helm",
         "cmake",
 
-        -- Other
         "regex",
         "gitignore",
         "git_config",

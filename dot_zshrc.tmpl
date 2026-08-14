@@ -1,6 +1,4 @@
-# =============================================================================
 # Zsh Configuration
-# ==============================================================================
 
 # Debug logging (set ZSH_DEBUG=1 to enable)
 export ZSH_DEBUG=${ZSH_DEBUG:-0}
@@ -9,9 +7,7 @@ if (( $ZSH_DEBUG )); then
     setopt verbose
 fi
 
-# =============================================================================
 # Performance Optimizations
-# ==============================================================================
 
 # Enable profiling (uncomment to debug startup time)
 # zmodload zsh/zprof
@@ -19,9 +15,7 @@ fi
 # Skip global compinit (we run our own, cached, below)
 skip_global_compinit=1
 
-# =============================================================================
 # Environment Variables (set early)
-# =============================================================================
 
 export EDITOR=nvim
 export VISUAL=nvim
@@ -81,9 +75,7 @@ _zsh_set_pkg_manager_path() {
 _zsh_set_pkg_manager_path
 {{- end }}
 
-# =============================================================================
 # Plugin Manager - antidote (static bundle)
-# =============================================================================
 # antidote generates pre-sourced files from the manifests. Shell startup tries a
 # zero-wait refresh when needed, then uses the existing bundles if it cannot lock.
 
@@ -966,9 +958,7 @@ unfunction _zsh_completion_reconcile_unlocked
 unfunction _zsh_completion_tombstones_pending _zsh_completion_migrate_legacy_unlocked
 unfunction _zsh_completion_migrate_legacy
 
-# =============================================================================
 # Completion System (single, cached compinit) — defines `compdef`
-# =============================================================================
 
 # Refresh the dump (with security check) when missing, empty, stale, or when
 # pre-bundle/completion inputs changed; otherwise load it with -C (skips the
@@ -1079,9 +1069,7 @@ bindkey '^[[B' history-substring-search-down
 bindkey '^[OA' history-substring-search-up
 bindkey '^[OB' history-substring-search-down
 
-# =============================================================================
 # History Configuration
-# =============================================================================
 
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
@@ -1099,18 +1087,14 @@ setopt HIST_VERIFY           # Do not execute immediately upon history expansion
 
 setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks from each command line being added to the history.
 
-# =============================================================================
 # Shell Options
-# =============================================================================
 
 setopt AUTO_CD               # `foo` ≡ `cd foo` when foo is a directory
 setopt INTERACTIVE_COMMENTS  # allow #comments in the interactive shell
 setopt NUMERIC_GLOB_SORT     # sort numeric filenames numerically (f2 < f10)
 setopt GLOB_DOTS             # let globs match dotfiles without an explicit leading dot
 
-# =============================================================================
 # Completion Styles
-# =============================================================================
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*:git-checkout:*' sort false
@@ -1126,16 +1110,12 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 zstyle ':fzf-tab:*' popup-pad 80 0
 
-# =============================================================================
 # PATH
-# =============================================================================
 
 export PATH="${HOME}/.local/bin:${HOME}/.krew/bin:${PATH}"
 typeset -U path
 
-# =============================================================================
 # Tool Integrations
-# =============================================================================
 
 # _cache_eval <name> <cmd...>: cache a deterministic command signature beside
 # its generated zsh and zcompiled output. Metadata is promoted last under the
@@ -1279,9 +1259,7 @@ fi
 # Helm — lazy load
 command -v helm &>/dev/null && _lazyload helm 'source <(command helm completion zsh)'
 
-# =============================================================================
 # Shell modules
-# =============================================================================
 
 zsh-load-tokens() {
     emulate -L zsh
@@ -1296,8 +1274,6 @@ zsh-load-tokens() {
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh"
 
-# =============================================================================
 # Profiling (uncomment together with the zprof line at the top)
-# =============================================================================
 
 # zprof

@@ -82,8 +82,10 @@ load_providers() {
     providers=$(printf '%s' "$data" | jq -r ".$ns | keys[]" 2>/dev/null | sort) || true
     if [[ -n "$providers" ]]; then echo "$providers"; return; fi
   fi
-  # fallback hardcoded (sorted) — interseção válida em todos os agentes
-  echo "alibaba-token-plan deepseek kimicode minimax opencode openai xiaomi zai"
+  # Sem dados do chezmoi: falha aberta (lista vazia) em vez de usar uma lista
+  # hardcoded que pode driftar de providers.toml. O chamador trata a lista
+  # vazia como "provider inválido", o que é o comportamento seguro.
+  echo "aviso: não foi possível derivar providers de chezmoi data ($ns)" >&2
 }
 
 is_valid_provider() {

@@ -1,20 +1,12 @@
--- ╭──────────────────────────────────────────────────────────╮
--- │                    AstroUI Configuration                  │
--- │              Tokyo Night theme + Transparency             │
--- ╰──────────────────────────────────────────────────────────╯
-
 ---@type LazySpec
 return {
   "AstroNvim/astroui",
   ---@type AstroUIOpts
   opts = {
-    -- Tokyo Night colorscheme
     colorscheme = "tokyonight-night",
 
-    -- Transparent background for terminal integration
     highlights = {
       init = {
-        -- Transparent backgrounds
         Normal = { bg = "NONE" },
         NormalNC = { bg = "NONE" },
         NormalFloat = { bg = "NONE" },
@@ -29,15 +21,12 @@ return {
         TelescopeNormal = { bg = "NONE" },
         TelescopeBorder = { bg = "NONE" },
         WhichKeyFloat = { bg = "NONE" },
-        -- Cursorline subtle highlight
         CursorLineNr = { fg = "#7aa2f7", bold = true },
-        -- Better visual selection
         Visual = { bg = "#33467c" },
         VisualNOS = { bg = "#33467c" },
       },
     },
 
-    -- Status configuration
     status = {
       separators = {
         left = { "", " " },
@@ -57,9 +46,7 @@ return {
       end,
     },
 
-    -- Icons
     icons = {
-      -- LSP loading spinner
       LSPLoading1 = "⠋",
       LSPLoading2 = "⠙",
       LSPLoading3 = "⠹",
@@ -70,20 +57,16 @@ return {
       LSPLoading8 = "⠧",
       LSPLoading9 = "⠇",
       LSPLoading10 = "⠏",
-      -- Git icons
       GitAdd = "",
       GitChange = "",
       GitDelete = "",
-      -- Diagnostic icons
       DiagnosticError = "",
       DiagnosticHint = "󰌵",
       DiagnosticInfo = "󰋼",
       DiagnosticWarn = "",
-      -- File icons
       FolderClosed = "",
       FolderOpen = "",
       FolderEmpty = "󰜌",
-      -- Misc
       ActiveLSP = "",
       ActiveTS = "",
       BufferClose = "󰅖",

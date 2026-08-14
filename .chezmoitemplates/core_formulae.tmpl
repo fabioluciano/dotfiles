@@ -1,4 +1,3 @@
-# =============================================================================
 # Manifest parcial compartilhado entre dot_Zerobrewfile.tmpl (zb bundle, pessoais)
 # e dot_Brewfile.tmpl (brew bundle, work machines). Fonte unica de verdade para:
 #   - 175 formulas core do homebrew-core (instaladas via zb nas pessoais)
@@ -7,11 +6,8 @@
 # Work machines instalam tudo isso via brew bundle (gate em dot_Brewfile.tmpl
 # via is-work-machine.tmpl) porque o zb bundle e no-op atras da Zscaler.
 # Pessoais continuam instalando via zb bundle a partir do mesmo includeTemplate.
-# =============================================================================
 
-# =============================================================================
 # BOOTSTRAP & HOST FOUNDATIONS
-# =============================================================================
 brew "antidote"
 brew "bash"
 brew "bitwarden-cli"
@@ -28,9 +24,7 @@ brew "openssl"
 brew "pinentry-mac"
 brew "zsh"
 
-# =============================================================================
 # SHELL UX & TERMINAL TOOLING
-# =============================================================================
 brew "bandwhich"
 brew "bat"
 brew "bottom"
@@ -85,9 +79,7 @@ brew "xh"
 brew "yazi"
 brew "zoxide"
 
-# =============================================================================
 # EDITORS, DATABASES & DOCUMENT TOOLING
-# =============================================================================
 brew "asciidoctor"
 brew "chafa"
 brew "code-minimap"
@@ -113,9 +105,7 @@ brew "tectonic"
 brew "typst"
 brew "universal-ctags"
 
-# =============================================================================
 # BUILD, LANGUAGE & PROJECT TOOLING
-# =============================================================================
 brew "act"
 brew "age"
 brew "autoconf"
@@ -137,9 +127,7 @@ brew "shellcheck"
 brew "jdtls"                # Java LSP (Eclipse JDT Language Server)
 brew "luarocks"
 
-# =============================================================================
 # CLOUD, KUBERNETES & PLATFORM OPS
-# =============================================================================
 brew "ansible"
 brew "argo"
 brew "argocd"
@@ -184,9 +172,7 @@ brew "vfkit"
 brew "ykman"
 brew "yubico-piv-tool"
 
-# =============================================================================
 # GIT, REVIEW & AGENT WORKFLOW
-# =============================================================================
 brew "gh"
 brew "git-absorb"
 brew "git-delta"
@@ -195,11 +181,10 @@ brew "glab"
 brew "lazygit"
 brew "mergiraf"
 brew "mimo-code"
+brew "pi-coding-agent"
 brew "rtk"
 
-# =============================================================================
 # MACOS HOST INTEGRATION
-# =============================================================================
 brew "blueutil"
 brew "brightness"
 brew "displayplacer"
@@ -208,15 +193,11 @@ brew "dockutil"
 brew "pass"
 brew "yt-dlp"
 
-# =============================================================================
 # DESKTOP SUPPORT — core formulas que acompanham casks
-# =============================================================================
 brew "container"
 brew "switchaudio-osx"
 
-# =============================================================================
 # TAP FORMULAS — resolvidas por zb (bottle/source via GitHub) e por brew.
 # Taps estao declarados em dot_Brewfile.tmpl (anomalyco/tap, charmbracelet/tap).
-# =============================================================================
 brew "anomalyco/tap/opencode"
 brew "charmbracelet/tap/crush"

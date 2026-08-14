@@ -1,9 +1,3 @@
--- ╭──────────────────────────────────────────────────────────╮
--- │                    Polish Configuration                   │
--- │              Final setup after all plugins loaded         │
--- ╰──────────────────────────────────────────────────────────╯
-
--- Enable undercurl support in terminal
 vim.opt.termguicolors = true
 vim.o.autoread = true -- Required for opencode-nvim events.reload (auto-reload buffers edited by opencode)
 
@@ -16,7 +10,6 @@ vim.cmd [[
   let &t_Ce = "\e[4:0m"
 ]]
 
--- Custom filetypes
 vim.filetype.add {
   extension = {
     zsh = "sh",
@@ -52,7 +45,6 @@ vim.filetype.add {
   },
 }
 
--- Disable horizontal scroll in Neo-tree
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "neo-tree",
   callback = function()
@@ -61,7 +53,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Diagnostic signs with icons
 vim.diagnostic.config {
   signs = {
     text = {
@@ -73,24 +64,22 @@ vim.diagnostic.config {
   },
 }
 
--- ╭──────────────────────────────────────────────────────────╮
--- │                    Spellcheck Setup                       │
--- │              Download spell files if missing              │
--- ╰──────────────────────────────────────────────────────────╯
-
--- Auto-download spell files for configured languages
 local spell_dir = vim.fn.stdpath "data" .. "/site/spell"
 vim.fn.mkdir(spell_dir, "p")
 
 local function ensure_spell_file(lang)
   local spl = spell_dir .. "/" .. lang .. ".utf-8.spl"
   if vim.fn.filereadable(spl) == 0 then
+    -- One-time, non-fatal download. Guard on curl + bounded timeouts so an
+    -- offline/corporate-network start never blocks or errors the editor.
+    if vim.fn.executable "curl" ~= 1 then
+      vim.notify("curl ausente; pulando download do spell '" .. lang .. "'", vim.log.levels.WARN)
+      return
+    end
     local url = "https://ftp.nluug.nl/pub/vim/runtime/spell/" .. lang .. ".utf-8.spl"
     vim.notify("Downloading " .. lang .. ".utf-8.spl…", vim.log.levels.INFO)
-    vim.fn.system { "curl", "-fsSLo", spl, url }
-    if vim.v.shell_error ~= 0 then
-      vim.notify("Failed to download " .. lang .. " spell file", vim.log.levels.WARN)
-    end
+    vim.fn.system { "curl", "-fsSL", "--connect-timeout", "10", "--max-time", "60", "-o", spl, url }
+    if vim.v.shell_error ~= 0 then vim.notify("Failed to download " .. lang .. " spell file", vim.log.levels.WARN) end
   end
 end
 
@@ -100,17 +89,18 @@ vim.defer_fn(function()
   end
 end, 500)
 
+-- AstroNvim (astrocore) maintains `vim.t.bufs` and fires the `AstroBufsUpdated`
+-- User autocmd whenever the buffer list changes. Filter unnamed/scratch buffers
+-- (no-name, quickfix-like) out of that list so buffer cycling/resession ignore
+-- them. `vim.t.bufs` is set by astrocore (lua/astrocore/buffer.lua), not by us.
 vim.api.nvim_create_autocmd("User", {
   pattern = "AstroBufsUpdated",
   callback = function()
     if not vim.t.bufs then return end
-    local filtered = vim.tbl_filter(function(bufnr)
-      return vim.api.nvim_buf_is_valid(bufnr)
-        and vim.api.nvim_buf_get_name(bufnr) ~= ""
-    end, vim.t.bufs)
-    -- Só atualiza se houver mudança significativa
-    if #filtered ~= #vim.t.bufs then
-      vim.t.bufs = filtered
-    end
+    local filtered = vim.tbl_filter(
+      function(bufnr) return vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_name(bufnr) ~= "" end,
+      vim.t.bufs
+    )
+    if #filtered ~= #vim.t.bufs then vim.t.bufs = filtered end
   end,
 })

@@ -42,10 +42,8 @@ return {
     config = function() require("hunk").setup() end,
   },
 
-  -- sidekick
   { "folke/sidekick.nvim", event = "VeryLazy", opts = {} },
 
-  -- tokyonight spell highlights
   {
     "folke/tokyonight.nvim",
     opts = {
@@ -59,7 +57,6 @@ return {
     },
   },
 
-  -- obsidian workspaces
   {
     "obsidian-nvim/obsidian.nvim",
     opts = {
@@ -100,7 +97,6 @@ return {
     },
   },
 
-  -- neominimap config
   {
     "Isrothy/neominimap.nvim",
     opts = {
@@ -128,7 +124,6 @@ return {
     },
   },
 
-  -- Neo-tree
   {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
@@ -180,28 +175,24 @@ return {
     },
   },
 
-  -- Better quick fix list
   {
     "kevinhwang91/nvim-bqf",
     ft = "qf",
     opts = { preview = { winblend = 0 } },
   },
 
-  -- Better marks
   {
     "chentoast/marks.nvim",
     event = "VeryLazy",
     opts = { default_mappings = true, signs = true, mappings = {} },
   },
 
-  -- Undo tree
   {
     "mbbill/undotree",
     cmd = "UndotreeToggle",
     keys = { { "<leader>U", "<cmd>UndotreeToggle<cr>", desc = "Toggle Undotree" } },
   },
 
-  -- Color highlighter
   {
     "NvChad/nvim-colorizer.lua",
     event = { "BufReadPost", "BufNewFile" },
@@ -220,7 +211,6 @@ return {
     },
   },
 
-  -- Better fold
   {
     "kevinhwang91/nvim-ufo",
     dependencies = "kevinhwang91/promise-async",
@@ -264,7 +254,6 @@ return {
     opts = { stages = "static" },
   },
 
-  -- Formatters per filetype
   {
     "stevearc/conform.nvim",
     opts = function(_, opts)
@@ -279,7 +268,6 @@ return {
     end,
   },
 
-  -- VSCode-like sidebar layout manager
   {
     "folke/edgy.nvim",
     event = "VeryLazy",

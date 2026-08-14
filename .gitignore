@@ -1,7 +1,9 @@
 .claude
 .omc
 .mimocode
+.opencode/
 node_modules
 .slim/deepwork/
 .cortexkit
 .beads
+reasonix.toml
