@@ -1,3 +1,5 @@
+# AI coding agents (opencode, omo, omos, pi, omp) configuration.
+#
 # Export the active opencode provider for any consumer that reads it (e.g.
 # statusline scripts, prompts, and the OMO plugin's internal model DB which
 # reads OPENCODE_PROVIDER at opencode startup). Reads from the state file
@@ -97,4 +99,16 @@ omos() {
   OPENCODE_CONFIG="$HOME/.config/opencode/omo-slim.jsonc" \
   OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omos.json" \
   OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
+}
+
+# pi and omp also read API tokens from the vault-backed file; ensure the
+# tokens are loaded on demand before launching them from a fresh shell.
+pi() {
+  zsh-load-tokens
+  command pi "$@"
+}
+
+omp() {
+  zsh-load-tokens
+  command omp "$@"
 }

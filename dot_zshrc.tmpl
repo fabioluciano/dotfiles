@@ -1272,7 +1272,12 @@ zsh-load-tokens() {
 
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh" ]]  && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh"
-[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/opencode.zsh"
+[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aiagents.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aiagents.zsh"
+
+# Load vault-backed tokens into every interactive shell so external agents and
+# scripts started from this shell inherit the API keys without requiring each
+# tool to define its own wrapper. Keep tokens.zsh unreadable (mode 600).
+zsh-load-tokens
 
 # Profiling (uncomment together with the zprof line at the top)
 

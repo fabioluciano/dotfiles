@@ -2,6 +2,12 @@
 {{- $provider := $state.provider -}}
 {{- $profile := $state.profile -}}
 {{- $providerModels := $state.providerModels -}}
+{{- /* enabled_providers precisa dos namespaces NATIVOS do opencode (registry
+      [providers.<key>].opencode_id), não das keys estáveis da matriz. */ -}}
+{{- $enabledProviders := list -}}
+{{- range $pkey := without (sortAlpha (keys $.opencode.models)) "zen-free" -}}
+{{- $enabledProviders = append $enabledProviders (get (index $.providers $pkey) "opencode_id" | default $pkey) -}}
+{{- end -}}
   "$schema": "https://opencode.ai/config.json",
   // NOTE: The effective model is normally controlled by oh-my-openagent or
   // oh-my-opencode-slim (rendered from opencode_providers.toml). This field is
@@ -145,7 +151,7 @@
       ]
     }
   },
-  "enabled_providers": {{ toJson (without (sortAlpha (keys $.opencode.models)) "zen-free") }},
+  "enabled_providers": {{ toJson $enabledProviders }},
   "compaction": {
     "auto": false,
     "prune": false,
@@ -164,58 +170,13 @@
     "~/.config/opencode/AGENTS.md",
   ],
   "provider": {
-    "xiaomi": {
-      "npm": "@ai-sdk/openai-compatible",
+    // Catálogo de modelos vem do models.dev (auto-atualizado pelo opencode);
+    // sem bloco "models" local. Só sobrescrevemos auth/endpoint quando o env
+    // var difere do que o models.dev espera.
+    "xiaomi-token-plan-sgp": {
       "options": {
         "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
         "apiKey": "{env:MIMO_API_KEY}"
-      },
-      "models": {
-        "mimo-auto": {
-          "name": "mimo-auto",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text", "image"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "mimo-v2.5-pro": {
-          "name": "mimo-v2.5-pro",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "mimo-v2.5": {
-          "name": "mimo-v2.5",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": [
-              "text", "image"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        }
       }
     },
     "openai": {
@@ -239,137 +200,16 @@
         "apiKey": "{env:DEEPSEEK_API_KEY}"
       }
     },
-    "kimicode": {
-      "npm": "@ai-sdk/openai-compatible",
+    "kimi-for-coding": {
       "options": {
         "baseURL": "https://api.kimi.com/coding/v1",
         "apiKey": "{env:KIMI_CODE_API_KEY}"
-      },
-      "models": {
-        "k3": {
-          "name": "Kimi K3",
-          "attachment": true,
-          "reasoning": true,
-          "temperature": false,
-          "tool_call": true,
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          }
-        },
-        "k3-256k": {
-          "name": "Kimi K3 256K",
-          "attachment": true,
-          "reasoning": true,
-          "temperature": false,
-          "tool_call": true,
-          "limit": {
-            "context": 262144,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          }
-        },
-        "kimi-for-coding": {
-          "name": "Kimi K2.7 Code",
-          "attachment": true,
-          "reasoning": true,
-          "temperature": false,
-          "tool_call": true,
-          "limit": {
-            "context": 262144,
-            "output": 262144
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          }
-        },
-        "kimi-for-coding-highspeed": {
-          "name": "Kimi K2.7 Code HighSpeed",
-          "attachment": true,
-          "reasoning": true,
-          "temperature": false,
-          "tool_call": true,
-          "limit": {
-            "context": 262144,
-            "output": 262144
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          }
-        }
       }
     },
-    "zai": {
-      "npm": "@ai-sdk/openai-compatible",
+    "zai-coding-plan": {
       "options": {
         "baseURL": "https://api.z.ai/api/coding/paas/v4",
         "apiKey": "{env:ZAI_API_KEY}"
-      },
-      "models": {
-        "glm-5.2": {
-          "name": "glm-5.2",
-          "limit": {
-            "context": 1000000,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          }
-        },
-        "glm-5.1": {
-          "name": "glm-5.1",
-          "limit": {
-            "context": 200000,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          }
-        },
-        "glm-5": {
-          "name": "glm-5",
-          "limit": {
-            "context": 202800,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          }
-        },
-        "glm-4.7": {
-          "name": "glm-4.7",
-          "limit": {
-            "context": 131072,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          }
-        },
-        "glm-4.7-flash": {
-          "name": "glm-4.7-flash",
-          "limit": {
-            "context": 131072,
-            "output": 131072
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
-          }
-        }
       }
     },
     // Built-in alibaba-token-plan provider (npm, baseURL e modelos
