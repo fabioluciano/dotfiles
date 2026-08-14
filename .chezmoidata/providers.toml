@@ -5,8 +5,9 @@
 #   [providers.<key>]   registry compartilhado: display_name + o id NATIVO do
 #                       provider em cada binário (opencode_id / omp_id / pi_id).
 #                       Ids são diferentes por binário (ex: xiaomi ↔
-#                       xiaomi-token-plan-sgp ↔ xiaomi-mimo, zai ↔ zai-coding)
-#                       e podem sumir ou mudar de nome entre versões.
+#                       xiaomi-token-plan-sgp ↔ xiaomi-mimo, zai ↔
+#                       zai-coding-plan ↔ zai-coding) e podem sumir ou mudar de
+#                       nome entre versões.
 #   [opencode.*]        matrizes por KEY do opencode (ids inline "provider/model"):
 #                       models, variants, profiles de agentes, overrides,
 #                       historian_models. Consumidas por opencode-state.tmpl,
@@ -36,7 +37,10 @@
 # `pi_id`       = provider-id nativo do catálogo `pi` (models.json em ~/.pi/agent).
 [providers.zai]
 display_name = "ZAI (Zhipu GLM)"
-opencode_id = "zai"
+# opencode_id = "zai-coding-plan": catálogo models.dev do endpoint coding
+# (glm até 5.3 + highspeed). A entrada "zai" (API geral) fica atrás do catálogo
+# coding e não lista glm-5.3.
+opencode_id = "zai-coding-plan"
 pi_id = "zai-coding"
 
 [providers.minimax]
@@ -55,7 +59,9 @@ pi_id = "deepseek"
 
 [providers.xiaomi]
 display_name = "Xiaomi MiMo (Singapore Token Plan)"
-opencode_id = "xiaomi"
+# opencode_id = "xiaomi-token-plan-sgp": entrada models.dev do endpoint SGP
+# (catálogo mimo completo, auto-atualizado).
+opencode_id = "xiaomi-token-plan-sgp"
 # omp_id = "xiaomi-token-plan-sgp": catálogo omp nativo (4 modelos).
 # pi_id = "xiaomi-mimo": free tier do pi (2 modelos); o pi também lista
 # "xiaomi-token-plan-sgp" (3 modelos) como provider separado.
@@ -93,15 +99,17 @@ pi_id = "opencode-go"
 
 [providers.kimicode]
 display_name = "Kimi (Moonshot)"
-opencode_id = "kimicode"
+# opencode_id = "kimi-for-coding": entrada models.dev do endpoint coding
+# (k3/k3-256k/kimi-for-coding[-highspeed]; SDK @ai-sdk/anthropic).
+opencode_id = "kimi-for-coding"
 # Provider nativo `kimi-code` do omp é OAuth-gated e pode ter zero modelos
 # sem login; usar `opencode-go`, que serve os modelos Kimi autenticado
 # (Token Plan). Sem omp_id = "opencode-go", defaultModel fica
 # "kimicode/kimi-for-coding" (inexistente no catálogo nativo).
 omp_id = "opencode-go"
-# kimi-code no pi é OAuth-gated (0 modelos sem login) — mas ao contrário do
-# omp, o pi-catálogo ainda o lista; mantemos pi_id = "kimi-code".
-pi_id = "kimi-code"
+# kimi-code no pi é OAuth-gated (0 modelos sem login); usar opencode-go,
+# que serve os modelos Kimi autenticado (Token Plan), assim como no omp.
+pi_id = "opencode-go"
 
 [providers.alibaba-token-plan]
 display_name = "Alibaba Token Plan (Qwen, Singapore)"
@@ -259,55 +267,58 @@ ultrabrain = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
 ultrawork = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
 
 [opencode.models.xiaomi]
-orchestrator = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-implementation = ["xiaomi/mimo-v2.5-pro", "xiaomi/mimo-v2.5"]
-planner = ["xiaomi/mimo-v2.5-pro"]
-architecture = ["xiaomi/mimo-v2.5-pro"]
-search = ["xiaomi/mimo-v2.5"]
-vision = ["xiaomi/mimo-v2.5"]
-review = ["xiaomi/mimo-v2.5-pro"]
-long_running = ["xiaomi/mimo-v2.5-pro"]
-quick = ["xiaomi/mimo-v2.5"]
-standard = ["xiaomi/mimo-v2.5"]
-complex = ["xiaomi/mimo-v2.5-pro"]
-visual = ["xiaomi/mimo-v2.5"]
-deep = ["xiaomi/mimo-v2.5-pro"]
-ultrabrain = ["xiaomi/mimo-v2.5-pro"]
-ultrawork = ["xiaomi/mimo-v2.5-pro"]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
 
+# Catálogo zai-coding-plan (models.dev): glm-4.7, glm-5-turbo, glm-5.2,
+# glm-5.2-highspeed, glm-5.3. Sem glm-4.7-flash/glm-5.1/glm-5 no plano coding —
+# planner/search/quick usam glm-5-turbo.
 [opencode.models.zai]
-orchestrator = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-implementation = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-planner = ["zai/glm-4.7-flash"]
-architecture = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-search = ["zai/glm-4.7-flash"]
+orchestrator = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+implementation = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+planner = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
+architecture = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+search = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
 vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
-review = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-long_running = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-quick = ["zai/glm-4.7-flash"]
-standard = ["zai/glm-5", "zai/glm-4.7"]
-complex = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-visual = ["zai/glm-5.2"]
-deep = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-ultrabrain = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
-ultrawork = ["zai/glm-5.2", "zai/glm-5.1", "zai/glm-5"]
+review = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+long_running = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+quick = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
+standard = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
+complex = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+visual = ["zai-coding-plan/glm-5.2"]
+deep = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+ultrabrain = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
+ultrawork = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
 
 [opencode.models.kimicode]
-orchestrator = ["kimicode/k3", "kimicode/kimi-for-coding"]
-implementation = ["kimicode/kimi-for-coding", "kimicode/k3"]
-planner = ["kimicode/kimi-for-coding", "kimicode/k3"]
-architecture = ["kimicode/k3", "kimicode/kimi-for-coding"]
-search = ["kimicode/kimi-for-coding"]
-vision = ["kimicode/k3", "kimicode/kimi-for-coding"]
-review = ["kimicode/kimi-for-coding", "kimicode/k3"]
-long_running = ["kimicode/kimi-for-coding", "kimicode/k3"]
-quick = ["kimicode/kimi-for-coding"]
-standard = ["kimicode/kimi-for-coding", "kimicode/k3"]
-complex = ["kimicode/k3", "kimicode/kimi-for-coding"]
-visual = ["kimicode/k3", "kimicode/kimi-for-coding"]
-deep = ["kimicode/k3", "kimicode/kimi-for-coding"]
-ultrabrain = ["kimicode/k3", "kimicode/kimi-for-coding"]
-ultrawork = ["kimicode/k3", "kimicode/kimi-for-coding"]
+orchestrator = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+implementation = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
+planner = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
+architecture = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+search = ["kimi-for-coding/kimi-for-coding"]
+vision = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+review = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
+long_running = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
+quick = ["kimi-for-coding/kimi-for-coding"]
+standard = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
+complex = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+visual = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+deep = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+ultrabrain = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
+ultrawork = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
 
 # OpenCode Zen Free — all agents run on free opencode models (https://opencode.ai/zen)
 [opencode.models.zen-free]
@@ -352,21 +363,21 @@ ultrawork = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3
 # (ambos OpenAI-compatible). Exclui openai, opencode/zen-free, kimicode, zai e
 # alibaba-token-plan. Ordem em cada chain = prioridade de fallback.
 [opencode.models.mix]
-orchestrator = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-implementation = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-planner = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
-architecture = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-search = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
-vision = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5"]
-review = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-long_running = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-quick = ["deepseek/deepseek-v4-flash", "xiaomi/mimo-v2.5", "minimax/MiniMax-M2.5"]
-standard = ["minimax/MiniMax-M2.7", "xiaomi/mimo-v2.5", "deepseek/deepseek-v4-flash"]
-complex = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-visual = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5"]
-deep = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-ultrabrain = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-ultrawork = ["minimax/MiniMax-M3", "xiaomi/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+orchestrator = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+implementation = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+planner = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
+architecture = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+search = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
+vision = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+long_running = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+quick = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
+standard = ["minimax/MiniMax-M2.7", "xiaomi-token-plan-sgp/mimo-v2.5", "deepseek/deepseek-v4-flash"]
+complex = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+visual = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+ultrabrain = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
+ultrawork = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
 
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
 
@@ -1011,8 +1022,8 @@ opencode = "opencode/gpt-5.4-mini"
 deepseek = "deepseek/deepseek-v4-flash"
 xiaomi = "xiaomi/mimo-v2.5"
 minimax = "minimax/MiniMax-M2.5"
-zai = "zai/glm-4.7-flash"
-kimicode = "kimicode/kimi-for-coding"
+zai = "zai-coding-plan/glm-4.7"
+kimicode = "kimi-for-coding/kimi-for-coding"
 alibaba-token-plan = "alibaba-token-plan/qwen3.6-flash"
 mix = "deepseek/deepseek-v4-flash"
 "zen-free" = "opencode/deepseek-v4-flash-free"
@@ -1128,7 +1139,10 @@ tiers = { orchestrator = ["MiniMax-M3"], implementation = ["MiniMax-M3"], planne
 tiers = { orchestrator = ["deepseek-v4-pro"], implementation = ["deepseek-v4-pro"], planner = ["deepseek-v4-flash"], quick = ["deepseek-v4-flash"], standard = ["deepseek-v4-flash"], complex = ["deepseek-v4-pro"], deep = ["deepseek-v4-pro"] }
 
 [pi.providers.kimicode]
-tiers = { orchestrator = ["k3"], implementation = ["kimi-for-coding"], planner = ["kimi-for-coding"], quick = ["kimi-for-coding"], standard = ["kimi-for-coding"], complex = ["k3"], deep = ["k3"] }
+# Alinhado com omp.providers.kimicode; kimi-for-coding no pi/opencode-go
+# parece exigir conta OAuth separada, enquanto kimi-k2.7-code autentica via
+# OPENCODE_API_KEY do Token Plan.
+tiers = { orchestrator = ["kimi-k3"], implementation = ["kimi-k2.7-code"], planner = ["kimi-k2.5"], quick = ["kimi-k2.5"], standard = ["kimi-k2.7-code"], complex = ["kimi-k3"], deep = ["kimi-k3"] }
 
 [pi.providers.zai]
 tiers = { orchestrator = ["glm-5.2"], implementation = ["glm-5.2"], planner = ["glm-4.7-flash"], quick = ["glm-4.7-flash"], standard = ["glm-4.7"], complex = ["glm-5.2"], deep = ["glm-5.2"] }
