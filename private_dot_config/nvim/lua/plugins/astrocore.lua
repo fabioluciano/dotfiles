@@ -49,10 +49,8 @@ return {
         signcolumn = "yes:1",
         wrap = true,
         tabstop = 2,
-        -- Mouse support
         mouse = "a",
         mousescroll = "ver:3,hor:3",
-        -- Scrolling
         scrolloff = 8,
         sidescrolloff = 8,
       },
@@ -60,7 +58,6 @@ return {
     },
     mappings = {
       n = {
-        -- AI / OpenCode
         ["<Leader>o"]  = { desc = "󱙺 OpenCode" },
         ["<Leader>e"]  = { "<cmd>Neotree toggle reveal<cr>", desc = " Toggle Explorer" },
         ["<Leader>ef"] = {
@@ -74,7 +71,6 @@ return {
           desc = "Toggle Explorer Focus",
         },
 
-        -- Core actions
         ["<Leader>oa"] = { function() require("opencode").ask("@this: ") end,                          desc = "Ask" },
         ["<Leader>os"] = { function() require("opencode").select() end,                                desc = "Select action" },
         ["<Leader>ot"] = {
@@ -106,7 +102,6 @@ return {
           desc = "Toggle OpenCode",
         },
 
-        -- Prompts
         ["<Leader>op"] = { desc = "󰙎 Prompts" },
         ["<Leader>opf"] = { function() require("opencode").prompt("fix") end,                          desc = "Fix diagnostics" },
         ["<Leader>ope"] = { function() require("opencode").prompt("explain") end,                      desc = "Explain" },
@@ -120,7 +115,6 @@ return {
         ["<Leader>opg"] = { function() require("opencode").prompt("diff") end,                         desc = "Review git diff" },
         ["<Leader>opx"] = { function() require("opencode").prompt("debug") end,                        desc = "Add debug logging" },
 
-        -- Session
         ["<Leader>oS"] = { desc = " Session" },
         ["<Leader>oSn"] = { function() require("opencode").command("session.new") end,                 desc = "New session" },
         ["<Leader>oSl"] = { function() require("opencode").command("session.list") end,                desc = "List sessions" },
@@ -131,7 +125,6 @@ return {
         ["<Leader>oSr"] = { function() require("opencode").command("session.redo") end,                desc = "Redo" },
         ["<Leader>oSh"] = { function() require("opencode").command("session.share") end,               desc = "Share session" },
 
-        -- Agent & navigation
         ["<Leader>oA"] = { function() require("opencode").command("agent.cycle") end,                  desc = "Cycle agent" },
 
         -- Operator (go / goo) — motion e line
@@ -141,7 +134,6 @@ return {
         ["<Leader>or"] = { function() return require("opencode").operator("@this ") end, expr = true, desc = "Send range to OpenCode" },
         ["<Leader>oo"] = { function() return require("opencode").operator("@this ") .. "_" end, expr = true, desc = "Send line to OpenCode" },
 
-        -- Run / Tasks (overseer)
         ["<Leader>R"] = { desc = "󱓞 Run/Tasks" },
         ["<Leader>Rr"] = { "<cmd>OverseerRun<cr>", desc = "Run task" },
         ["<Leader>Rt"] = { "<cmd>OverseerToggle<cr>", desc = "Toggle task list" },
@@ -153,12 +145,9 @@ return {
         ["<Leader>tTn"] = { function() require("neotest").run.run() end, desc = "Test nearest" },
         ["<Leader>tTs"] = { function() require("neotest").summary.toggle() end, desc = "Toggle summary" },
 
-        -- Git extras (diffview / octo)
-        ["<Leader>gg"] = false,
         ["<Leader>gD"] = { "<cmd>DiffviewOpen<cr>",  desc = "Diffview open" },
         ["<Leader>gO"] = { "<cmd>Octo pr list<cr>",  desc = "Octo: list PRs" },
 
-        -- Misc
         ["<Leader>z"] = { function() require("snacks").zen() end, desc = "Zen mode" },
         ["<Leader>uZ"] = false,
         ["<Leader>uo"] = { "<cmd>Neotree document_symbols<cr>", desc = "Outline (document symbols)" },

@@ -1,10 +1,4 @@
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Ghostty Configuration                  │
-# ╰──────────────────────────────────────────────────────────╯
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                      Color Scheme                         │
-# ╰──────────────────────────────────────────────────────────╯
 
 theme = TokyoNight
 background-opacity = 1
@@ -13,9 +7,6 @@ cursor-text = #1a1b26
 selection-foreground = #c0caf5
 selection-background = #33467c
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                         Fonts                             │
-# ╰──────────────────────────────────────────────────────────╯
 
 font-family = Maple Mono NF
 {{- if eq .chezmoi.os "darwin" }}
@@ -48,9 +39,6 @@ font-feature = ss10
 font-feature = ss11
 bold-is-bright = true
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Window Settings                        │
-# ╰──────────────────────────────────────────────────────────╯
 
 window-padding-x = 0
 window-padding-y = 0
@@ -74,39 +62,23 @@ macos-window-shadow = true
 macos-option-as-alt = true
 {{- end }}
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Cursor Settings                        │
-# ╰──────────────────────────────────────────────────────────╯
 
 cursor-style = block
 cursor-style-blink = true
 cursor-click-to-move = true
 mouse-hide-while-typing = true
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Shell / Command                        │
-# ╰──────────────────────────────────────────────────────────╯
 
 shell-integration = zsh
 shell-integration-features = cursor,sudo,title
 command = /bin/zsh {{ .chezmoi.homeDir }}/.local/bin/ghostty-tmux
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Scrollback                             │
-# ╰──────────────────────────────────────────────────────────╯
 
 scrollback-limit = 100000
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Links / URLs                           │
-# ╰──────────────────────────────────────────────────────────╯
 
 link-url = true
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Key Bindings                           │
-# │         (Minimal - tmux handles most things)              │
-# ╰──────────────────────────────────────────────────────────╯
 
 {{- if eq .chezmoi.os "darwin" }}
 # macOS keybindings (Cmd key)
@@ -130,18 +102,12 @@ keybind = ctrl+zero=reset_font_size
 keybind = f11=toggle_fullscreen
 {{- end }}
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Clipboard                              │
-# ╰──────────────────────────────────────────────────────────╯
 
 clipboard-read = allow
 clipboard-write = allow
 clipboard-trim-trailing-spaces = true
 copy-on-select = false
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                    Behavior                               │
-# ╰──────────────────────────────────────────────────────────╯
 
 click-repeat-interval = 500
 auto-update = check

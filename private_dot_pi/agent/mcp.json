@@ -19,7 +19,7 @@
     "github": {
       "transport": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": ["-y", "github-mcp-server"],
       "description": "GitHub API operations",
       "timeout": 10000
     },

@@ -1,10 +1,8 @@
 {{- if ne (includeTemplate "is-work-machine.tmpl" .) "true" -}}
-# =============================================================================
 # zerobrew manifest — formulas core do homebrew-core + tap formulas resolvidas
 # por zb, instaladas via `zb bundle` (script run_onchange_after_32-zerobrew-
 # bundle.sh.tmpl). Lista em .chezmoitemplates/core_formulae.tmpl — work machines
 # instalam via brew bundle (gate em dot_Brewfile.tmpl) porque o zb bundle e
 # no-op atras da Zscaler (ver AGENTS.md para o diagnostico).
-# =============================================================================
 {{ includeTemplate "core_formulae.tmpl" . }}
 {{- end -}}

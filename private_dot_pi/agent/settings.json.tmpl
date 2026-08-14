@@ -10,18 +10,22 @@
        - O catálogo vive em models.json (auto-gerenciado por `pi update`),
          NÃO é template.
        - Tema Tokyo Night é um arquivo separado em themes/tokyo-night.json.
+       - mcp.json diverge do omp: pi mantém filesystem/playwright/github como
+         MCP servers explícitos (o omp usa built-ins); github = github-mcp-server.
 
      Preservação de chaves auto-gerenciadas: o pi escreve em settings.json
      (lastChangelogVersion, etc.). O template lê o valor vivo via jq e o
      re-emite, para que apply não resete o estado do pi. */ -}}
 {{- $state := includeTemplate "pi-state.tmpl" . | fromJson -}}
-{{- /* `|| true`: no primeiro apply o target ainda não existe e o jq sai com
-     status != 0, o que abortaria o template antes do `default` agir. */ -}}
-{{- $liveTheme := output "sh" "-c" "jq -r '.theme // \"tokyo-night\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "tokyo-night" -}}
-{{- $liveLastChangelog := output "sh" "-c" "jq -r '.lastChangelogVersion // \"0.0.0\"' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "0.0.0" -}}
-{{- $livePackages := output "sh" "-c" "jq -c '.packages // []' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "[]" -}}
-{{- $liveShowHardwareCursor := output "sh" "-c" "jq -r '.showHardwareCursor // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "true" -}}
-{{- $liveShowCacheMissNotices := output "sh" "-c" "jq -r '.showCacheMissNotices // true' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || true" | trim | default "true" -}}
+{{- /* Uma única leitura jq do target (em vez de 5 subprocessos) preserva as
+     chaves auto-gerenciadas pelo pi. Defaults ficam no próprio jq. */ -}}
+{{- $liveJSON := output "sh" "-c" "jq -c '{theme:(.theme // \"tokyo-night\"), lastChangelogVersion:(.lastChangelogVersion // \"0.0.0\"), packages:(.packages // []), showHardwareCursor:(.showHardwareCursor // true), showCacheMissNotices:(.showCacheMissNotices // true)}' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || echo '{}'" | trim | default "{}" -}}
+{{- $live := $liveJSON | fromJson -}}
+{{- $liveTheme := get $live "theme" | default "tokyo-night" -}}
+{{- $liveLastChangelog := get $live "lastChangelogVersion" | default "0.0.0" -}}
+{{- $livePackages := get $live "packages" | default (list) | toJson -}}
+{{- $liveShowHardwareCursor := get $live "showHardwareCursor" | default true -}}
+{{- $liveShowCacheMissNotices := get $live "showCacheMissNotices" | default true -}}
 {
   "theme": "{{ $liveTheme }}",
   "themes": [

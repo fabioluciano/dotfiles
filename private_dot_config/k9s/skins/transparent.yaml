@@ -1,38 +1,21 @@
-# ╭──────────────────────────────────────────────────────────╮
-# │                 K9s Transparent Skin                      │
-# │            Tokyo Night theme with transparency            │
-# ╰──────────────────────────────────────────────────────────╯
-#
 # Uses terminal background (transparent) with Tokyo Night colors
 # Compatible with WezTerm/Ghostty transparency settings
 
 k9s:
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Body / Main                          │
-  # ╰────────────────────────────────────────────────────────╯
   body:
     fgColor: "#c0caf5"
     bgColor: default
     logoColor: "#7aa2f7"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Prompt / Command                     │
-  # ╰────────────────────────────────────────────────────────╯
   prompt:
     fgColor: "#c0caf5"
     bgColor: default
     suggestColor: "#565f89"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Info Panel                           │
-  # ╰────────────────────────────────────────────────────────╯
   info:
     fgColor: "#7dcfff"
     sectionColor: "#7aa2f7"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Dialogs                              │
-  # ╰────────────────────────────────────────────────────────╯
   dialog:
     fgColor: "#c0caf5"
     bgColor: default
@@ -43,9 +26,6 @@ k9s:
     labelFgColor: "#ff9e64"
     fieldFgColor: "#c0caf5"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Frame / Chrome                       │
-  # ╰────────────────────────────────────────────────────────╯
   frame:
     border:
       fgColor: "#3b4261"
@@ -74,9 +54,6 @@ k9s:
       counterColor: "#bb9af7"
       filterColor: "#9ece6a"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Views                                │
-  # ╰────────────────────────────────────────────────────────╯
   views:
     # Charts (CPU/Memory)
     charts:
@@ -131,9 +108,6 @@ k9s:
         toggleOnColor: "#9ece6a"
         toggleOffColor: "#565f89"
 
-  # ╭────────────────────────────────────────────────────────╮
-  # │                    Help / Popup                         │
-  # ╰────────────────────────────────────────────────────────╯
   help:
     fgColor: "#c0caf5"
     bgColor: default
