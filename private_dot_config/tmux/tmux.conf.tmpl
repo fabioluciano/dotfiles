@@ -119,6 +119,9 @@ bind-key C-o run-shell "sesh connect"
 
 #  4. PLUGINS (TPM)
 
+# Diretório dos plugins (XDG: ~/.config/tmux/plugins em vez do default ~/.tmux/plugins)
+set-environment -g TMUX_PLUGIN_MANAGER_PATH "~/.config/tmux/plugins"
+
 # TPM - Tmux Plugin Manager
 set -g @plugin 'tmux-plugins/tpm'
 
@@ -273,21 +276,17 @@ set -g @powerkit_plugin_bitwarden_keybinding_lock "M-l"
 set -g @powerkit_plugin_fan_selection "active"
 
 #  Plugin: Packages
-# Aggregate updates from both Homebrew and zerobrew
-set -g @powerkit_plugin_packages_backends "brew,zb"
+# Aggregate updates from Homebrew
+set -g @powerkit_plugin_packages_backends "brew"
 
 
 #  6. INITIALIZE TPM (keep this at the very end)
 if-shell '[ -f /usr/share/tmux-plugin-manager/tpm ]' {
     run '/usr/share/tmux-plugin-manager/tpm'
 } {
-    if-shell '[ -f /opt/zerobrew/opt/tpm/share/tpm/tpm ]' {
-        run '/opt/zerobrew/opt/tpm/share/tpm/tpm'
+    if-shell '[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]' {
+        run '/opt/homebrew/opt/tpm/share/tpm/tpm'
     } {
-        if-shell '[ -f /opt/homebrew/opt/tpm/share/tpm/tpm ]' {
-            run '/opt/homebrew/opt/tpm/share/tpm/tpm'
-        } {
-            run '~/.tmux/plugins/tpm/tpm'
-        }
+        run '~/.config/tmux/plugins/tpm/tpm'
     }
 }

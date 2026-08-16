@@ -2,12 +2,12 @@
 # Reconcile package-manager completion facts into an immutable Zsh generation.
 
 if (( BASH_VERSINFO[0] < 4 )); then
-    for _zsh_audit_bash in /opt/zerobrew/bin/bash /opt/homebrew/bin/bash /usr/local/bin/bash; do
+    for _zsh_audit_bash in /opt/homebrew/bin/bash /usr/local/bin/bash; do
         if [[ -x $_zsh_audit_bash && $_zsh_audit_bash != "$BASH" ]]; then
             exec "$_zsh_audit_bash" "$0" "$@"
         fi
     done
-    printf '%s\n' 'zsh-completion-audit: Bash 4+ is required; install Bash via zerobrew/Homebrew at /opt/zerobrew/bin/bash, /opt/homebrew/bin/bash or /usr/local/bin/bash.' >&2
+    printf '%s\n' 'zsh-completion-audit: Bash 4+ is required; install Bash via Homebrew at /opt/homebrew/bin/bash or /usr/local/bin/bash.' >&2
     exit 1
 fi
 

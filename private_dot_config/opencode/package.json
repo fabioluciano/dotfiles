@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "@cortexkit/opencode-magic-context": "0.32.1",
-    "@opencode-ai/plugin": "1.18.2",
-    "cc-safety-net": "1.0.6",
-    "oh-my-openagent": "4.11.1",
-    "oh-my-opencode-slim": "2.2.3",
-    "opencode-subagent-statusline": "1.2.1"
+    "@cortexkit/opencode-magic-context": "latest",
+    "@opencode-ai/plugin": "latest",
+    "cc-safety-net": "latest",
+    "oh-my-openagent": "latest",
+    "oh-my-opencode-slim": "latest",
+    "opencode-subagent-statusline": "latest"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
