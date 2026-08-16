@@ -36,7 +36,7 @@
 {{- $tierModels := index $providerModels $tier -}}
 {{- $stdModels := index $providerModels "standard" -}}
 {{- $orchModels := index $providerModels "orchestrator" -}}
-{{- $chain := or $tierModels $stdModels $orchModels -}}
+{{- $chain := or $tierModels $stdModels $orchModels }}
     ,"{{ $agent }}": {
       "model": "{{ first $chain }}"
     }
@@ -147,7 +147,181 @@
         "jdtls"
       ],
       "extensions": [
-        ".java"
+        ".java",
+        ".groovy"
+      ]
+    },
+    "taplo": {
+      "command": [
+        "taplo",
+        "lsp",
+        "stdio"
+      ],
+      "extensions": [
+        ".toml"
+      ]
+    },
+    "sql-language-server": {
+      "command": [
+        "sql-language-server",
+        "up",
+        "--method",
+        "stdio"
+      ],
+      "extensions": [
+        ".sql"
+      ]
+    },
+    "cmake-language-server": {
+      "command": [
+        "cmake-language-server"
+      ],
+      "extensions": [
+        "CMakeLists.txt",
+        ".cmake"
+      ]
+    },
+    "mdx-language-server": {
+      "command": [
+        "mdx-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".mdx"
+      ]
+    },
+    "docker-compose-langserver": {
+      "command": [
+        "docker-compose-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        "docker-compose.yml",
+        "docker-compose.yaml",
+        "compose.yml",
+        "compose.yaml"
+      ]
+    },
+    "vscode-css-language-server": {
+      "command": [
+        "vscode-css-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less"
+      ]
+    },
+    "vscode-html-language-server": {
+      "command": [
+        "vscode-html-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".htm"
+      ]
+    },
+    "vscode-json-language-server": {
+      "command": [
+        "vscode-json-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".json",
+        ".jsonc"
+      ]
+    },
+    "vscode-eslint-language-server": {
+      "command": [
+        "vscode-eslint-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    "gopls": {
+      "command": [
+        "gopls"
+      ],
+      "extensions": [
+        ".go"
+      ]
+    },
+    "rust-analyzer": {
+      "command": [
+        "rust-analyzer"
+      ],
+      "extensions": [
+        ".rs"
+      ]
+    },
+    "lua-language-server": {
+      "command": [
+        "lua-language-server"
+      ],
+      "extensions": [
+        ".lua"
+      ]
+    },
+    "bash-language-server": {
+      "command": [
+        "bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
+      ]
+    },
+    "typescript-language-server": {
+      "command": [
+        "typescript-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    "elixir-ls": {
+      "command": [
+        "elixir-ls"
+      ],
+      "extensions": [
+        ".ex",
+        ".exs"
+      ]
+    },
+    "intelephense": {
+      "command": [
+        "intelephense",
+        "--stdio"
+      ],
+      "extensions": [
+        ".php"
+      ]
+    },
+    "ruff": {
+      "command": [
+        "ruff",
+        "server"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
       ]
     }
   },
@@ -159,15 +333,24 @@
   },
   "watcher": {
     "ignore": [
-      "node_modules/**",
-      "dist/**",
-      ".git/**",
-      "vendor/**",
-      ".omo/**"
+      ".git",
+      "node_modules",
+      "dist",
+      "build",
+      ".next",
+      ".nuxt",
+      ".output",
+      ".cache",
+      "coverage",
+      "*.log",
+      ".turbo",
+      ".venv",
+      "__pycache__",
+      "target"
     ]
   },
   "instructions": [
-    "~/.config/opencode/AGENTS.md",
+    "~/.config/opencode/AGENTS.md"
   ],
   "provider": {
     // Catálogo de modelos vem do models.dev (auto-atualizado pelo opencode);
@@ -182,10 +365,15 @@
     "openai": {
       "options": {}
     },
+    "google": {
+      "options": {
+        "apiKey": "{env:GEMINI_API_KEY}"
+      }
+    },
     "opencode": {
       "options": {
         "apiKey": "{env:OPENCODE_API_KEY}"
-      },
+      }
     },
     "minimax": {
       "npm": "@ai-sdk/anthropic",
@@ -193,7 +381,7 @@
       "options": {
         "baseURL": "https://api.minimax.io/anthropic/v1",
         "apiKey": "{env:MINIMAX_API_KEY}"
-      },
+      }
     },
     "deepseek": {
       "options": {

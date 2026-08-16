@@ -19,9 +19,9 @@ max-cache-ttl-ssh 28800
 
 # Pinentry program for password prompts
 {{- if eq .chezmoi.os "darwin" }}
-# pinentry-mac é instalado pelo zerobrew (dot_Zerobrewfile.tmpl) — o prefix
-# /opt/zerobrew vale para arm64 e Intel.
-pinentry-program /opt/zerobrew/bin/pinentry-mac
+# pinentry-mac é instalado pelo Homebrew — o prefix
+# /opt/homebrew vale para arm64 (Apple Silicon).
+pinentry-program /opt/homebrew/bin/pinentry-mac
 {{- else if eq .chezmoi.os "linux" }}
 # Wrapper: pinentry grafico com display, curses em sessao TTY/headless.
 pinentry-program {{ .chezmoi.homeDir }}/.local/bin/pinentry-auto
