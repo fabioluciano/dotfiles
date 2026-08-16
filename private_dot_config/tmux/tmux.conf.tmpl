@@ -272,6 +272,11 @@ set -g @powerkit_plugin_bitwarden_keybinding_lock "M-l"
 #  Plugin: Fan
 set -g @powerkit_plugin_fan_selection "active"
 
+#  Plugin: Packages
+# Aggregate updates from both Homebrew and zerobrew
+set -g @powerkit_plugin_packages_backends "brew,zb"
+
+
 #  6. INITIALIZE TPM (keep this at the very end)
 if-shell '[ -f /usr/share/tmux-plugin-manager/tpm ]' {
     run '/usr/share/tmux-plugin-manager/tpm'
