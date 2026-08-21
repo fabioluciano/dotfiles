@@ -1,0 +1,51 @@
+{{- /* Codewhale MCP (~/.codewhale/mcp.json) — espelho dos MCPs do opencode:
+     context7, playwright, gh_grep, github, codebase-memory, kubernetes,
+     terraform. O token do github é injetado via env do chezmoi (nunca gravado
+     no repo); os demais não precisam de credencial explícita. */ -}}
+{
+  "timeouts": {
+    "connect_timeout": 10,
+    "execute_timeout": 60,
+    "read_timeout": 120
+  },
+  "servers": {
+    "context7": {
+      "command": "context7-mcp",
+      "env": {},
+      "execute_timeout": 8
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "env": {},
+      "execute_timeout": 10
+    },
+    "gh_grep": {
+      "url": "https://mcp.grep.app",
+      "execute_timeout": 8
+    },
+    "github": {
+      "command": "github-mcp-server",
+      "args": ["stdio"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ env "GITHUB_TOKEN" | default (env "GITHUB_PERSONAL_ACCESS_TOKEN") }}"
+      },
+      "execute_timeout": 10
+    },
+    "codebase-memory": {
+      "command": "codebase-memory-mcp",
+      "env": {},
+      "execute_timeout": 15
+    },
+    "kubernetes": {
+      "command": "kubernetes-mcp-server",
+      "args": ["--read-only"],
+      "env": {},
+      "execute_timeout": 15
+    },
+    "terraform": {
+      "command": "terraform-mcp-server",
+      "env": {},
+      "execute_timeout": 10
+    }
+  }
+}

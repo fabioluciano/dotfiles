@@ -17,9 +17,4 @@ if ! command -v bw >/dev/null 2>&1; then
   exit 0
 fi
 
-if ! bw unlock --check >/dev/null 2>&1; then
-  echo "Bitwarden vault bloqueado — mantendo tokens atuais; execute 'bw unlock' manualmente." >&2
-  exit 0
-fi
-
 "$sync"

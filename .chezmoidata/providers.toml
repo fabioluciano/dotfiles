@@ -42,6 +42,7 @@ display_name = "ZAI (Zhipu GLM)"
 # coding e não lista glm-5.3.
 opencode_id = "zai-coding-plan"
 pi_id = "zai-coding"
+codewhale_id = "zai"
 
 [providers.minimax]
 display_name = "MiniMax"
@@ -51,11 +52,13 @@ opencode_id = "minimax"
 # modelos sem thinking, max=16.4K, endpoint retorna 404).
 omp_id = "minimax"
 pi_id = "minimax"
+codewhale_id = "minimax"
 
 [providers.deepseek]
 display_name = "DeepSeek"
 opencode_id = "deepseek"
 pi_id = "deepseek"
+codewhale_id = "deepseek"
 
 [providers.xiaomi]
 display_name = "Xiaomi MiMo (Singapore Token Plan)"
@@ -67,6 +70,10 @@ opencode_id = "xiaomi-token-plan-sgp"
 # "xiaomi-token-plan-sgp" (3 modelos) como provider separado.
 omp_id = "xiaomi-token-plan-sgp"
 pi_id = "xiaomi-mimo"
+# codewhale_id = "xiaomi-mimo": provider nativo do codewhale (chaves tp-...
+# usam o endpoint token-plan-sgp por padrão).
+codewhale_id = "xiaomi-mimo"
+codewhale_api_key_env = "MIMO_API_KEY"
 
 [providers.gitlab-duo]
 display_name = "GitLab Duo (OAuth-gated)"
@@ -80,6 +87,7 @@ display_name = "OpenAI"
 opencode_id = "openai"
 omp_id = "openai"
 pi_id = "openai"
+codewhale_id = "openai"
 
 [providers.google]
 display_name = "Google (Gemini)"
@@ -94,6 +102,7 @@ opencode_id = "opencode"
 # Sem esse mapeamento, defaultModel fica "opencode/..." (inexistente).
 omp_id = "opencode-zen"
 pi_id = "opencode"
+codewhale_id = "opencode-zen"
 
 [providers.opencode-go]
 display_name = "OpenCode Go (Token Plan — Kimi/DeepSeek/GLM)"
@@ -102,6 +111,7 @@ display_name = "OpenCode Go (Token Plan — Kimi/DeepSeek/GLM)"
 # matrizes do opencode; entry de registry é omp/pi-only.
 omp_id = "opencode-go"
 pi_id = "opencode-go"
+codewhale_id = "opencode-go"
 
 [providers.kimicode]
 display_name = "Kimi (Moonshot)"
@@ -116,6 +126,10 @@ omp_id = "opencode-go"
 # kimi-code no pi é OAuth-gated (0 modelos sem login); usar opencode-go,
 # que serve os modelos Kimi autenticado (Token Plan), assim como no omp.
 pi_id = "opencode-go"
+# codewhale_id = "moonshot": provider nativo do codewhale (api.moonshot.ai/v1).
+# Modelos k3/kimi-for-coding vêm do endpoint coding do opencode — confirmar no
+# catálogo do codewhale.
+codewhale_id = "moonshot"
 
 [providers.qwencloud]
 display_name = "Qwen Cloud (Alibaba Token Plan)"
@@ -132,6 +146,79 @@ display_name = "OpenCode Zen Free"
 opencode_id = "opencode"
 # Modelos "-free" não existem no catálogo do omp; entry de registry é
 # opencode-only.
+
+[providers.commandcode]
+display_name = "Command Code"
+# Provider por extensão `pi-commandcode-provider` (community, npm) para pi/omp
+# e gateway OpenAI-compatible para codewhale e opencode.
+# Auth via `/login` (subscription) ou env `COMMANDCODE_API_KEY`.
+# Catálogo dinâmico (~55 modelos) de https://api.commandcode.ai/provider/v1/models:
+# Claude, GPT, DeepSeek, Kimi, GLM, MiniMax, Qwen, Gemini, Grok, etc.
+# Ids de modelo são aninhados ("deepseek/deepseek-v4-pro", "moonshotai/Kimi-K3", "Qwen/Qwen3.8-Max").
+opencode_id = "commandcode"
+omp_id = "commandcode"
+pi_id = "commandcode"
+codewhale_id = "commandcode"
+codewhale_kind = "openai-compatible"
+codewhale_base_url = "https://api.commandcode.ai/provider/v1"
+codewhale_api_key_env = "COMMANDCODE_API_KEY"
+models = [
+  "deepseek/deepseek-v4-pro",
+  "deepseek/deepseek-v4-flash",
+  "moonshotai/Kimi-K3",
+  "moonshotai/Kimi-K2.7-Code",
+  "moonshotai/Kimi-K2.7-Code-Highspeed",
+  "moonshotai/Kimi-K2.6",
+  "moonshotai/Kimi-K2.5",
+  "zai-org/GLM-5.3",
+  "zai-org/GLM-5.2",
+  "zai-org/GLM-5.2-Fast",
+  "zai-org/GLM-5.1",
+  "zai-org/GLM-5",
+  "MiniMaxAI/MiniMax-M3",
+  "MiniMaxAI/MiniMax-M2.7",
+  "MiniMaxAI/MiniMax-M2.5",
+  "xiaomi/mimo-v2.5-pro",
+  "xiaomi/mimo-v2.5",
+  "Qwen/Qwen3.8-Max",
+  "Qwen/Qwen3.7-Max",
+  "Qwen/Qwen3.7-Plus",
+  "Qwen/Qwen3.7-Flash",
+  "Qwen/Qwen3.6-Max-Preview",
+  "Qwen/Qwen3.6-Plus",
+  "stepfun/Step-3.7-Flash",
+  "stepfun/Step-3.5-Flash",
+  "tencent/hy3-paid",
+  "nvidia/nemotron-3-ultra-550b-a55b",
+  "thinkingmachines/inkling",
+  "thinkingmachines/inkling-small",
+  "poolside/laguna-s-2.1-free",
+  "claude-sonnet-5",
+  "claude-sonnet-4-6",
+  "claude-fable-5",
+  "claude-opus-5",
+  "claude-opus-4-8",
+  "claude-opus-4-7",
+  "claude-haiku-4-5-20251001",
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "gpt-5.6-luna",
+  "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.3-codex",
+  "gpt-5.4-mini",
+  "google/gemini-3.7-flash",
+  "google/gemini-3.6-flash",
+  "google/gemini-3.5-flash",
+  "google/gemini-3.5-flash-lite",
+  "google/gemini-3.1-flash-lite",
+  "sakana/fugu-ultra",
+  "meta/muse-spark-1.1",
+  "meta/muse-spark-1.2",
+  "meta/muse-spark-1.2-contributor",
+  "xai/grok-4.5",
+  "xai/grok-4.6",
+]
 
 # OPENCODE — matrizes por KEY (models, variants, agent_profiles, overrides)
 [opencode]
@@ -438,6 +525,24 @@ deep = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/d
 ultrabrain = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
 ultrawork = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
 
+# Command Code — catálogo agregado (Claude, GPT, DeepSeek, Kimi, GLM, MiniMax, Gemini, Qwen)
+[opencode.models.commandcode]
+orchestrator = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/zai-org/GLM-5.3"]
+implementation = ["commandcode/claude-opus-4-8", "commandcode/gpt-5.6-sol", "commandcode/moonshotai/Kimi-K2.7-Code", "commandcode/MiniMaxAI/MiniMax-M3"]
+planner = ["commandcode/gpt-5.6-luna", "commandcode/gpt-5.4-mini", "commandcode/deepseek/deepseek-v4-flash", "commandcode/zai-org/GLM-5.2-Fast"]
+architecture = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
+search = ["commandcode/google/gemini-3.7-flash", "commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.4-mini"]
+vision = ["commandcode/google/gemini-3.7-flash", "commandcode/claude-sonnet-4-6"]
+review = ["commandcode/claude-opus-4-8", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
+long_running = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/moonshotai/Kimi-K3"]
+quick = ["commandcode/claude-haiku-4-5-20251001", "commandcode/gpt-5.4-mini", "commandcode/deepseek/deepseek-v4-flash", "commandcode/MiniMaxAI/MiniMax-M2.5"]
+standard = ["commandcode/claude-sonnet-4-6", "commandcode/gpt-5.5", "commandcode/deepseek/deepseek-v4-flash"]
+complex = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/zai-org/GLM-5.3"]
+visual = ["commandcode/google/gemini-3.7-flash", "commandcode/claude-sonnet-4-6"]
+deep = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/Qwen/Qwen3.8-Max"]
+ultrabrain = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
+ultrawork = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/moonshotai/Kimi-K3"]
+
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
 
 [opencode.variants.minimax]
@@ -595,6 +700,23 @@ deep = "thinking"
 ultrabrain = "thinking"
 ultrawork = "thinking"
 
+[opencode.variants.commandcode]
+orchestrator = "high"
+implementation = "medium"
+planner = "medium"
+architecture = "high"
+search = "low"
+vision = "medium"
+review = "medium"
+long_running = "high"
+quick = "low"
+standard = "medium"
+complex = "high"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 # VARIANTS OPTIMIZED
 
 [opencode.variants.minimax-optimized]
@@ -707,6 +829,16 @@ deep = "thinking"
 ultrabrain = "thinking"
 ultrawork = "thinking"
 
+[opencode.variants.commandcode-optimized]
+orchestrator = "medium"
+implementation = "medium"
+architecture = "high"
+review = "medium"
+visual = "medium"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "medium"
+
 # VARIANTS SUPER (maxima economia)
 
 [opencode.variants.minimax-super]
@@ -818,6 +950,16 @@ visual = "thinking"
 deep = "thinking"
 ultrabrain = "thinking"
 ultrawork = "thinking"
+
+[opencode.variants.commandcode-super]
+orchestrator = "low"
+implementation = "low"
+architecture = "medium"
+review = "low"
+visual = "low"
+deep = "medium"
+ultrabrain = "high"
+ultrawork = "low"
 
 # VARIANTS MODERATE
 # "moderate" is an alias for "optimized" — the template
@@ -971,6 +1113,16 @@ deep = "thinking"
 ultrabrain = "thinking"
 ultrawork = "thinking"
 
+[opencode.variants.commandcode-recommended]
+orchestrator = "high"
+implementation = "high"
+architecture = "high"
+review = "high"
+visual = "high"
+deep = "high"
+ultrabrain = "high"
+ultrawork = "high"
+
 # VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
 
 
@@ -1117,6 +1269,23 @@ deep = "thinking"
 ultrabrain = "thinking"
 ultrawork = "thinking"
 
+[opencode.variants.commandcode-ultra]
+orchestrator = "low"
+implementation = "low"
+planner = "low"
+architecture = "low"
+search = "low"
+vision = "low"
+review = "low"
+long_running = "low"
+quick = "low"
+standard = "low"
+complex = "low"
+visual = "low"
+deep = "low"
+ultrabrain = "low"
+ultrawork = "low"
+
 [opencode.agent_profiles]
 sisyphus = "orchestrator"
 hephaestus = "implementation"
@@ -1172,6 +1341,7 @@ kimicode = "kimi-for-coding/kimi-for-coding"
 qwencloud = "alibaba-token-plan/qwen3.6-flash"
 mix = "deepseek/deepseek-v4-flash"
 "zen-free" = "opencode/deepseek-v4-flash-free"
+commandcode = "commandcode/google/gemini-3.7-flash"
 
 # OMP — matrizes por KEY (providers, profiles, profile_aliases)
 # Cada entry referencia o id nativo do omp via o registry [providers.X]
@@ -1235,6 +1405,14 @@ cycling_order = "opencode-go"
 [omp.providers.gitlab-duo]
 tiers = { orchestrator = ["duo-chat-opus-4-6"], implementation = ["duo-chat-sonnet-4-6", "duo-chat-gpt-5-2-codex"], planner = ["duo-chat-gpt-5-2"], quick = ["duo-chat-haiku-4-5", "duo-chat-gpt-5-mini"], standard = ["duo-chat-sonnet-4-5"], complex = ["duo-chat-opus-4-6"], deep = ["duo-chat-opus-4-6"] }
 cycling_order = "gitlab-duo"
+
+# Command Code — provider por extensão `pi-commandcode-provider` (não built-in).
+# Catálogo dinâmico (~55 modelos, ids aninhados "vendor/model"): Claude, GPT,
+# DeepSeek, Kimi, GLM, MiniMax, Qwen, Gemini, Grok, etc. Requer auth
+# (`/login` subscription ou COMMANDCODE_API_KEY) antes de usar.
+[omp.providers.commandcode]
+tiers = { orchestrator = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], implementation = ["claude-opus-4-8", "gpt-5.6-sol", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["claude-haiku-4-5-20251001", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "MiniMaxAI/MiniMax-M2.5"], standard = ["claude-sonnet-4-6", "gpt-5.5", "deepseek/deepseek-v4-flash"], complex = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], deep = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "Qwen/Qwen3.8-Max"] }
+cycling_order = "commandcode"
 
 # Profiles → thinking_level + default_tier
 [omp.profiles.optimized]
@@ -1312,6 +1490,11 @@ tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation 
 [pi.providers.opencode-go]
 tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2.7-code", "deepseek-v4-pro"], planner = ["deepseek-v4-flash", "glm-5.2"], quick = ["glm-5.1", "grok-4.5"], standard = ["deepseek-v4-flash"], complex = ["kimi-k3"], deep = ["deepseek-v4-pro"] }
 
+# Command Code — provider por extensão `pi-commandcode-provider` (não built-in).
+# Mesmo catálogo dinâmico do omp.commandcode (~55 modelos, ids aninhados).
+[pi.providers.commandcode]
+tiers = { orchestrator = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], implementation = ["claude-opus-4-8", "gpt-5.6-sol", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["claude-haiku-4-5-20251001", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "MiniMaxAI/MiniMax-M2.5"], standard = ["claude-sonnet-4-6", "gpt-5.5", "deepseek/deepseek-v4-flash"], complex = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], deep = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "Qwen/Qwen3.8-Max"] }
+
 # Profiles → thinking_level + default_tier (mesmo vocabulário do omp)
 [pi.profiles.optimized]
 thinking_level = "medium"
@@ -1336,3 +1519,92 @@ default_tier = "implementation"
 [pi.profile_aliases]
 moderate = "optimized"
 default = "optimized"
+
+# CODEWHALE — matriz por KEY consumida por codewhale-state.tmpl e
+# config.toml.tmpl. Ids nativos resolvidos via registry [providers.X]
+# (campo `codewhale_id`). Keys preservam compatibilidade com o state file
+# ~/.codewhale/.active_provider.
+#
+# O codewhale não tem o conceito de ~15 tiers do opencode: usa
+# `default_text_model` (agente principal) + `[subagents.models]` (papéis
+# Fleet: worker/scout/planner/reviewer/builder/verifier) + `[auto.router]`
+# (forte/barato). Por isso cada provider expõe só os tiers que o codewhale
+# consome: orchestrator, implementation, planner, search, review e quick.
+#
+# DRIFT CHECK: os model ids DEVEM existir no catálogo real do codewhale
+# (`codewhale models --provider <id>`). Derivados inicialmente das matrizes
+# opencode (prefixo provider/ removido) — quando o binário mudar de catálogo,
+# atualizar aqui.
+#
+# Mapeados (nativos): deepseek, zai, minimax, xiaomi, openai, opencode.
+# DEFERIDOS (sem mapeamento nativo ou catálogo a confirmar): opencode-go,
+# kimicode (moonshot), google (Gemini — gateway openai-compatible),
+# qwencloud (dashscope compatible-mode), zen-free, mix e gitlab-duo.
+
+[codewhale]
+default_provider = "xiaomi"
+
+[codewhale.subagent_roles]
+worker = "implementation"
+scout = "search"
+planner = "planner"
+reviewer = "review"
+builder = "implementation"
+verifier = "review"
+consultant = "orchestrator"
+
+[codewhale.models.deepseek]
+orchestrator = "deepseek-v4-pro"
+implementation = "deepseek-v4-pro"
+planner = "deepseek-v4-flash"
+search = "deepseek-v4-flash"
+review = "deepseek-v4-pro"
+quick = "deepseek-v4-flash"
+
+[codewhale.models.zai]
+orchestrator = "GLM-5.3"
+implementation = "GLM-5.3"
+planner = "GLM-5-Turbo"
+search = "GLM-5-Turbo"
+review = "GLM-5.3"
+quick = "GLM-5-Turbo"
+
+[codewhale.models.minimax]
+orchestrator = "MiniMax-M3"
+implementation = "MiniMax-M3"
+planner = "MiniMax-M2.7"
+search = "MiniMax-M2.7"
+review = "MiniMax-M2.7"
+quick = "MiniMax-M2.7"
+
+[codewhale.models.xiaomi]
+orchestrator = "mimo-v2.5-pro"
+implementation = "mimo-v2.5-pro"
+planner = "mimo-v2.5-pro"
+search = "mimo-v2.5"
+review = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[codewhale.models.openai]
+orchestrator = "gpt-5.6-terra"
+implementation = "gpt-5.6-terra"
+planner = "gpt-5.6-luna"
+search = "gpt-5.6-luna"
+review = "gpt-5.6-terra"
+quick = "gpt-5.6-luna"
+
+[codewhale.models.opencode]
+orchestrator = "kimi-k2.5"
+implementation = "gpt-5.5"
+planner = "gpt-5.4-mini"
+search = "grok-build-0.1"
+review = "gpt-5.5"
+quick = "grok-build-0.1"
+
+[codewhale.models.commandcode]
+orchestrator = "deepseek/deepseek-v4-flash"
+implementation = "gpt-5.6-terra"
+planner = "deepseek/deepseek-v4-flash"
+search = "deepseek/deepseek-v4-flash"
+review = "google/gemini-3.5-flash-lite"
+quick = "deepseek/deepseek-v4-flash"

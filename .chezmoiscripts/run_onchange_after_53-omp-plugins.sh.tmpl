@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Instala/reconcilia os plugins do omp (extensoes) a partir de ~/.OmpPlugins.
+# Re-executa quando o manifest muda. Espelho do dot_PiPackages + script do pi,
+# mas para `omp plugin install` (idempotente: retorna 0 se ja instalado).
+# Formato do manifest: um plugin por linha (mesmo formato aceito por
+# `omp plugin install`). Linhas com # ou vazias sao ignoradas.
+#
+# Remocao de plugins nao e feita aqui (consistente com krew/brew/pi): para
+# remover um plugin, rode `omp plugin uninstall <nome>` manualmente e tire a
+# linha do manifest.
+# OmpPlugins hash: {{ include "dot_OmpPlugins" | sha256sum }}
+set -euo pipefail
+
+command -v omp >/dev/null 2>&1 || exit 0
+[[ -f "$HOME/.OmpPlugins" ]] || exit 0
+
+echo ":: omp plugin install (OmpPlugins changed)"
+failed=0
+while IFS= read -r plugin; do
+    [[ -z "$plugin" ]] && continue
+    install_output=$(omp plugin install "$plugin" 2>&1) && install_exit=0 || install_exit=$?
+    if [[ $install_exit -ne 0 ]]; then
+        echo "  $plugin: FAILED (exit $install_exit)" >&2
+        echo "$install_output" >&2
+        failed=1
+    else
+        echo "  $plugin: ok"
+    fi
+done < <(grep -vE '^\s*(#|$)' "$HOME/.OmpPlugins")
+if [[ $failed -ne 0 ]]; then
+    echo ":: omp plugin install completed with errors" >&2
+fi

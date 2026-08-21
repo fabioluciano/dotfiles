@@ -9,4 +9,5 @@
 
 npm:pi-code@1.0.2
 git:github.com/code-yeongyu/pi-lsp-client@1c981dfcacc456fe4ce9f4120a2f0250b54d6844
+npm:pi-commandcode-provider@0.5.1
 

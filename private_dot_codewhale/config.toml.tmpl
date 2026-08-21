@@ -1,0 +1,232 @@
+{{- /* Codewhale config (~/.codewhale/config.toml) — renderizado por chezmoi.
+     Espelha o molde do opencode: o provider ativo vem de
+     ~/.codewhale/.active_provider (via codewhale-state.tmpl) e a matriz de
+     modelos vem de .chezmoidata/providers.toml ([codewhale.*]).
+
+     O codewhale não tem ~15 tiers como o opencode: usa default_text_model
+     (principal) + [subagents.models] (papéis Fleet) + [auto.router]
+     (forte/barato). Credenciais NÃO são gravadas aqui — usam api_key_env
+     (fallback env do codewhale), com os tokens já exportados por
+     zsh-tokens-sync/zshenv. */ -}}
+{{- $state := includeTemplate "codewhale-state.tmpl" . | fromJson -}}
+{{- $provider := $state.provider -}}
+{{- $models := $state.providerModels -}}
+{{- $roles := $state.subagentRoles -}}
+{{- $reg := index $.providers $provider -}}
+{{- $cwId := get $reg "codewhale_id" | default $provider -}}
+{{- $apiKeyEnv := get $reg "codewhale_api_key_env" | default "" -}}
+{{- $cwKind := get $reg "codewhale_kind" | default "" -}}
+{{- $cwBase := get $reg "codewhale_base_url" | default "" -}}
+
+# Provider ativo (id nativo do codewhale, resolvido via registry).
+provider = "{{ $cwId }}"
+# Modelo principal (tier "orchestrator" da matriz [codewhale.models]).
+default_text_model = "{{ $models.orchestrator }}"
+
+# Postura de segurança (mesma filosofia do permission do opencode).
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+allow_shell = true
+
+# Instruções globais (espelho do ~/.config/opencode/AGENTS.md).
+instructions = [
+    "~/.codewhale/AGENTS.md",
+]
+
+{{- if or (ne $apiKeyEnv "") (ne $cwKind "") (ne $cwBase "") }}
+[providers.{{ $cwId }}]
+{{- if ne $cwKind "" }}
+kind = "{{ $cwKind }}"
+{{- end }}
+{{- if ne $cwBase "" }}
+base_url = "{{ $cwBase }}"
+{{- end }}
+{{- if ne $apiKeyEnv "" }}
+api_key_env = "{{ $apiKeyEnv }}"
+{{- end }}
+{{- $cwModels := get $reg "models" -}}
+{{- if $cwModels }}
+models = [
+{{- range $i, $m := $cwModels }}
+  "{{ $m }}"{{ if lt $i (sub (len $cwModels) 1) }},{{ end }}
+{{- end }}
+]
+{{- end }}
+{{- end }}
+
+# Sub-agentes e Fleet
+[subagents]
+max_subagents = 8
+max_admitted = 8
+launch_concurrency = 3
+default_max_steps = 60
+default_wall_time_secs = 1200
+token_budget = 50000
+
+# Papéis Fleet ([subagents.models]) → tiers da matriz codewhale.
+[subagents.models]
+worker = "{{ index $models (get $roles "worker") }}"
+scout = "{{ index $models (get $roles "scout") }}"
+planner = "{{ index $models (get $roles "planner") }}"
+reviewer = "{{ index $models (get $roles "reviewer") }}"
+builder = "{{ index $models (get $roles "builder") }}"
+verifier = "{{ index $models (get $roles "verifier") }}"
+consultant = "{{ index $models (get $roles "consultant" | default "orchestrator") }}"
+
+# Roteamento automático forte/barato (forte=orchestrator, barato=quick).
+{{- if $models.quick }}
+[auto.router]
+provider = "{{ $cwId }}"
+model = "{{ $models.quick }}"
+{{- end }}
+
+# Ferramentas, Skills e Memória
+[tools]
+enabled = true
+
+[skills]
+skills_dir = "{{ .chezmoi.homeDir }}/.agents/skills"
+
+[memory]
+enabled = true
+backend = "native"
+
+# LSP — Codewhale usa: (1) registro built-in (Rust/Go/Py/TS/JS/Java/PHP/Vue/C/C++),
+# (2) [lsp.servers] para sobrescrever built-in, (3) [lsp.custom.<ext>] para
+# linguagens fora do enum. Modelo é 1-server-por-extensão.
+[lsp]
+enabled = true
+diagnostics_on_edit = true
+diagnostics_on_write = true
+format_on_write = true
+
+[lsp.servers]
+# opencode usava basedpyright (não pyright) para Python.
+python = ["basedpyright-langserver", "--stdio"]
+typescript = ["typescript-language-server", "--stdio"]
+
+[lsp.custom.md]
+command = "marksman"
+args = ["server"]
+language_id = "markdown"
+
+# .yaml/.yml: yaml-language-server cobre Helm e Docker Compose via schema JSON,
+# então helm-ls e docker-compose-langserver não têm server separado.
+[lsp.custom.yaml]
+command = "yaml-language-server"
+args = ["--stdio"]
+language_id = "yaml"
+
+[lsp.custom.dockerfile]
+command = "docker-langserver"
+args = ["--stdio"]
+language_id = "dockerfile"
+
+[lsp.custom.toml]
+command = "taplo"
+args = ["lsp", "stdio"]
+language_id = "toml"
+
+[lsp.custom.sql]
+command = "sql-language-server"
+args = ["up", "--method", "stdio"]
+language_id = "sql"
+
+[lsp.custom.cmake]
+command = "cmake-language-server"
+language_id = "cmake"
+
+[lsp.custom.mdx]
+command = "mdx-language-server"
+args = ["--stdio"]
+language_id = "mdx"
+
+[lsp.custom.css]
+command = "vscode-css-language-server"
+args = ["--stdio"]
+language_id = "css"
+
+[lsp.custom.scss]
+command = "vscode-css-language-server"
+args = ["--stdio"]
+language_id = "scss"
+
+[lsp.custom.less]
+command = "vscode-css-language-server"
+args = ["--stdio"]
+language_id = "less"
+
+[lsp.custom.html]
+command = "vscode-html-language-server"
+args = ["--stdio"]
+language_id = "html"
+
+[lsp.custom.htm]
+command = "vscode-html-language-server"
+args = ["--stdio"]
+language_id = "html"
+
+[lsp.custom.json]
+command = "vscode-json-language-server"
+args = ["--stdio"]
+language_id = "json"
+
+[lsp.custom.jsonc]
+command = "vscode-json-language-server"
+args = ["--stdio"]
+language_id = "jsonc"
+
+[lsp.custom.lua]
+command = "lua-language-server"
+language_id = "lua"
+
+[lsp.custom.sh]
+command = "bash-language-server"
+args = ["start"]
+language_id = "shellscript"
+
+[lsp.custom.bash]
+command = "bash-language-server"
+args = ["start"]
+language_id = "shellscript"
+
+[lsp.custom.zsh]
+command = "bash-language-server"
+args = ["start"]
+language_id = "shellscript"
+
+[lsp.custom.ex]
+command = "elixir-ls"
+language_id = "elixir"
+
+[lsp.custom.exs]
+command = "elixir-ls"
+language_id = "elixir"
+
+[lsp.custom.zig]
+command = "zls"
+language_id = "zig"
+
+[lsp.custom.zon]
+command = "zls"
+language_id = "zig"
+
+[lsp.custom.typ]
+command = "tinymist"
+args = ["lsp"]
+language_id = "typst"
+
+# groovy: jdtls (Java) não serve; o LSP correto é groovy-language-server.
+[lsp.custom.groovy]
+command = "groovy-language-server"
+language_id = "groovy"
+
+[lsp.custom.vue]
+command = "vue-language-server"
+args = ["--stdio"]
+language_id = "vue"
+
+[lsp.custom.php]
+command = "intelephense"
+args = ["--stdio"]
+language_id = "php"

@@ -1,0 +1,9 @@
+# Omp plugins — manifesto declarativo consumido por run_onchange_after_53-omp-plugins.
+# Formato: um plugin por linha (mesmo formato aceito por `omp plugin install`).
+# Linhas com # ou vazias são ignoradas.
+#
+# Sem pin de versão (diferente do pi): `omp plugin upgrade <nome>` atualiza.
+# Para remover: `omp plugin uninstall <nome>` e tire a linha do manifest.
+#
+
+pi-commandcode-provider
