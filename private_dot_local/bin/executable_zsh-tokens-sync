@@ -33,10 +33,23 @@ MAP=(
   "qwencloud_api_token=QWENCLOUD_API_TOKEN"
   "gemini_api_key=GEMINI_API_KEY"
   "google_api_key=GOOGLE_API_KEY"
+  "commandcode_api_key=COMMANDCODE_API_KEY"
 )
 
 command -v bw >/dev/null 2>&1 || { echo "zsh-tokens-sync: bw nao instalado; pulando." >&2; exit 0; }
-bw unlock --check >/dev/null 2>&1 || { echo "zsh-tokens-sync: vault bloqueado; mantendo tokens atuais." >&2; exit 0; }
+
+if ! bw unlock --check >/dev/null 2>&1; then
+  if [ -c /dev/tty ] && [ -r /dev/tty ] && [ -w /dev/tty ]; then
+    if raw_session="$(bw unlock --raw </dev/tty 2>/dev/tty)"; then
+      export BW_SESSION="$raw_session"
+    fi
+  fi
+fi
+
+if ! bw unlock --check >/dev/null 2>&1; then
+  echo "zsh-tokens-sync: vault bloqueado; mantendo tokens atuais." >&2
+  exit 0
+fi
 
 item_json="$(bw get item "$ITEM" 2>/dev/null)" || {
   echo "zsh-tokens-sync: item '$ITEM' nao encontrado." >&2; exit 0;

@@ -2,6 +2,8 @@
 .omc
 .mimocode
 .opencode/
+.codewhale/
+.commandcode/
 node_modules
 .slim/deepwork/
 .cortexkit

@@ -67,6 +67,7 @@ Package sync scripts and the post-apply Antidote hook:
 | `run_onchange_after_20-mise-install`| `mise/config.toml`| `~/.config/mise`| `mise install`              |
 | `run_onchange_after_15-zsh-tokens` | (bin script)    | `~/.config/zsh/tokens.zsh` | Bitwarden `bw`     |
 | `run_onchange_after_52-pi-packages` | `dot_PiPackages` | `~/.pi/agent/settings.json` (packages); `~/.local/share/groovy-lsp/groovy-language-server-all.jar` (server-side LSP build) | `pi install` + `gradle shadowJar` (server-side pin in `# gerenciado:groovy-lsp-pin:...` — upstream has no GH Releases / no aqua entry) |
+| `run_onchange_after_53-omp-plugins` | `dot_OmpPlugins` | `~/.omp/plugins/` (npm plugins) | `omp plugin install` |
 | `run_after_60-antidote-bundles.sh.tmpl` | (every apply) | `~/.zsh_plugins_pre.zsh`, `~/.zsh_plugins.zsh` | `antidote update --bundles` + bundle rebuild |
 
 Scripts are platform-gated at the template level (e.g. brew script wraps its

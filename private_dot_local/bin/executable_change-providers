@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # change-providers — troca provider/profile nos agentes de coding (opencode,
-# omp, pi). Único executável; subcomando positional opcional seleciona agente.
+# omp, pi, codewhale). Único executável; subcomando positional opcional
+# seleciona agente.
 #
 # Uso:
 #   change-providers <provider> [profile]          # troca em TODOS os agentes
 #   change-providers opencode <provider> [profile] # só opencode
 #   change-providers omp <provider> [profile]      # só omp
 #   change-providers pi <provider> [profile]       # só pi
+#   change-providers codewhale <provider> [profile] # só codewhale
 #   change-providers status                        # estado de cada agente
 #   change-providers reset                         # reset de todos
 #   change-providers dry-run <provider> [profile]  # mostra sem aplicar
@@ -26,23 +28,27 @@ declare -A AGENT_STATE=(
   [opencode]="${HOME}/.config/opencode/.active_provider"
   [omp]="${HOME}/.config/omp/.active_provider"
   [pi]="${HOME}/.config/pi/.active_provider"
+  [codewhale]="${HOME}/.codewhale/.active_provider"
 )
 declare -A AGENT_NAMESPACE=(
   [opencode]="opencode.models"
   [omp]="omp.providers"
   [pi]="pi.providers"
+  [codewhale]="codewhale.models"
 )
 declare -A AGENT_DEFAULT_TOML_KEY=(
   [opencode]="opencode.default_provider"
   [omp]="omp.default_provider"
   [pi]="pi.default_provider"
+  [codewhale]="codewhale.default_provider"
 )
 declare -A AGENT_TARGETS=(
   [opencode]="${HOME}/.config/opencode/oh-my-openagent.jsonc ${HOME}/.config/opencode/opencode.jsonc ${HOME}/.config/opencode/omo.jsonc ${HOME}/.config/opencode/omo-slim.jsonc ${HOME}/.config/opencode/oh-my-opencode-slim.json ${HOME}/.config/cortexkit/magic-context.jsonc"
   [omp]="${HOME}/.omp/agent/config.yml"
   [pi]="${HOME}/.pi/agent/settings.json"
+  [codewhale]="${HOME}/.codewhale/config.toml"
 )
-ALL_AGENTS=(opencode omp pi)
+ALL_AGENTS=(opencode omp pi codewhale)
 
 usage() {
   cat >&2 <<EOF

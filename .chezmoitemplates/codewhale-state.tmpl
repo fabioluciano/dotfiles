@@ -1,0 +1,19 @@
+{{- /* Reads ~/.codewhale/.active_provider and returns a JSON object with
+     provider, profile, providerModels and subagentRoles. Espelho do
+     opencode-state.tmpl, consumido por config.toml.tmpl. */ -}}
+{{- $defaultProvider := get $.codewhale "default_provider" | default "xiaomi" -}}
+{{- $stateFile := printf "%s/.codewhale/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:optimized; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "optimized" -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- $validProviders := keys $.codewhale.models -}}
+{{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
+{{- $providerModels := index $.codewhale.models $provider -}}
+{{- dict "provider" $provider "profile" $profile "providerModels" $providerModels "subagentRoles" $.codewhale.subagent_roles | toJson -}}

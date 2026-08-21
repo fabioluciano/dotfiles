@@ -7,6 +7,7 @@
 .opencode/
 .cortexkit/
 .mimocode/
+.codewhale/
 .codegraph/
 .playwright-mcp/
 .idea/

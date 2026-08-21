@@ -56,7 +56,7 @@ _change-providers() {
       fi
       return
       ;;
-    opencode|omp|pi)
+    opencode|omp|pi|codewhale)
       # Digitado manualmente: word[3]: provider, word[4]: profile
       if (( CURRENT == 3 )); then
         _describe 'provider' providers
