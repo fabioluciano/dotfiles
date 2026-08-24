@@ -527,21 +527,21 @@ ultrawork = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deeps
 
 # Command Code — catálogo agregado (Claude, GPT, DeepSeek, Kimi, GLM, MiniMax, Gemini, Qwen)
 [opencode.models.commandcode]
-orchestrator = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/zai-org/GLM-5.3"]
-implementation = ["commandcode/claude-opus-4-8", "commandcode/gpt-5.6-sol", "commandcode/moonshotai/Kimi-K2.7-Code", "commandcode/MiniMaxAI/MiniMax-M3"]
+orchestrator = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/zai-org/GLM-5.3"]
+implementation = ["commandcode/gpt-5.6-sol", "commandcode-anthropic/claude-opus-4-8", "commandcode/moonshotai/Kimi-K2.7-Code", "commandcode/MiniMaxAI/MiniMax-M3"]
 planner = ["commandcode/gpt-5.6-luna", "commandcode/gpt-5.4-mini", "commandcode/deepseek/deepseek-v4-flash", "commandcode/zai-org/GLM-5.2-Fast"]
-architecture = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
+architecture = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5"]
 search = ["commandcode/google/gemini-3.7-flash", "commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.4-mini"]
-vision = ["commandcode/google/gemini-3.7-flash", "commandcode/claude-sonnet-4-6"]
-review = ["commandcode/claude-opus-4-8", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
-long_running = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/moonshotai/Kimi-K3"]
-quick = ["commandcode/claude-haiku-4-5-20251001", "commandcode/gpt-5.4-mini", "commandcode/deepseek/deepseek-v4-flash", "commandcode/MiniMaxAI/MiniMax-M2.5"]
-standard = ["commandcode/claude-sonnet-4-6", "commandcode/gpt-5.5", "commandcode/deepseek/deepseek-v4-flash"]
-complex = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/zai-org/GLM-5.3"]
-visual = ["commandcode/google/gemini-3.7-flash", "commandcode/claude-sonnet-4-6"]
-deep = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro", "commandcode/Qwen/Qwen3.8-Max"]
-ultrabrain = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/deepseek/deepseek-v4-pro"]
-ultrawork = ["commandcode/claude-opus-5", "commandcode/gpt-5.6-terra", "commandcode/moonshotai/Kimi-K3"]
+vision = ["commandcode/google/gemini-3.7-flash", "commandcode-anthropic/claude-sonnet-4-6"]
+review = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-4-8"]
+long_running = ["commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/moonshotai/Kimi-K3"]
+quick = ["commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.4-mini", "commandcode-anthropic/claude-haiku-4-5-20251001", "commandcode/MiniMaxAI/MiniMax-M2.5"]
+standard = ["commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.5", "commandcode-anthropic/claude-sonnet-4-6"]
+complex = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/zai-org/GLM-5.3"]
+visual = ["commandcode/google/gemini-3.7-flash", "commandcode-anthropic/claude-sonnet-4-6"]
+deep = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/Qwen/Qwen3.8-Max"]
+ultrabrain = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5"]
+ultrawork = ["commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/moonshotai/Kimi-K3"]
 
 # VARIANTS DEFAULT (quando nenhum perfil e especificado)
 
@@ -1411,7 +1411,7 @@ cycling_order = "gitlab-duo"
 # DeepSeek, Kimi, GLM, MiniMax, Qwen, Gemini, Grok, etc. Requer auth
 # (`/login` subscription ou COMMANDCODE_API_KEY) antes de usar.
 [omp.providers.commandcode]
-tiers = { orchestrator = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], implementation = ["claude-opus-4-8", "gpt-5.6-sol", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["claude-haiku-4-5-20251001", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "MiniMaxAI/MiniMax-M2.5"], standard = ["claude-sonnet-4-6", "gpt-5.5", "deepseek/deepseek-v4-flash"], complex = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], deep = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "Qwen/Qwen3.8-Max"] }
+tiers = { orchestrator = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], implementation = ["gpt-5.6-sol", "claude-opus-4-8", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["deepseek/deepseek-v4-flash", "gpt-5.4-mini", "claude-haiku-4-5-20251001", "MiniMaxAI/MiniMax-M2.5"], standard = ["deepseek/deepseek-v4-flash", "gpt-5.5", "claude-sonnet-4-6"], complex = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], deep = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "Qwen/Qwen3.8-Max"] }
 cycling_order = "commandcode"
 
 # Profiles → thinking_level + default_tier
@@ -1493,7 +1493,7 @@ tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2
 # Command Code — provider por extensão `pi-commandcode-provider` (não built-in).
 # Mesmo catálogo dinâmico do omp.commandcode (~55 modelos, ids aninhados).
 [pi.providers.commandcode]
-tiers = { orchestrator = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], implementation = ["claude-opus-4-8", "gpt-5.6-sol", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["claude-haiku-4-5-20251001", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "MiniMaxAI/MiniMax-M2.5"], standard = ["claude-sonnet-4-6", "gpt-5.5", "deepseek/deepseek-v4-flash"], complex = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "zai-org/GLM-5.3"], deep = ["claude-opus-5", "gpt-5.6-terra", "deepseek/deepseek-v4-pro", "Qwen/Qwen3.8-Max"] }
+tiers = { orchestrator = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], implementation = ["gpt-5.6-sol", "claude-opus-4-8", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["deepseek/deepseek-v4-flash", "gpt-5.4-mini", "claude-haiku-4-5-20251001", "MiniMaxAI/MiniMax-M2.5"], standard = ["deepseek/deepseek-v4-flash", "gpt-5.5", "claude-sonnet-4-6"], complex = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], deep = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "Qwen/Qwen3.8-Max"] }
 
 # Profiles → thinking_level + default_tier (mesmo vocabulário do omp)
 [pi.profiles.optimized]
@@ -1603,7 +1603,7 @@ quick = "grok-build-0.1"
 
 [codewhale.models.commandcode]
 orchestrator = "deepseek/deepseek-v4-flash"
-implementation = "gpt-5.6-terra"
+implementation = "gpt-5.6-sol"
 planner = "deepseek/deepseek-v4-flash"
 search = "deepseek/deepseek-v4-flash"
 review = "google/gemini-3.5-flash-lite"
