@@ -410,6 +410,14 @@
         "apiKey": "{env:QWENCLOUD_API_TOKEN}"
       }
     },
+    "commandcode-anthropic": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Command Code (Anthropic)",
+      "options": {
+        "baseURL": "https://api.commandcode.ai/provider/v1",
+        "apiKey": "{env:COMMANDCODE_API_KEY}"
+      }
+    },
     "commandcode": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Command Code",
