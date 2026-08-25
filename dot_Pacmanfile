@@ -76,6 +76,7 @@ plantuml
 postgresql-libs
 python-pynvim
 visual-studio-code-bin
+zed
 
 # BUILD, LANGUAGE & PROJECT TOOLING
 act
@@ -101,7 +102,7 @@ docker-compose
 helm
 k9s
 kind-bin
-krew-bin
+krew
 kubecolor
 kube-linter
 kustomize
@@ -114,10 +115,9 @@ osquery
 packer
 pmbootstrap
 podman
-podman-desktop-bin
+podman-desktop
 stern
 tekton-cli
-vagrant
 virt-manager
 
 # GIT, REVIEW & AGENT WORKFLOW
@@ -136,10 +136,10 @@ mergiraf
 deezer
 discord
 dropbox
-espanso
+espanso-wayland
 geary
 insomnia-bin
-onlyoffice
+onlyoffice-bin
 sniffnet
 spotify
 telegram-desktop
@@ -189,7 +189,7 @@ sof-firmware
 thunderbird
 tlp
 ttf-cascadia-code-nerd
-ttf-maple
+maple-mono-nf-cn
 ventoy-bin
 virtualbox
 virtualbox-ext-oracle

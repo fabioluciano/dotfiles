@@ -1,0 +1,20 @@
+# Custom Compose / Cedilla mapping
+# Includes default system/locale compose sequences
+include "%L"
+
+# Cedilla with acute accent (dead_acute + c/C)
+<dead_acute> <c> : "ç" U00E7 # LATIN SMALL LETTER C WITH CEDILLA
+<dead_acute> <C> : "Ç" U00C7 # LATIN CAPITAL LETTER C WITH CEDILLA
+
+<acute> <c> : "ç" U00E7
+<acute> <C> : "Ç" U00C7
+
+# Compose (Multi_key) mappings
+<Multi_key> <acute> <c> : "ç" U00E7
+<Multi_key> <acute> <C> : "Ç" U00C7
+<Multi_key> <apostrophe> <c> : "ç" U00E7
+<Multi_key> <apostrophe> <C> : "Ç" U00C7
+<Multi_key> <comma> <c> : "ç" U00E7
+<Multi_key> <comma> <C> : "Ç" U00C7
+<Multi_key> <c> <comma> : "ç" U00E7
+<Multi_key> <C> <comma> : "Ç" U00C7

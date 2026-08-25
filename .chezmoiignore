@@ -38,6 +38,7 @@ docs/
 # Platform-specific configurations
 {{- if ne .chezmoi.os "linux" }}
 # Ignore Linux-specific files when not on Linux
+.XCompose
 .config/autostart
 .config/compiz-1
 .config/cortile

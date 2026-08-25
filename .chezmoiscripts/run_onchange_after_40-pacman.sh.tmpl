@@ -17,5 +17,8 @@ else
 fi
 
 echo ":: $helper -S --needed (Pacmanfile changed)"
-grep -vE '^\s*(#|$)' "$HOME/.Pacmanfile" | $helper -S --needed --noconfirm -
+# yay/paru do not accept a package list on stdin; read it into an array.
+mapfile -t packages < <(grep -vE '^\s*(#|$)' "$HOME/.Pacmanfile")
+[[ ${#packages[@]} -gt 0 ]] || exit 0
+$helper -S --needed --noconfirm "${packages[@]}"
 {{- end -}}
