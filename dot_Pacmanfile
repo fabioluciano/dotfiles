@@ -125,7 +125,6 @@ virt-manager
 #   opencode, mimo-code, rtk
 #   (see dot_Brewfile.tmpl section "GIT, REVIEW & AGENT WORKFLOW")
 git-absorb
-gitbutler-bin
 git-delta
 github-cli
 git-lfs
@@ -134,26 +133,19 @@ lazygit
 mergiraf
 
 # DESKTOP APPS — PRODUCTIVITY & COMMUNICATION
-calendar-indicator
 deezer
 discord
 dropbox
 espanso
 geary
 insomnia-bin
-libreoffice-still
-mugshot
-postman-bin
+onlyoffice
 sniffnet
 spotify
-synapse
 telegram-desktop
-ulauncher
 whatsdesk-bin
 
 # DESKTOP APPS — BROWSERS, MEDIA & DESIGN
-evince
-file-roller
 firefox
 flac
 gimp
@@ -179,7 +171,6 @@ bibata-cursor-theme-bin
 ccid
 chrony
 forticlient-vpn
-gnome-keyring
 gvfs
 hunspell
 hunspell-en_us
@@ -192,7 +183,6 @@ pacmanfile
 papirus-icon-theme
 pcsclite
 plocate
-qalculate-gtk
 quickemu
 reflector
 sof-firmware
