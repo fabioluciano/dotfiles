@@ -195,7 +195,9 @@ tmp_files+=("$plugins_zwc_temp")
 printf '%s\n' ':: atualizando os plugins do Antidote e preparando os bundles'
 if zsh -f -c '
     source "$1" || exit 1
-    antidote update --bundles || exit 1
+    if [[ -n $(antidote list 2>/dev/null) ]]; then
+        antidote update --bundles || exit 1
+    fi
 ' -- "$antidote_script"; then
     :
 else

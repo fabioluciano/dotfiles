@@ -1,418 +1,194 @@
-# providers.toml — Única matriz de providers do dotfiles, consumida pelo
-# `change-providers` para os agentes opencode, omp e pi.
-#
-# Como ler:
-#   [providers.<key>]   registry compartilhado: display_name + o id NATIVO do
-#                       provider em cada binário (opencode_id / omp_id / pi_id).
-#                       Ids são diferentes por binário (ex: xiaomi ↔
-#                       xiaomi-token-plan-sgp ↔ xiaomi-mimo, zai ↔
-#                       zai-coding-plan ↔ zai-coding) e podem sumir ou mudar de
-#                       nome entre versões.
-#   [opencode.*]        matrizes por KEY do opencode (ids inline "provider/model"):
-#                       models, variants, profiles de agentes, overrides,
-#                       historian_models. Consumidas por opencode-state.tmpl,
-#                       opencode_base.jsonc, oh-my-openagent/oh-my-opencode-
-#                       slim templates, change-providers (subcomando opencode).
-#   [omp.*]             matrizes por KEY do omp (ids resolvidos via registry
-#                       omp_id): providers, profiles, profile_aliases.
-#                       Consumidas por omp-state.tmpl, config.yml.tmpl,
-#                       change-providers (subcomando omp).
-#   [pi.*]              matrizes por KEY do pi (ids resolvidos via registry
-#                       pi_id): providers (tiers), profiles, profile_aliases.
-#                       Consumidas por pi-state.tmpl, settings.json.tmpl,
-#                       change-providers (subcomando pi).
-#
-# Regras de edição:
-#   - As KEYS ([providers.X], [opencode.models.X], [omp.providers.X]) são
-#     referenciadas pelos state files (~/.config/{opencode,omp}/.active_provider)
-#     e pelos templates de completão. Não renomear sem migrar os state files.
-#   - As matrizes por KEY NÃO podem ser derivadas (ids por agente diferem;
-#     variantes por tier também), então continuam separadas por seção.
-#   - Drift check: os ids de modelo de cada entry DEVEM existir no catálogo
-#     real do binário alvo (`opencode models`, `omp models`). Este arquivo é
-#     dado estático; quando o binário muda de catálogo, atualizar aqui.
+# providers.toml — Matriz de providers do dotfiles consumida pelo change-providers
+# Alinhada 100% com o catálogo oficial da API do Navy (https://api.navy/v1/models):
+#   - Modelos premium: false (gratuitos/multiplicador base): Codestral, DeepSeek V4 Pro/Flash/R1/V3, Mistral Large, Hermes 405B, Sonar Pro, Grok Code, Gemini Flash, etc.
+#   - Modelos premium: true (pagos/multiplicador alto): Claude Sonnet 5, Claude Opus 5, Claude Haiku 4.5, GPT-5.6 Sol/Terra, Gemini 3.7 Flash, etc.
 
+# ==============================================================================
 # Registry — id nativo do provider em cada binário.
-# `opencode_id` = namespace usado nas strings "provider/model" do opencode.
-# `pi_id`       = provider-id nativo do catálogo `pi` (models.json em ~/.pi/agent).
-[providers.zai]
-display_name = "ZAI (Zhipu GLM)"
-# opencode_id = "zai-coding-plan": catálogo models.dev do endpoint coding
-# (glm até 5.3 + highspeed). A entrada "zai" (API geral) fica atrás do catálogo
-# coding e não lista glm-5.3.
-opencode_id = "zai-coding-plan"
-pi_id = "zai-coding"
-codewhale_id = "zai"
-
-[providers.minimax]
-display_name = "MiniMax"
-opencode_id = "minimax"
-# omp_id = "minimax" (catálogo omp tem só "minimax", 8 modelos).
-# pi_id = "minimax" (não "minimax-coding" — este está quebrado no pi:
-# modelos sem thinking, max=16.4K, endpoint retorna 404).
-omp_id = "minimax"
-pi_id = "minimax"
-codewhale_id = "minimax"
-
-[providers.deepseek]
-display_name = "DeepSeek"
-opencode_id = "deepseek"
-pi_id = "deepseek"
-codewhale_id = "deepseek"
+# ==============================================================================
+[providers.navy]
+display_name = "Navy (NavyAI)"
+opencode_id = "navy"
+omp_id = "navy"
+pi_id = "navy"
+codewhale_id = "navy"
+codewhale_kind = "openai-compatible"
+codewhale_base_url = "https://api.navy/v1"
+codewhale_api_key_env = "NAVYAI_API_KEY"
+models = [
+  "claude-sonnet-5",
+  "claude-opus-5",
+  "claude-haiku-4.5",
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "deepseek-v4-pro",
+  "deepseek-v4-flash",
+  "deepseek-chat",
+  "deepseek-reasoner",
+  "codestral-latest",
+  "mistral-large-latest",
+  "hermes-4-405b",
+  "grok-code-fast-1",
+  "glm-5-venice",
+  "qwen3.8-27b",
+  "minimax-m3",
+  "kimi-k2.7-code",
+  "gemini-2.0-flash",
+  "gemini-2.5-flash",
+  "gemini-3.7-flash",
+  "gpt-4o-mini",
+  "o3-mini",
+  "sonar-pro",
+  "sonar-deep-research"
+]
 
 [providers.xiaomi]
 display_name = "Xiaomi MiMo (Singapore Token Plan)"
-# opencode_id = "xiaomi-token-plan-sgp": entrada models.dev do endpoint SGP
-# (catálogo mimo completo, auto-atualizado).
 opencode_id = "xiaomi-token-plan-sgp"
-# omp_id = "xiaomi-token-plan-sgp": catálogo omp nativo (4 modelos).
-# pi_id = "xiaomi-mimo": free tier do pi (2 modelos); o pi também lista
-# "xiaomi-token-plan-sgp" (3 modelos) como provider separado.
 omp_id = "xiaomi-token-plan-sgp"
 pi_id = "xiaomi-mimo"
-# codewhale_id = "xiaomi-mimo": provider nativo do codewhale (chaves tp-...
-# usam o endpoint token-plan-sgp por padrão).
 codewhale_id = "xiaomi-mimo"
 codewhale_api_key_env = "MIMO_API_KEY"
 
-[providers.gitlab-duo]
-display_name = "GitLab Duo (OAuth-gated)"
-# omp-only; requer login no GitLab. Sem auth, 0 modelos disponíveis no catálogo
-# nativo. Catálogo omp tem 16 modelos "duo-chat-*" e 1 "gitlab-duo-agent".
-# Não existe no pi nem no opencode.
-omp_id = "gitlab-duo"
-
-[providers.openai]
-display_name = "OpenAI"
-opencode_id = "openai"
-omp_id = "openai"
-pi_id = "openai"
-codewhale_id = "openai"
-
 [providers.google]
-display_name = "Google (Gemini)"
+display_name = "Google (Gemini / Antigravity)"
 opencode_id = "google"
 omp_id = "google-antigravity"
 pi_id = "antigravity"
+codewhale_id = "google"
 
-[providers.opencode]
-display_name = "OpenCode (Zen / Go catalogs)"
-opencode_id = "opencode"
-# omp_id = "opencode-zen": catálogo omp nativo é "opencode-zen" (61 modelos).
-# Sem esse mapeamento, defaultModel fica "opencode/..." (inexistente).
-omp_id = "opencode-zen"
-pi_id = "opencode"
-codewhale_id = "opencode-zen"
-
-[providers.opencode-go]
-display_name = "OpenCode Go (Token Plan — Kimi/DeepSeek/GLM)"
-# Provider Token Plan: kimi-k2.6/k2.7/k3, deepseek-v4, glm-5.2, gpt-5.6-luna, etc.
-# Distinto de [providers.opencode] (free tier). Não há namespace "opencode-go" nas
-# matrizes do opencode; entry de registry é omp/pi-only.
-omp_id = "opencode-go"
-pi_id = "opencode-go"
-codewhale_id = "opencode-go"
-
-[providers.kimicode]
-display_name = "Kimi (Moonshot)"
-# opencode_id = "kimi-for-coding": entrada models.dev do endpoint coding
-# (k3/k3-256k/kimi-for-coding[-highspeed]; SDK @ai-sdk/anthropic).
-opencode_id = "kimi-for-coding"
-# Provider nativo `kimi-code` do omp é OAuth-gated e pode ter zero modelos
-# sem login; usar `opencode-go`, que serve os modelos Kimi autenticado
-# (Token Plan). Sem omp_id = "opencode-go", defaultModel fica
-# "kimicode/kimi-for-coding" (inexistente no catálogo nativo).
-omp_id = "opencode-go"
-# kimi-code no pi é OAuth-gated (0 modelos sem login); usar opencode-go,
-# que serve os modelos Kimi autenticado (Token Plan), assim como no omp.
-pi_id = "opencode-go"
-# codewhale_id = "moonshot": provider nativo do codewhale (api.moonshot.ai/v1).
-# Modelos k3/kimi-for-coding vêm do endpoint coding do opencode — confirmar no
-# catálogo do codewhale.
-codewhale_id = "moonshot"
-
-[providers.qwencloud]
-display_name = "Qwen Cloud (Alibaba Token Plan)"
-opencode_id = "alibaba-token-plan"
-omp_id = "alibaba-token-plan"
-pi_id = "alibaba-token-plan"
-
-[providers.mix]
-display_name = "Mix (minimax + xiaomi + deepseek)"
-# Combinação de matrizes do opencode; não há provider correspondente no omp.
-
-[providers.zen-free]
-display_name = "OpenCode Zen Free"
-opencode_id = "opencode"
-# Modelos "-free" não existem no catálogo do omp; entry de registry é
-# opencode-only.
-
-[providers.commandcode]
-display_name = "Command Code"
-# Provider por extensão `pi-commandcode-provider` (community, npm) para pi/omp
-# e gateway OpenAI-compatible para codewhale e opencode.
-# Auth via `/login` (subscription) ou env `COMMANDCODE_API_KEY`.
-# Catálogo dinâmico (~55 modelos) de https://api.commandcode.ai/provider/v1/models:
-# Claude, GPT, DeepSeek, Kimi, GLM, MiniMax, Qwen, Gemini, Grok, etc.
-# Ids de modelo são aninhados ("deepseek/deepseek-v4-pro", "moonshotai/Kimi-K3", "Qwen/Qwen3.8-Max").
-opencode_id = "commandcode"
-omp_id = "commandcode"
-pi_id = "commandcode"
-codewhale_id = "commandcode"
-codewhale_kind = "openai-compatible"
-codewhale_base_url = "https://api.commandcode.ai/provider/v1"
-codewhale_api_key_env = "COMMANDCODE_API_KEY"
-models = [
-  "deepseek/deepseek-v4-pro",
-  "deepseek/deepseek-v4-flash",
-  "moonshotai/Kimi-K3",
-  "moonshotai/Kimi-K2.7-Code",
-  "moonshotai/Kimi-K2.7-Code-Highspeed",
-  "moonshotai/Kimi-K2.6",
-  "moonshotai/Kimi-K2.5",
-  "zai-org/GLM-5.3",
-  "zai-org/GLM-5.2",
-  "zai-org/GLM-5.2-Fast",
-  "zai-org/GLM-5.1",
-  "zai-org/GLM-5",
-  "MiniMaxAI/MiniMax-M3",
-  "MiniMaxAI/MiniMax-M2.7",
-  "MiniMaxAI/MiniMax-M2.5",
-  "xiaomi/mimo-v2.5-pro",
-  "xiaomi/mimo-v2.5",
-  "Qwen/Qwen3.8-Max",
-  "Qwen/Qwen3.7-Max",
-  "Qwen/Qwen3.7-Plus",
-  "Qwen/Qwen3.7-Flash",
-  "Qwen/Qwen3.6-Max-Preview",
-  "Qwen/Qwen3.6-Plus",
-  "stepfun/Step-3.7-Flash",
-  "stepfun/Step-3.5-Flash",
-  "tencent/hy3-paid",
-  "nvidia/nemotron-3-ultra-550b-a55b",
-  "thinkingmachines/inkling",
-  "thinkingmachines/inkling-small",
-  "poolside/laguna-s-2.1-free",
-  "claude-sonnet-5",
-  "claude-sonnet-4-6",
-  "claude-fable-5",
-  "claude-opus-5",
-  "claude-opus-4-8",
-  "claude-opus-4-7",
-  "claude-haiku-4-5-20251001",
-  "gpt-5.6-sol",
-  "gpt-5.6-terra",
-  "gpt-5.6-luna",
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.3-codex",
-  "gpt-5.4-mini",
-  "google/gemini-3.7-flash",
-  "google/gemini-3.6-flash",
-  "google/gemini-3.5-flash",
-  "google/gemini-3.5-flash-lite",
-  "google/gemini-3.1-flash-lite",
-  "sakana/fugu-ultra",
-  "meta/muse-spark-1.1",
-  "meta/muse-spark-1.2",
-  "meta/muse-spark-1.2-contributor",
-  "xai/grok-4.5",
-  "xai/grok-4.6",
-]
-
-# OPENCODE — matrizes por KEY (models, variants, agent_profiles, overrides)
+# ==============================================================================
+# OPENCODE — Matrizes de Modelos por Tier
+# ==============================================================================
 [opencode]
-default_provider = "xiaomi"
+default_provider = "navy"
 
+# --- NAVY (Base / Optimized: Híbrido Sonnet 5 + Free Codestral) ---
+[opencode.models.navy]
+orchestrator = ["navy/claude-sonnet-5", "navy/deepseek-v4-pro", "navy/deepseek-chat"]
+implementation = ["navy/codestral-latest", "navy/deepseek-chat", "navy/claude-sonnet-5"]
+planner = ["navy/deepseek-reasoner", "navy/o3-mini"]
+architecture = ["navy/claude-sonnet-5", "navy/hermes-4-405b"]
+search = ["navy/sonar-pro", "navy/claude-haiku-4.5"]
+vision = ["navy/gemini-2.0-flash", "navy/gemini-2.5-flash"]
+review = ["navy/claude-sonnet-5", "navy/deepseek-v4-pro"]
+long_running = ["navy/claude-sonnet-5", "navy/mistral-large-latest"]
+quick = ["navy/claude-haiku-4.5", "navy/deepseek-v4-flash"]
+standard = ["navy/deepseek-chat", "navy/codestral-latest"]
+complex = ["navy/claude-sonnet-5", "navy/deepseek-reasoner"]
+visual = ["navy/gemini-2.0-flash"]
+deep = ["navy/deepseek-reasoner", "navy/claude-sonnet-5"]
+ultrabrain = ["navy/claude-sonnet-5", "navy/deepseek-reasoner"]
+ultrawork = ["navy/claude-sonnet-5", "navy/codestral-latest"]
 
-[opencode.models.opencode]
-orchestrator = [
-  "opencode/kimi-k2.5",
-  "opencode/claude-opus-4-7",
-  "opencode/gpt-5.5",
-  "opencode/glm-5",
-  "opencode/big-pickle",
-]
-implementation = [
-  "opencode/gpt-5.5",
-  "opencode/claude-opus-4-7",
-  "opencode/kimi-k2.5",
-  "opencode/glm-5",
-]
-planner = [
-  "opencode/gpt-5.4-mini",
-  "opencode/grok-build-0.1",
-]
-architecture = [
-  "opencode/gpt-5.5",
-  "opencode/gemini-3.1-pro",
-  "opencode/claude-opus-4-7",
-  "opencode/glm-5",
-]
-search = [
-  "opencode/grok-build-0.1",
-  "opencode/minimax-m2.7",
-]
-vision = ["opencode/gemini-3.1-pro", "opencode/gpt-5.5"]
-review = [
-  "opencode/gpt-5.5",
-  "opencode/claude-opus-4-7",
-  "opencode/gemini-3.1-pro",
-]
-long_running = [
-  "opencode/kimi-k2.5",
-  "opencode/minimax-m2.7",
-  "opencode/gpt-5.5",
-]
-quick = [
-  "opencode/grok-build-0.1",
-  "opencode/gpt-5.4-mini",
-]
-standard = [
-  "opencode/claude-sonnet-4-6",
-  "opencode/kimi-k2.5",
-  "opencode/gpt-5.5",
-]
-complex = ["opencode/gpt-5.5", "opencode/claude-opus-4-7", "opencode/glm-5"]
-visual = ["opencode/gemini-3.1-pro", "opencode/gpt-5.5"]
-deep = ["opencode/gpt-5.5", "opencode/claude-opus-4-7", "opencode/kimi-k2.5"]
-ultrabrain = [
-  "opencode/gpt-5.5",
-  "opencode/claude-opus-4-7",
-  "opencode/gemini-3.1-pro",
-]
-ultrawork = [
-  "opencode/claude-opus-4-7",
-  "opencode/gpt-5.5",
-  "opencode/kimi-k2.5",
-]
+[opencode.models.navy-optimized]
+orchestrator = ["navy/claude-sonnet-5", "navy/deepseek-v4-pro"]
+implementation = ["navy/codestral-latest", "navy/deepseek-chat", "navy/claude-sonnet-5"]
+planner = ["navy/deepseek-reasoner", "navy/o3-mini"]
+architecture = ["navy/claude-sonnet-5"]
+search = ["navy/sonar-pro", "navy/claude-haiku-4.5"]
+vision = ["navy/gemini-2.0-flash"]
+review = ["navy/claude-sonnet-5"]
+long_running = ["navy/claude-sonnet-5"]
+quick = ["navy/claude-haiku-4.5", "navy/deepseek-v4-flash"]
+standard = ["navy/deepseek-chat", "navy/codestral-latest"]
+complex = ["navy/claude-sonnet-5"]
+visual = ["navy/gemini-2.0-flash"]
+deep = ["navy/deepseek-reasoner"]
+ultrabrain = ["navy/claude-sonnet-5"]
+ultrawork = ["navy/claude-sonnet-5"]
 
-[opencode.models.deepseek]
-orchestrator = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
-implementation = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
-planner = ["deepseek/deepseek-v4-flash"]
-architecture = ["deepseek/deepseek-v4-pro"]
-search = ["deepseek/deepseek-v4-flash"]
-vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
-review = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
-long_running = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
-quick = ["deepseek/deepseek-v4-flash"]
-standard = ["deepseek/deepseek-v4-flash"]
-complex = ["deepseek/deepseek-v4-pro"]
-visual = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
-deep = ["deepseek/deepseek-v4-pro"]
-ultrabrain = ["deepseek/deepseek-v4-pro"]
-ultrawork = ["deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"]
+# --- NAVY (Recommended: Flagship Pago / Máxima Inteligência) ---
+[opencode.models.navy-recommended]
+orchestrator = ["navy/claude-sonnet-5", "navy/claude-opus-5", "navy/gpt-5.6-sol"]
+implementation = ["navy/claude-sonnet-5", "navy/gpt-5.6-terra", "navy/codestral-latest"]
+planner = ["navy/deepseek-reasoner", "navy/claude-sonnet-5"]
+architecture = ["navy/claude-opus-5", "navy/claude-sonnet-5"]
+search = ["navy/sonar-deep-research", "navy/claude-haiku-4.5"]
+vision = ["navy/gemini-3.7-flash", "navy/claude-sonnet-5"]
+review = ["navy/claude-sonnet-5"]
+long_running = ["navy/gpt-5.6-sol", "navy/claude-sonnet-5"]
+quick = ["navy/claude-haiku-4.5"]
+standard = ["navy/claude-sonnet-5"]
+complex = ["navy/claude-opus-5", "navy/claude-sonnet-5"]
+visual = ["navy/gemini-3.7-flash"]
+deep = ["navy/claude-opus-5", "navy/deepseek-reasoner"]
+ultrabrain = ["navy/claude-opus-5", "navy/claude-sonnet-5"]
+ultrawork = ["navy/claude-sonnet-5"]
 
-[opencode.models.openai]
-orchestrator = [
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.6-sol",
-  "openai/gpt-5.6-luna",
-]
-implementation = [
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.6-sol",
-]
-planner = ["openai/gpt-5.6-luna", "openai/gpt-5.4-mini"]
-architecture = [
-  "openai/gpt-5.6-sol",
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.4-pro",
-]
-search = ["openai/gpt-5.6-luna", "openai/gpt-5.4-mini"]
-vision = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
-review = ["openai/gpt-5.6-terra", "openai/gpt-5.6-sol", "openai/gpt-5.6-luna"]
-long_running = [
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.6-sol",
-]
-quick = ["openai/gpt-5.6-luna", "openai/gpt-5-mini"]
-standard = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
-complex = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.4-pro"]
-visual = ["openai/gpt-5.6-terra", "openai/gpt-5.6-luna"]
-deep = ["openai/gpt-5.6-sol", "openai/gpt-5.6-terra", "openai/gpt-5.5-pro"]
-ultrabrain = [
-  "openai/gpt-5.6-sol",
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.5-pro",
-]
-ultrawork = [
-  "openai/gpt-5.6-terra",
-  "openai/gpt-5.6-sol",
-]
+# --- NAVY (Super: Econômico / Modelos Gratuitos Poderosos) ---
+[opencode.models.navy-super]
+orchestrator = ["navy/deepseek-v4-pro", "navy/mistral-large-latest", "navy/hermes-4-405b"]
+implementation = ["navy/codestral-latest", "navy/grok-code-fast-1", "navy/deepseek-chat"]
+planner = ["navy/deepseek-reasoner", "navy/o3-mini"]
+architecture = ["navy/deepseek-v4-pro", "navy/hermes-4-405b"]
+search = ["navy/sonar-pro", "navy/sonar-deep-research"]
+vision = ["navy/gemini-2.0-flash", "navy/gemini-2.5-flash"]
+review = ["navy/codestral-latest", "navy/deepseek-v4-pro"]
+long_running = ["navy/deepseek-v4-pro", "navy/mistral-large-latest"]
+quick = ["navy/deepseek-v4-flash", "navy/gpt-4o-mini"]
+standard = ["navy/codestral-latest", "navy/deepseek-chat"]
+complex = ["navy/deepseek-v4-pro", "navy/deepseek-reasoner"]
+visual = ["navy/gemini-2.0-flash"]
+deep = ["navy/deepseek-reasoner", "navy/o3-mini"]
+ultrabrain = ["navy/deepseek-v4-pro", "navy/hermes-4-405b"]
+ultrawork = ["navy/codestral-latest", "navy/grok-code-fast-1"]
 
-[opencode.models.google]
-orchestrator = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-implementation = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-planner = ["google/gemini-3.7-flash", "google/gemini-3.5-flash-lite"]
-architecture = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-2.5-pro",
-  "google/gemini-3.7-flash",
-]
-search = ["google/gemini-3.7-flash", "google/gemini-3.5-flash-lite"]
-vision = ["google/gemini-3.1-pro-preview", "google/gemini-3.7-flash"]
-review = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-long_running = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-quick = ["google/gemini-3.7-flash", "google/gemini-3.5-flash-lite"]
-standard = ["google/gemini-3.7-flash", "google/gemini-3.5-flash"]
-complex = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-visual = ["google/gemini-3.1-pro-preview", "google/gemini-3.7-flash"]
-deep = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-2.5-pro",
-  "google/gemini-3.7-flash",
-]
-ultrabrain = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
-ultrawork = [
-  "google/gemini-3.1-pro-preview",
-  "google/gemini-3.7-flash",
-  "google/gemini-2.5-pro",
-]
+# --- NAVY (Ultra: Fast / Modelos Gratuitos Rápidos) ---
+[opencode.models.navy-ultra]
+orchestrator = ["navy/deepseek-v4-flash", "navy/deepseek-chat"]
+implementation = ["navy/grok-code-fast-1", "navy/codestral-latest"]
+planner = ["navy/deepseek-reasoner", "navy/deepseek-v4-flash"]
+architecture = ["navy/deepseek-chat"]
+search = ["navy/sonar-pro", "navy/gpt-4o-mini"]
+vision = ["navy/gemini-2.0-flash"]
+review = ["navy/codestral-latest"]
+long_running = ["navy/deepseek-chat"]
+quick = ["navy/deepseek-v4-flash", "navy/gpt-4o-mini"]
+standard = ["navy/deepseek-chat", "navy/grok-code-fast-1"]
+complex = ["navy/deepseek-chat"]
+visual = ["navy/gemini-2.0-flash"]
+deep = ["navy/deepseek-reasoner"]
+ultrabrain = ["navy/deepseek-chat"]
+ultrawork = ["navy/codestral-latest"]
 
-[opencode.models.minimax]
-orchestrator = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-implementation = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-planner = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
-architecture = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-search = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
-vision = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-review = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
-long_running = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-quick = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
-standard = ["minimax/MiniMax-M2.7", "minimax/MiniMax-M2.5"]
-complex = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-visual = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-deep = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-ultrabrain = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
-ultrawork = ["minimax/MiniMax-M3", "minimax/MiniMax-M2.7"]
+# --- NAVY (Free: 100% Modelos Gratuitos do NavyAI) ---
+[opencode.models.navy-free]
+orchestrator = ["navy/deepseek-v4-pro", "navy/mistral-large-latest", "navy/hermes-4-405b"]
+implementation = ["navy/codestral-latest", "navy/grok-code-fast-1", "navy/kimi-k2.7-code"]
+planner = ["navy/deepseek-reasoner", "navy/o3-mini"]
+architecture = ["navy/hermes-4-405b", "navy/deepseek-v4-pro"]
+search = ["navy/sonar-pro", "navy/sonar-deep-research"]
+vision = ["navy/gemini-2.0-flash", "navy/gemini-2.5-flash"]
+review = ["navy/codestral-latest", "navy/deepseek-v4-pro"]
+long_running = ["navy/mistral-large-latest", "navy/deepseek-chat"]
+quick = ["navy/deepseek-v4-flash", "navy/gpt-4o-mini"]
+standard = ["navy/codestral-latest", "navy/deepseek-chat"]
+complex = ["navy/deepseek-v4-pro", "navy/deepseek-reasoner"]
+visual = ["navy/gemini-2.0-flash"]
+deep = ["navy/deepseek-reasoner", "navy/hermes-4-405b"]
+ultrabrain = ["navy/hermes-4-405b", "navy/deepseek-v4-pro"]
+ultrawork = ["navy/codestral-latest", "navy/grok-code-fast-1"]
 
+# --- XIAOMI (Base / Optimized / Recommended: MiMo Pro) ---
 [opencode.models.xiaomi]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+
+[opencode.models.xiaomi-optimized]
 orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
 implementation = ["xiaomi-token-plan-sgp/mimo-v2.5-pro", "xiaomi-token-plan-sgp/mimo-v2.5"]
 planner = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
@@ -429,865 +205,208 @@ deep = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
 ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
 ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
 
-# Catálogo zai-coding-plan (models.dev): glm-4.7, glm-5-turbo, glm-5.2,
-# glm-5.2-highspeed, glm-5.3. Sem glm-4.7-flash/glm-5.1/glm-5 no plano coding —
-# planner/search/quick usam glm-5-turbo.
-[opencode.models.zai]
-orchestrator = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-implementation = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-planner = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
-architecture = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-search = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
-vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
-review = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-long_running = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-quick = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
-standard = ["zai-coding-plan/glm-5-turbo", "zai-coding-plan/glm-4.7"]
-complex = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-visual = ["zai-coding-plan/glm-5.2"]
-deep = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-ultrabrain = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-ultrawork = ["zai-coding-plan/glm-5.3", "zai-coding-plan/glm-5.2", "zai-coding-plan/glm-5.2-highspeed"]
-
-[opencode.models.kimicode]
-orchestrator = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-implementation = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
-planner = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
-architecture = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-search = ["kimi-for-coding/kimi-for-coding"]
-vision = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-review = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
-long_running = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
-quick = ["kimi-for-coding/kimi-for-coding"]
-standard = ["kimi-for-coding/kimi-for-coding", "kimi-for-coding/k3"]
-complex = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-visual = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-deep = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-ultrabrain = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-ultrawork = ["kimi-for-coding/k3", "kimi-for-coding/kimi-for-coding"]
-
-# OpenCode Zen Free — all agents run on free opencode models (https://opencode.ai/zen)
-[opencode.models.zen-free]
-orchestrator = ["opencode/hy3-free"]
-implementation = ["opencode/deepseek-v4-flash-free"]
-planner = ["opencode/north-mini-code-free"]
-architecture = ["opencode/big-pickle"]
-search = ["opencode/north-mini-code-free", "opencode/deepseek-v4-flash-free"]
-vision = ["opencode/mimo-v2.5-free"]
-review = ["opencode/big-pickle"]
-long_running = ["opencode/hy3-free"]
-quick = ["opencode/deepseek-v4-flash-free"]
-standard = ["opencode/deepseek-v4-flash-free"]
-complex = ["opencode/hy3-free"]
-visual = ["opencode/mimo-v2.5-free"]
-deep = ["opencode/big-pickle"]
-ultrabrain = ["opencode/big-pickle"]
-ultrawork = ["opencode/hy3-free"]
-
-# Alibaba Token Plan (OpenAI-compatible endpoint, built-in provider em opencode)
-# 4 modelos Qwen no plano atual: qwen3.8-max-preview (mais recente), qwen3.7-max
-# (mais capaz estável), qwen3.7-plus (balanceado), qwen3.6-flash (rápido).
-# Nao ha VL dedicado — todos usam text-only no Token Plan.
-[opencode.models.qwencloud]
-orchestrator = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
-implementation = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
-planner = ["alibaba-token-plan/qwen3.7-plus", "alibaba-token-plan/qwen3.6-flash"]
-architecture = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-search = ["alibaba-token-plan/qwen3.6-flash"]
-vision = ["opencode/gemini-3.1-pro", "opencode/mimo-v2.5-free"]
-review = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-long_running = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max", "alibaba-token-plan/qwen3.7-plus"]
-quick = ["alibaba-token-plan/qwen3.6-flash"]
-standard = ["alibaba-token-plan/qwen3.7-plus"]
-complex = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-visual = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-deep = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-ultrabrain = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-ultrawork = ["alibaba-token-plan/qwen3.8-max-preview", "alibaba-token-plan/qwen3.7-max"]
-
-# Mix — combina modelos de minimax (API Anthropic), xiaomi/mimo e deepseek
-# (ambos OpenAI-compatible). Exclui openai, opencode/zen-free, kimicode, zai e
-# qwencloud. Ordem em cada chain = prioridade de fallback.
-[opencode.models.mix]
-orchestrator = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-implementation = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-planner = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
-architecture = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-search = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
-vision = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5"]
-review = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-long_running = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-quick = ["deepseek/deepseek-v4-flash", "xiaomi-token-plan-sgp/mimo-v2.5", "minimax/MiniMax-M2.5"]
-standard = ["minimax/MiniMax-M2.7", "xiaomi-token-plan-sgp/mimo-v2.5", "deepseek/deepseek-v4-flash"]
-complex = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-visual = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5"]
-deep = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-ultrabrain = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-ultrawork = ["minimax/MiniMax-M3", "xiaomi-token-plan-sgp/mimo-v2.5-pro", "deepseek/deepseek-v4-pro"]
-
-# Command Code — catálogo agregado (Claude, GPT, DeepSeek, Kimi, GLM, MiniMax, Gemini, Qwen)
-[opencode.models.commandcode]
-orchestrator = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/zai-org/GLM-5.3"]
-implementation = ["commandcode/gpt-5.6-sol", "commandcode-anthropic/claude-opus-4-8", "commandcode/moonshotai/Kimi-K2.7-Code", "commandcode/MiniMaxAI/MiniMax-M3"]
-planner = ["commandcode/gpt-5.6-luna", "commandcode/gpt-5.4-mini", "commandcode/deepseek/deepseek-v4-flash", "commandcode/zai-org/GLM-5.2-Fast"]
-architecture = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5"]
-search = ["commandcode/google/gemini-3.7-flash", "commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.4-mini"]
-vision = ["commandcode/google/gemini-3.7-flash", "commandcode-anthropic/claude-sonnet-4-6"]
-review = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-4-8"]
-long_running = ["commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/moonshotai/Kimi-K3"]
-quick = ["commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.4-mini", "commandcode-anthropic/claude-haiku-4-5-20251001", "commandcode/MiniMaxAI/MiniMax-M2.5"]
-standard = ["commandcode/deepseek/deepseek-v4-flash", "commandcode/gpt-5.5", "commandcode-anthropic/claude-sonnet-4-6"]
-complex = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/zai-org/GLM-5.3"]
-visual = ["commandcode/google/gemini-3.7-flash", "commandcode-anthropic/claude-sonnet-4-6"]
-deep = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/Qwen/Qwen3.8-Max"]
-ultrabrain = ["commandcode/deepseek/deepseek-v4-pro", "commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5"]
-ultrawork = ["commandcode/gpt-5.6-terra", "commandcode-anthropic/claude-opus-5", "commandcode/moonshotai/Kimi-K3"]
-
-# VARIANTS DEFAULT (quando nenhum perfil e especificado)
-
-[opencode.variants.minimax]
-orchestrator = "thinking"
-implementation = "thinking"
-architecture = "thinking"
-review = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-
-[opencode.variants.openai]
-orchestrator = "medium"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "medium"
-vision = "medium"
-review = "medium"
-long_running = "medium"
-quick = "medium"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.google]
-orchestrator = "high"
-implementation = "high"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "medium"
-review = "high"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.opencode]
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.xiaomi]
-orchestrator = "high"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "medium"
-review = "medium"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.zai]
-orchestrator = "high"
-implementation = "high"
-planner = "low"
-architecture = "high"
-search = "low"
-vision = "medium"
-review = "high"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.kimicode]
-orchestrator = "high"
-implementation = "high"
-planner = "medium"
-architecture = "high"
-search = "medium"
-vision = "high"
-review = "high"
-long_running = "high"
-quick = "medium"
-standard = "medium"
-complex = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.qwencloud]
-orchestrator = "high"
-implementation = "high"
-planner = "medium"
-architecture = "high"
-search = "medium"
-vision = "medium"
-review = "high"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.zen-free]
-orchestrator = "medium"
-implementation = "high"
-planner = "low"
-architecture = "max"
-search = "low"
-vision = "low"
-review = "medium"
-long_running = "medium"
-quick = "low"
-standard = "medium"
-complex = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "max"
-ultrawork = "medium"
-
-[opencode.variants.mix]
-orchestrator = "thinking"
-implementation = "thinking"
-planner = "low"
-architecture = "thinking"
-search = "low"
-vision = "medium"
-review = "thinking"
-long_running = "thinking"
-quick = "low"
-standard = "medium"
-complex = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.commandcode]
-orchestrator = "high"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "medium"
-review = "medium"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-# VARIANTS OPTIMIZED
-
-[opencode.variants.minimax-optimized]
-orchestrator = "thinking"
-implementation = "thinking"
-architecture = "thinking"
-review = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-
-[opencode.variants.openai-optimized]
-orchestrator = "medium"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "low"
-review = "medium"
-long_running = "medium"
-quick = "low"
-standard = "low"
-complex = "medium"
-visual = "medium"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.google-optimized]
-orchestrator = "medium"
-implementation = "medium"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "medium"
-review = "medium"
-long_running = "medium"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.opencode-optimized]
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.xiaomi-optimized]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.zai-optimized]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.kimicode-optimized]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.qwencloud-optimized]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.mix-optimized]
-orchestrator = "thinking"
-implementation = "thinking"
-planner = "medium"
-architecture = "thinking"
-search = "medium"
-vision = "medium"
-review = "thinking"
-long_running = "thinking"
-quick = "medium"
-standard = "medium"
-complex = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.commandcode-optimized]
-orchestrator = "medium"
-implementation = "medium"
-architecture = "high"
-review = "medium"
-visual = "medium"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "medium"
-
-# VARIANTS SUPER (maxima economia)
-
-[opencode.variants.minimax-super]
-orchestrator = "thinking"
-implementation = "thinking"
-architecture = "thinking"
-review = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-
-[opencode.variants.openai-super]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "medium"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "medium"
-visual = "low"
-deep = "low"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.google-super]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "medium"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "medium"
-visual = "low"
-deep = "low"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.opencode-super]
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.xiaomi-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "medium"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.zai-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "medium"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.kimicode-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "medium"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.qwencloud-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "medium"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.mix-super]
-orchestrator = "thinking"
-implementation = "thinking"
-planner = "low"
-architecture = "thinking"
-search = "low"
-vision = "low"
-review = "thinking"
-long_running = "thinking"
-quick = "low"
-standard = "low"
-complex = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.commandcode-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "medium"
-review = "low"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "low"
-
-# VARIANTS MODERATE
-# "moderate" is an alias for "optimized" — the template
-# (oh-my-openagent.jsonc.tmpl) rewrites `moderate` → `optimized` before looking
-# up variants, so no `-moderate` blocks exist here. This keeps the dedup real
-# (no copy-pasted data) instead of relying on the template's missing-key fallback.
-
-# VARIANTS RECOMMENDED (tiers alinhados ao Oh My OpenAgent)
-
-
-[opencode.variants.openai-recommended]
-orchestrator = "xhigh"
-implementation = "high"
-planner = "medium"
-architecture = "xhigh"
-search = "low"
-vision = "medium"
-review = "high"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "xhigh"
-visual = "high"
-deep = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.google-recommended]
-orchestrator = "high"
-implementation = "high"
-planner = "medium"
-architecture = "high"
-search = "low"
-vision = "high"
-review = "high"
-long_running = "high"
-quick = "low"
-standard = "medium"
-complex = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.opencode-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.deepseek-optimized]
-orchestrator = "low"
-implementation = "medium"
-architecture = "medium"
-review = "medium"
-visual = "low"
-deep = "medium"
-ultrabrain = "high"
-ultrawork = "medium"
-
-[opencode.variants.deepseek-super]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "high"
-ultrawork = "low"
-
-[opencode.variants.deepseek-recommended]
-architecture = "high"
-visual = "high"
-ultrabrain = "xhigh"
-ultrawork = "max"
-
-[opencode.variants.deepseek-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-review = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.xiaomi-recommended]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.minimax-recommended]
-orchestrator = "thinking"
-implementation = "thinking"
-architecture = "thinking"
-review = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.zai-recommended]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.kimicode-recommended]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.qwencloud-recommended]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-[opencode.variants.mix-recommended]
-orchestrator = "thinking"
-implementation = "thinking"
-planner = "high"
-architecture = "thinking"
-search = "high"
-vision = "high"
-review = "thinking"
-long_running = "thinking"
-quick = "high"
-standard = "high"
-complex = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.commandcode-recommended]
-orchestrator = "high"
-implementation = "high"
-architecture = "high"
-review = "high"
-visual = "high"
-deep = "high"
-ultrabrain = "high"
-ultrawork = "high"
-
-# VARIANTS ULTRA (custo minimo; provider decide onde nao ha variant segura)
-
-
-[opencode.variants.openai-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "none"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "none"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "none"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.google-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.opencode-ultra]
-implementation = "none"
-planner = "minimal"
-architecture = "none"
-vision = "low"
-review = "none"
-quick = "minimal"
-visual = "low"
-deep = "none"
-ultrabrain = "none"
-ultrawork = "low"
-
-[opencode.variants.xiaomi-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.zai-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.kimicode-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.qwencloud-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.minimax-ultra]
-orchestrator = "low"
-implementation = "low"
-architecture = "low"
-vision = "low"
-long_running = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
-[opencode.variants.mix-ultra]
-orchestrator = "thinking"
-implementation = "thinking"
-planner = "low"
-architecture = "thinking"
-search = "low"
-vision = "low"
-review = "thinking"
-long_running = "thinking"
-quick = "low"
-standard = "low"
-complex = "thinking"
-visual = "thinking"
-deep = "thinking"
-ultrabrain = "thinking"
-ultrawork = "thinking"
-
-[opencode.variants.commandcode-ultra]
-orchestrator = "low"
-implementation = "low"
-planner = "low"
-architecture = "low"
-search = "low"
-vision = "low"
-review = "low"
-long_running = "low"
-quick = "low"
-standard = "low"
-complex = "low"
-visual = "low"
-deep = "low"
-ultrabrain = "low"
-ultrawork = "low"
-
+[opencode.models.xiaomi-recommended]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5-pro"]
+
+# --- XIAOMI (Super / Ultra / Free: MiMo Leve) ---
+[opencode.models.xiaomi-super]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+
+[opencode.models.xiaomi-ultra]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+
+[opencode.models.xiaomi-free]
+orchestrator = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+implementation = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+planner = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+architecture = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+search = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+vision = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+review = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+long_running = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+quick = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+standard = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+complex = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+visual = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+deep = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrabrain = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+ultrawork = ["xiaomi-token-plan-sgp/mimo-v2.5"]
+
+# --- GOOGLE (Base / Optimized: Gemini 3.7 Flash) ---
+[opencode.models.google]
+orchestrator = ["google/gemini-3.7-flash", "google/gemini-3.1-pro", "google/gemini-2.5-pro"]
+implementation = ["google/gemini-3.7-flash", "google/gemini-3.1-pro", "google/gemini-2.5-pro"]
+planner = ["google/gemini-3.7-flash", "google/gemini-3.5-flash"]
+architecture = ["google/gemini-3.7-flash", "google/gemini-3.1-pro", "google/gemini-2.5-pro"]
+search = ["google/gemini-3.5-flash", "google/gemini-3.1-flash-lite"]
+vision = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+review = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+long_running = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+quick = ["google/gemini-3.5-flash", "google/gemini-3.1-flash-lite"]
+standard = ["google/gemini-3.5-flash"]
+complex = ["google/gemini-3.1-pro"]
+visual = ["google/gemini-3.7-flash"]
+deep = ["google/gemini-3.1-pro"]
+ultrabrain = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+ultrawork = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+
+[opencode.models.google-optimized]
+orchestrator = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+implementation = ["google/gemini-3.7-flash"]
+planner = ["google/gemini-3.7-flash"]
+architecture = ["google/gemini-3.7-flash"]
+search = ["google/gemini-3.5-flash", "google/gemini-3.1-flash-lite"]
+vision = ["google/gemini-3.7-flash"]
+review = ["google/gemini-3.7-flash"]
+long_running = ["google/gemini-3.7-flash"]
+quick = ["google/gemini-3.5-flash-lite"]
+standard = ["google/gemini-3.5-flash"]
+complex = ["google/gemini-3.1-pro"]
+visual = ["google/gemini-3.7-flash"]
+deep = ["google/gemini-3.1-pro"]
+ultrabrain = ["google/gemini-3.7-flash"]
+ultrawork = ["google/gemini-3.7-flash"]
+
+# --- GOOGLE (Recommended: Gemini 3.1 Pro / 3.7 Flash) ---
+[opencode.models.google-recommended]
+orchestrator = ["google/gemini-3.1-pro", "google/gemini-3.7-flash"]
+implementation = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+planner = ["google/gemini-3.1-pro", "google/gemini-3.7-flash"]
+architecture = ["google/gemini-3.1-pro", "google/gemini-3.7-flash"]
+search = ["google/gemini-3.5-flash"]
+vision = ["google/gemini-3.7-flash", "google/gemini-3.1-pro"]
+review = ["google/gemini-3.1-pro", "google/gemini-3.7-flash"]
+long_running = ["google/gemini-3.1-pro"]
+quick = ["google/gemini-3.5-flash"]
+standard = ["google/gemini-3.7-flash"]
+complex = ["google/gemini-3.1-pro"]
+visual = ["google/gemini-3.7-flash"]
+deep = ["google/gemini-3.1-pro"]
+ultrabrain = ["google/gemini-3.1-pro"]
+ultrawork = ["google/gemini-3.1-pro"]
+
+# --- GOOGLE (Super: Gemini 3.5 Flash) ---
+[opencode.models.google-super]
+orchestrator = ["google/gemini-3.5-flash", "google/gemini-3.5-flash-lite"]
+implementation = ["google/gemini-3.5-flash", "google/gemini-3.5-flash-lite"]
+planner = ["google/gemini-3.5-flash"]
+architecture = ["google/gemini-3.5-flash"]
+search = ["google/gemini-3.5-flash-lite"]
+vision = ["google/gemini-3.5-flash"]
+review = ["google/gemini-3.5-flash"]
+long_running = ["google/gemini-3.5-flash"]
+quick = ["google/gemini-3.5-flash-lite"]
+standard = ["google/gemini-3.5-flash-lite"]
+complex = ["google/gemini-3.5-flash"]
+visual = ["google/gemini-3.5-flash"]
+deep = ["google/gemini-3.5-flash"]
+ultrabrain = ["google/gemini-3.5-flash"]
+ultrawork = ["google/gemini-3.5-flash"]
+
+# --- GOOGLE (Ultra / Free: Gemini Flash-Lite) ---
+[opencode.models.google-ultra]
+orchestrator = ["google/gemini-3.5-flash-lite", "google/gemini-3.1-flash-lite"]
+implementation = ["google/gemini-3.5-flash-lite", "google/gemini-3.1-flash-lite"]
+planner = ["google/gemini-3.5-flash-lite"]
+architecture = ["google/gemini-3.5-flash-lite"]
+search = ["google/gemini-3.1-flash-lite"]
+vision = ["google/gemini-3.5-flash-lite"]
+review = ["google/gemini-3.5-flash-lite"]
+long_running = ["google/gemini-3.5-flash-lite"]
+quick = ["google/gemini-3.1-flash-lite"]
+standard = ["google/gemini-3.1-flash-lite"]
+complex = ["google/gemini-3.5-flash-lite"]
+visual = ["google/gemini-3.5-flash-lite"]
+deep = ["google/gemini-3.5-flash-lite"]
+ultrabrain = ["google/gemini-3.5-flash-lite"]
+ultrawork = ["google/gemini-3.5-flash-lite"]
+
+[opencode.models.google-free]
+orchestrator = ["google/gemini-3.5-flash-lite", "google/gemini-3.1-flash-lite"]
+implementation = ["google/gemini-3.5-flash-lite", "google/gemini-3.1-flash-lite"]
+planner = ["google/gemini-3.5-flash-lite"]
+architecture = ["google/gemini-3.5-flash-lite"]
+search = ["google/gemini-3.1-flash-lite"]
+vision = ["google/gemini-3.5-flash-lite"]
+review = ["google/gemini-3.5-flash-lite"]
+long_running = ["google/gemini-3.5-flash-lite"]
+quick = ["google/gemini-3.1-flash-lite"]
+standard = ["google/gemini-3.1-flash-lite"]
+complex = ["google/gemini-3.5-flash-lite"]
+visual = ["google/gemini-3.5-flash-lite"]
+deep = ["google/gemini-3.5-flash-lite"]
+ultrabrain = ["google/gemini-3.5-flash-lite"]
+ultrawork = ["google/gemini-3.5-flash-lite"]
+
+# ==============================================================================
+# OPENCODE — Perfis Globais
+# ==============================================================================
+[opencode.profiles.optimized]
+default_tier = "implementation"
+
+[opencode.profiles.moderate]
+default_tier = "implementation"
+
+[opencode.profiles.super]
+default_tier = "standard"
+
+[opencode.profiles.ultra]
+default_tier = "quick"
+
+[opencode.profiles.free]
+default_tier = "quick"
+
+[opencode.profiles.recommended]
+default_tier = "orchestrator"
+
+# ==============================================================================
+# OPENCODE — Mapeamento Agente → Tier
+# ==============================================================================
 [opencode.agent_profiles]
 sisyphus = "orchestrator"
+sisyphus-junior = "quick"
 hephaestus = "implementation"
 prometheus = "planner"
 oracle = "architecture"
@@ -1297,24 +416,12 @@ multimodal-looker = "vision"
 metis = "planner"
 momus = "review"
 atlas = "long_running"
-sisyphus-junior = "quick"
 build = "implementation"
 general = "standard"
 plan = "planner"
 
 [opencode.agent_ultrawork_profiles]
 sisyphus = "ultrawork"
-
-# OMOS-only routing overrides. Global tiers remain the source of truth for all
-# other agents; these keep the lightweight Designer and Fixer on Luna.
-[opencode.omos_overrides.openai.models]
-designer = "openai/gpt-5.6-luna"
-fixer = "openai/gpt-5.6-luna"
-
-[opencode.omos_overrides.openai-recommended.variants]
-designer = "medium"
-fixer = "xhigh"
-council = "xhigh"
 
 [opencode.category_profiles]
 quick = "quick"
@@ -1326,223 +433,219 @@ ultrabrain = "ultrabrain"
 artistry = "visual"
 writing = "quick"
 
-# HISTORIAN MODELS (usados pelo Magic Context para compressão em background)
-# Cada provider mapeia para o modelo mais barato disponível.
-
 [opencode.historian_models]
-openai = "openai/gpt-5.4-mini"
+navy = "navy/claude-haiku-4.5"
 google = "google/gemini-3.5-flash-lite"
-opencode = "opencode/gpt-5.4-mini"
-deepseek = "deepseek/deepseek-v4-flash"
-xiaomi = "xiaomi/mimo-v2.5"
-minimax = "minimax/MiniMax-M2.5"
-zai = "zai-coding-plan/glm-4.7"
-kimicode = "kimi-for-coding/kimi-for-coding"
-qwencloud = "alibaba-token-plan/qwen3.6-flash"
-mix = "deepseek/deepseek-v4-flash"
-"zen-free" = "opencode/deepseek-v4-flash-free"
-commandcode = "commandcode/google/gemini-3.7-flash"
+xiaomi = "xiaomi-token-plan-sgp/mimo-v2.5"
 
-# OMP — matrizes por KEY (providers, profiles, profile_aliases)
-# Cada entry referencia o id nativo do omp via o registry [providers.X]
-# (campo `omp_id`); o template omp-state.tmpl faz o lookup. Keys preservam
-# compatibilidade com o state file ~/.config/omp/.active_provider.
-# `cycling_order` = provider-ids do omp para `modelProviderOrder` (Ctrl+P),
-# csv, ativo primeiro.
-
+# ==============================================================================
+# OMP — Matrizes de Tiers por Provider
+# ==============================================================================
 [omp]
-default_provider = "xiaomi"
+default_provider = "navy"
 
+# --- NAVY (OMP) ---
+[omp.providers.navy]
+tiers = { orchestrator = ["claude-sonnet-5", "deepseek-v4-pro", "deepseek-chat"], implementation = ["codestral-latest", "deepseek-chat", "claude-sonnet-5"], planner = ["deepseek-reasoner", "o3-mini"], quick = ["claude-haiku-4.5", "deepseek-v4-flash"], standard = ["deepseek-chat", "codestral-latest"], complex = ["claude-sonnet-5", "deepseek-reasoner"], deep = ["deepseek-reasoner", "claude-sonnet-5"] }
+cycling_order = "navy"
+
+[omp.providers.navy-recommended]
+tiers = { orchestrator = ["claude-sonnet-5", "claude-opus-5"], implementation = ["claude-sonnet-5", "codestral-latest"], planner = ["deepseek-reasoner"], quick = ["claude-haiku-4.5"], standard = ["claude-sonnet-5"], complex = ["claude-opus-5"], deep = ["claude-opus-5", "deepseek-reasoner"] }
+cycling_order = "navy"
+
+[omp.providers.navy-optimized]
+tiers = { orchestrator = ["claude-sonnet-5", "deepseek-v4-pro"], implementation = ["codestral-latest", "deepseek-chat"], planner = ["deepseek-reasoner"], quick = ["claude-haiku-4.5"], standard = ["deepseek-chat", "codestral-latest"], complex = ["claude-sonnet-5"], deep = ["deepseek-reasoner"] }
+cycling_order = "navy"
+
+[omp.providers.navy-super]
+tiers = { orchestrator = ["deepseek-v4-pro", "mistral-large-latest", "hermes-4-405b"], implementation = ["codestral-latest", "grok-code-fast-1"], planner = ["deepseek-reasoner", "o3-mini"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["codestral-latest", "deepseek-chat"], complex = ["deepseek-v4-pro"], deep = ["deepseek-reasoner", "o3-mini"] }
+cycling_order = "navy"
+
+[omp.providers.navy-ultra]
+tiers = { orchestrator = ["deepseek-v4-flash", "deepseek-chat"], implementation = ["grok-code-fast-1", "codestral-latest"], planner = ["deepseek-reasoner"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["deepseek-chat"], complex = ["deepseek-chat"], deep = ["deepseek-reasoner"] }
+cycling_order = "navy"
+
+[omp.providers.navy-free]
+tiers = { orchestrator = ["deepseek-v4-pro", "mistral-large-latest", "hermes-4-405b"], implementation = ["codestral-latest", "grok-code-fast-1", "kimi-k2.7-code"], planner = ["deepseek-reasoner"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["codestral-latest", "deepseek-chat"], complex = ["deepseek-v4-pro"], deep = ["deepseek-reasoner", "hermes-4-405b"] }
+cycling_order = "navy"
+
+# --- XIAOMI (OMP) ---
 [omp.providers.xiaomi]
+tiers = { orchestrator = ["mimo-v2.5-pro", "mimo-v2.5"], implementation = ["mimo-v2.5-pro", "mimo-v2.5"], planner = ["mimo-v2.5-pro", "mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-token-plan-sgp"
+
+[omp.providers.xiaomi-recommended]
+tiers = { orchestrator = ["mimo-v2.5-pro"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5-pro"], quick = ["mimo-v2.5-pro"], standard = ["mimo-v2.5-pro"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-token-plan-sgp"
+
+[omp.providers.xiaomi-optimized]
+tiers = { orchestrator = ["mimo-v2.5-pro", "mimo-v2.5"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5-pro"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-token-plan-sgp"
+
+[omp.providers.xiaomi-super]
 tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
 cycling_order = "xiaomi-token-plan-sgp"
 
-[omp.providers.opencode]
-tiers = { orchestrator = ["gpt-5.5"], implementation = ["gpt-5.5"], planner = ["claude-haiku-4-5"], quick = ["claude-haiku-4-5"], standard = ["claude-sonnet-4-6"], complex = ["gpt-5.5"], deep = ["gpt-5.5"] }
-cycling_order = "opencode-zen"
+[omp.providers.xiaomi-ultra]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-token-plan-sgp"
 
-[omp.providers.minimax]
-tiers = { orchestrator = ["MiniMax-M3"], implementation = ["MiniMax-M3"], planner = ["MiniMax-M2.7"], quick = ["MiniMax-M2.5"], standard = ["MiniMax-M2.7"], complex = ["MiniMax-M3"], deep = ["MiniMax-M3"] }
-cycling_order = "minimax"
+[omp.providers.xiaomi-free]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-token-plan-sgp"
 
-[omp.providers.deepseek]
-tiers = { orchestrator = ["deepseek-v4-pro"], implementation = ["deepseek-v4-pro"], planner = ["deepseek-v4-flash"], quick = ["deepseek-v4-flash"], standard = ["deepseek-v4-flash"], complex = ["deepseek-v4-pro"], deep = ["deepseek-v4-pro"] }
-cycling_order = "deepseek"
-
-# Kimi: o provider nativo `kimi-code` do omp é OAuth-gated (0 modelos sem
-# login); os modelos Kimi estão autenticados em `opencode-go` (registry).
-[omp.providers.kimicode]
-tiers = { orchestrator = ["kimi-k3"], implementation = ["kimi-k2.7-code"], planner = ["kimi-k2.5"], quick = ["kimi-k2.5"], standard = ["kimi-k2.7-code"], complex = ["kimi-k3"], deep = ["kimi-k3"] }
-cycling_order = "opencode-go"
-
-[omp.providers.zai]
-tiers = { orchestrator = ["glm-5.2"], implementation = ["glm-5.2"], planner = ["glm-5.1"], quick = ["glm-5.1"], standard = ["glm-5.2"], complex = ["glm-5.2"], deep = ["glm-5.2"] }
-cycling_order = "zai"
-
-[omp.providers.qwencloud]
-tiers = { orchestrator = ["qwen3.7-max"], implementation = ["qwen3.7-max"], planner = ["qwen3.7-plus"], quick = ["qwen3.6-flash"], standard = ["qwen3.7-plus"], complex = ["qwen3.7-max"], deep = ["qwen3.7-max"] }
-cycling_order = "alibaba-token-plan"
-
-# OpenAI — 105 modelos no catálogo nativo do omp. Tiers alinhados com
-# `[opencode.models.openai]` (gpt-5.6-{terra,sol,luna} como topo).
-[omp.providers.openai]
-tiers = { orchestrator = ["gpt-5.6-terra", "gpt-5.6-sol"], implementation = ["gpt-5.6-sol", "gpt-5.6-terra"], planner = ["gpt-5.6-luna", "gpt-5.4-mini"], quick = ["gpt-5.4-mini", "gpt-5-mini"], standard = ["gpt-5.6-luna"], complex = ["gpt-5.6-terra", "gpt-5.5-pro"], deep = ["gpt-5.6-terra", "gpt-5.5-pro"] }
-cycling_order = "openai"
-
+# --- GOOGLE (OMP) ---
 [omp.providers.google]
-tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash", "gemini-3.1-pro"], planner = ["gemini-3.7-flash", "gemini-3.5-flash"], quick = ["gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"], standard = ["gemini-3.7-flash", "gemini-3.5-flash"], complex = ["gemini-3.1-pro", "gemini-3.7-flash"], deep = ["gemini-3.1-pro", "gemini-3.7-flash"] }
+tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash"], planner = ["gemini-3.7-flash", "gemini-3.5-flash"], quick = ["gemini-3.5-flash", "gemini-3.1-flash-lite"], standard = ["gemini-3.5-flash"], complex = ["gemini-3.1-pro", "gemini-3.7-flash"], deep = ["gemini-3.1-pro", "gemini-3.7-flash"] }
 cycling_order = "google-antigravity"
 
-# OpenCode Token Plan — kimi-k2.6/k2.7/k3, deepseek-v4, glm-5.x, grok-4.5, hy3,
-# gpt-5.6-luna, mimo-v2.5, minimax-m2.7/m3, qwen3.x. Distinto de [providers.opencode]
-# (free tier "opencode-zen"). Catálogo nativo: 25 modelos.
-[omp.providers.opencode-go]
-tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2.7-code", "deepseek-v4-pro"], planner = ["deepseek-v4-flash", "glm-5.2"], quick = ["glm-5.1", "grok-4.5"], standard = ["deepseek-v4-flash"], complex = ["kimi-k3"], deep = ["deepseek-v4-pro", "hy3"] }
-cycling_order = "opencode-go"
+[omp.providers.google-recommended]
+tiers = { orchestrator = ["gemini-3.1-pro", "gemini-3.7-flash"], implementation = ["gemini-3.7-flash", "gemini-3.1-pro"], planner = ["gemini-3.1-pro"], quick = ["gemini-3.5-flash"], standard = ["gemini-3.7-flash"], complex = ["gemini-3.1-pro"], deep = ["gemini-3.1-pro"] }
+cycling_order = "google-antigravity"
 
-# GitLab Duo — OAuth-gated. Sem login no GitLab, 0 modelos disponíveis.
-# Catálogo nativo: 16 modelos "duo-chat-*" (claude/gpt-5 variantes).
-[omp.providers.gitlab-duo]
-tiers = { orchestrator = ["duo-chat-opus-4-6"], implementation = ["duo-chat-sonnet-4-6", "duo-chat-gpt-5-2-codex"], planner = ["duo-chat-gpt-5-2"], quick = ["duo-chat-haiku-4-5", "duo-chat-gpt-5-mini"], standard = ["duo-chat-sonnet-4-5"], complex = ["duo-chat-opus-4-6"], deep = ["duo-chat-opus-4-6"] }
-cycling_order = "gitlab-duo"
+[omp.providers.google-optimized]
+tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash"], planner = ["gemini-3.7-flash"], quick = ["gemini-3.5-flash-lite"], standard = ["gemini-3.5-flash"], complex = ["gemini-3.1-pro"], deep = ["gemini-3.1-pro"] }
+cycling_order = "google-antigravity"
 
-# Command Code — provider por extensão `pi-commandcode-provider` (não built-in).
-# Catálogo dinâmico (~55 modelos, ids aninhados "vendor/model"): Claude, GPT,
-# DeepSeek, Kimi, GLM, MiniMax, Qwen, Gemini, Grok, etc. Requer auth
-# (`/login` subscription ou COMMANDCODE_API_KEY) antes de usar.
-[omp.providers.commandcode]
-tiers = { orchestrator = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], implementation = ["gpt-5.6-sol", "claude-opus-4-8", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["deepseek/deepseek-v4-flash", "gpt-5.4-mini", "claude-haiku-4-5-20251001", "MiniMaxAI/MiniMax-M2.5"], standard = ["deepseek/deepseek-v4-flash", "gpt-5.5", "claude-sonnet-4-6"], complex = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], deep = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "Qwen/Qwen3.8-Max"] }
-cycling_order = "commandcode"
+[omp.providers.google-super]
+tiers = { orchestrator = ["gemini-3.5-flash"], implementation = ["gemini-3.5-flash"], planner = ["gemini-3.5-flash"], quick = ["gemini-3.5-flash-lite"], standard = ["gemini-3.5-flash-lite"], complex = ["gemini-3.5-flash"], deep = ["gemini-3.5-flash"] }
+cycling_order = "google-antigravity"
 
-# Profiles → thinking_level + default_tier
+[omp.providers.google-ultra]
+tiers = { orchestrator = ["gemini-3.5-flash-lite"], implementation = ["gemini-3.5-flash-lite"], planner = ["gemini-3.5-flash-lite"], quick = ["gemini-3.1-flash-lite"], standard = ["gemini-3.1-flash-lite"], complex = ["gemini-3.5-flash-lite"], deep = ["gemini-3.5-flash-lite"] }
+cycling_order = "google-antigravity"
+
+[omp.providers.google-free]
+tiers = { orchestrator = ["gemini-3.5-flash-lite"], implementation = ["gemini-3.5-flash-lite"], planner = ["gemini-3.5-flash-lite"], quick = ["gemini-3.1-flash-lite"], standard = ["gemini-3.1-flash-lite"], complex = ["gemini-3.5-flash-lite"], deep = ["gemini-3.5-flash-lite"] }
+cycling_order = "google-antigravity"
+
 [omp.profiles.optimized]
-thinking_level = "medium"
 default_tier = "implementation"
 
 [omp.profiles.moderate]
-thinking_level = "medium"
 default_tier = "implementation"
 
 [omp.profiles.super]
-thinking_level = "low"
 default_tier = "standard"
 
 [omp.profiles.ultra]
-thinking_level = "minimal"
+default_tier = "quick"
+
+[omp.profiles.free]
 default_tier = "quick"
 
 [omp.profiles.recommended]
-thinking_level = "high"
-default_tier = "implementation"
+default_tier = "orchestrator"
 
 [omp.profile_aliases]
 moderate = "optimized"
 default = "optimized"
 
-
-# PI — matrizes por KEY (providers, profiles, profile_aliases)
-# pi (earendil-works/pi, upstream do omp) é mais simples: settings.json só tem
-# defaultProvider + defaultModel + defaultThinkingLevel (sem modelRoles/fallback).
-# O catálogo vive em models.json (auto-gerenciado por `pi update`), NÃO template.
-# Ids nativos resolvidos via registry [providers.X].pi_id.
-# Tiers: mesmo vocabulário do omp (orchestrator, implementation, planner, quick,
-# standard, complex, deep) — pi-state.tmpl picka o modelo do tier do profile.
-
+# ==============================================================================
+# PI — Matrizes de Tiers por Provider
+# ==============================================================================
 [pi]
-default_provider = "xiaomi"
+default_provider = "navy"
 
+# --- NAVY (PI) ---
+[pi.providers.navy]
+tiers = { orchestrator = ["claude-sonnet-5", "deepseek-v4-pro", "deepseek-chat"], implementation = ["codestral-latest", "deepseek-chat", "claude-sonnet-5"], planner = ["deepseek-reasoner", "o3-mini"], quick = ["claude-haiku-4.5", "deepseek-v4-flash"], standard = ["deepseek-chat", "codestral-latest"], complex = ["claude-sonnet-5"], deep = ["deepseek-reasoner", "claude-sonnet-5"] }
+cycling_order = "navy"
+
+[pi.providers.navy-recommended]
+tiers = { orchestrator = ["claude-sonnet-5", "claude-opus-5"], implementation = ["claude-sonnet-5", "codestral-latest"], planner = ["deepseek-reasoner"], quick = ["claude-haiku-4.5"], standard = ["claude-sonnet-5"], complex = ["claude-opus-5"], deep = ["claude-opus-5", "deepseek-reasoner"] }
+cycling_order = "navy"
+
+[pi.providers.navy-optimized]
+tiers = { orchestrator = ["claude-sonnet-5", "deepseek-v4-pro"], implementation = ["codestral-latest", "deepseek-chat"], planner = ["deepseek-reasoner"], quick = ["claude-haiku-4.5"], standard = ["deepseek-chat", "codestral-latest"], complex = ["claude-sonnet-5"], deep = ["deepseek-reasoner"] }
+cycling_order = "navy"
+
+[pi.providers.navy-super]
+tiers = { orchestrator = ["deepseek-v4-pro", "mistral-large-latest", "hermes-4-405b"], implementation = ["codestral-latest", "grok-code-fast-1"], planner = ["deepseek-reasoner", "o3-mini"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["codestral-latest", "deepseek-chat"], complex = ["deepseek-v4-pro"], deep = ["deepseek-reasoner", "o3-mini"] }
+cycling_order = "navy"
+
+[pi.providers.navy-ultra]
+tiers = { orchestrator = ["deepseek-v4-flash", "deepseek-chat"], implementation = ["grok-code-fast-1", "codestral-latest"], planner = ["deepseek-reasoner"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["deepseek-chat"], complex = ["deepseek-chat"], deep = ["deepseek-reasoner"] }
+cycling_order = "navy"
+
+[pi.providers.navy-free]
+tiers = { orchestrator = ["deepseek-v4-pro", "mistral-large-latest", "hermes-4-405b"], implementation = ["codestral-latest", "grok-code-fast-1", "kimi-k2.7-code"], planner = ["deepseek-reasoner"], quick = ["deepseek-v4-flash", "gpt-4o-mini"], standard = ["codestral-latest", "deepseek-chat"], complex = ["deepseek-v4-pro"], deep = ["deepseek-reasoner", "hermes-4-405b"] }
+cycling_order = "navy"
+
+# --- XIAOMI (PI) ---
 [pi.providers.xiaomi]
 tiers = { orchestrator = ["mimo-v2.5-pro"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.opencode]
-tiers = { orchestrator = ["gpt-5.5"], implementation = ["gpt-5.5"], planner = ["gpt-5.4-mini"], quick = ["gpt-5.4-mini"], standard = ["claude-sonnet-4-6"], complex = ["gpt-5.5"], deep = ["gpt-5.5"] }
+[pi.providers.xiaomi-recommended]
+tiers = { orchestrator = ["mimo-v2.5-pro"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5-pro"], quick = ["mimo-v2.5-pro"], standard = ["mimo-v2.5-pro"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.minimax]
-# Todos os modelos no provider "minimax" têm thinking=yes (sem opção think=no
-# como no minimax-coding). Quick usa M2.7-highspeed (otimizado para velocidade).
-tiers = { orchestrator = ["MiniMax-M3"], implementation = ["MiniMax-M3"], planner = ["MiniMax-M2.7"], quick = ["MiniMax-M2.7-highspeed"], standard = ["MiniMax-M2.7"], complex = ["MiniMax-M3"], deep = ["MiniMax-M3"] }
+[pi.providers.xiaomi-optimized]
+tiers = { orchestrator = ["mimo-v2.5-pro"], implementation = ["mimo-v2.5-pro"], planner = ["mimo-v2.5-pro"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5-pro"], deep = ["mimo-v2.5-pro"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.deepseek]
-tiers = { orchestrator = ["deepseek-v4-pro"], implementation = ["deepseek-v4-pro"], planner = ["deepseek-v4-flash"], quick = ["deepseek-v4-flash"], standard = ["deepseek-v4-flash"], complex = ["deepseek-v4-pro"], deep = ["deepseek-v4-pro"] }
+[pi.providers.xiaomi-super]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.kimicode]
-# Alinhado com omp.providers.kimicode; kimi-for-coding no pi/opencode-go
-# parece exigir conta OAuth separada, enquanto kimi-k2.7-code autentica via
-# OPENCODE_API_KEY do Token Plan.
-tiers = { orchestrator = ["kimi-k3"], implementation = ["kimi-k2.7-code"], planner = ["kimi-k2.5"], quick = ["kimi-k2.5"], standard = ["kimi-k2.7-code"], complex = ["kimi-k3"], deep = ["kimi-k3"] }
+[pi.providers.xiaomi-ultra]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.zai]
-tiers = { orchestrator = ["glm-5.2"], implementation = ["glm-5.2"], planner = ["glm-4.7-flash"], quick = ["glm-4.7-flash"], standard = ["glm-4.7"], complex = ["glm-5.2"], deep = ["glm-5.2"] }
+[pi.providers.xiaomi-free]
+tiers = { orchestrator = ["mimo-v2.5"], implementation = ["mimo-v2.5"], planner = ["mimo-v2.5"], quick = ["mimo-v2.5"], standard = ["mimo-v2.5"], complex = ["mimo-v2.5"], deep = ["mimo-v2.5"] }
+cycling_order = "xiaomi-mimo"
 
-[pi.providers.qwencloud]
-tiers = { orchestrator = ["qwen3.8-max-preview"], implementation = ["qwen3.7-max"], planner = ["qwen3.7-plus"], quick = ["qwen3.6-flash"], standard = ["qwen3.7-plus"], complex = ["qwen3.8-max-preview"], deep = ["qwen3.8-max-preview"] }
-
-# OpenAI — 38 modelos no catálogo nativo do pi (gpt-5.x com thinking).
-# Tiers alinhados com `[opencode.models.openai]`.
-[pi.providers.openai]
-tiers = { orchestrator = ["gpt-5.6-terra", "gpt-5.6-sol"], implementation = ["gpt-5.6-sol", "gpt-5.6-terra"], planner = ["gpt-5.6-luna", "gpt-5.4-mini"], quick = ["gpt-5.4-mini", "gpt-5-mini"], standard = ["gpt-5.6-luna"], complex = ["gpt-5.6-terra", "gpt-5.5-pro"], deep = ["gpt-5.6-terra", "gpt-5.5-pro"] }
-
+# --- GOOGLE (PI) ---
 [pi.providers.google]
-tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash", "gemini-3.1-pro"], planner = ["gemini-3.7-flash", "gemini-3.5-flash"], quick = ["gemini-3.7-flash", "gemini-3.5-flash"], standard = ["gemini-3.7-flash", "gemini-3.5-flash"], complex = ["gemini-3.1-pro", "gemini-3.7-flash"], deep = ["gemini-3.1-pro", "gemini-3.7-flash"] }
+tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash"], planner = ["gemini-3.7-flash", "gemini-3.5-flash"], quick = ["gemini-3.7-flash", "gemini-3.5-flash"], standard = ["gemini-3.7-flash", "gemini-3.5-flash"], complex = ["gemini-3.1-pro", "gemini-3.7-flash"], deep = ["gemini-3.1-pro", "gemini-3.7-flash"] }
+cycling_order = "antigravity"
 
-# OpenCode Token Plan — mesmo catálogo do omp.opencode-go (kimi, deepseek, glm,
-# grok, hy3, gpt-5.6-luna, mimo, minimax, qwen). 18 modelos no pi.
-[pi.providers.opencode-go]
-tiers = { orchestrator = ["kimi-k3", "gpt-5.6-luna"], implementation = ["kimi-k2.7-code", "deepseek-v4-pro"], planner = ["deepseek-v4-flash", "glm-5.2"], quick = ["glm-5.1", "grok-4.5"], standard = ["deepseek-v4-flash"], complex = ["kimi-k3"], deep = ["deepseek-v4-pro"] }
+[pi.providers.google-recommended]
+tiers = { orchestrator = ["gemini-3.1-pro", "gemini-3.7-flash"], implementation = ["gemini-3.7-flash", "gemini-3.1-pro"], planner = ["gemini-3.1-pro"], quick = ["gemini-3.5-flash"], standard = ["gemini-3.7-flash"], complex = ["gemini-3.1-pro"], deep = ["gemini-3.1-pro"] }
+cycling_order = "antigravity"
 
-# Command Code — provider por extensão `pi-commandcode-provider` (não built-in).
-# Mesmo catálogo dinâmico do omp.commandcode (~55 modelos, ids aninhados).
-[pi.providers.commandcode]
-tiers = { orchestrator = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], implementation = ["gpt-5.6-sol", "claude-opus-4-8", "moonshotai/Kimi-K2.7-Code", "MiniMaxAI/MiniMax-M3"], planner = ["gpt-5.6-luna", "gpt-5.4-mini", "deepseek/deepseek-v4-flash", "zai-org/GLM-5.2-Fast"], quick = ["deepseek/deepseek-v4-flash", "gpt-5.4-mini", "claude-haiku-4-5-20251001", "MiniMaxAI/MiniMax-M2.5"], standard = ["deepseek/deepseek-v4-flash", "gpt-5.5", "claude-sonnet-4-6"], complex = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "zai-org/GLM-5.3"], deep = ["deepseek/deepseek-v4-pro", "gpt-5.6-terra", "claude-opus-5", "Qwen/Qwen3.8-Max"] }
+[pi.providers.google-optimized]
+tiers = { orchestrator = ["gemini-3.7-flash", "gemini-3.1-pro"], implementation = ["gemini-3.7-flash"], planner = ["gemini-3.7-flash"], quick = ["gemini-3.5-flash-lite"], standard = ["gemini-3.5-flash"], complex = ["gemini-3.1-pro"], deep = ["gemini-3.1-pro"] }
+cycling_order = "antigravity"
 
-# Profiles → thinking_level + default_tier (mesmo vocabulário do omp)
+[pi.providers.google-super]
+tiers = { orchestrator = ["gemini-3.5-flash"], implementation = ["gemini-3.5-flash"], planner = ["gemini-3.5-flash"], quick = ["gemini-3.5-flash-lite"], standard = ["gemini-3.5-flash-lite"], complex = ["gemini-3.5-flash"], deep = ["gemini-3.5-flash"] }
+cycling_order = "antigravity"
+
+[pi.providers.google-ultra]
+tiers = { orchestrator = ["gemini-3.5-flash-lite"], implementation = ["gemini-3.5-flash-lite"], planner = ["gemini-3.5-flash-lite"], quick = ["gemini-3.1-flash-lite"], standard = ["gemini-3.1-flash-lite"], complex = ["gemini-3.5-flash-lite"], deep = ["gemini-3.5-flash-lite"] }
+cycling_order = "antigravity"
+
+[pi.providers.google-free]
+tiers = { orchestrator = ["gemini-3.5-flash-lite"], implementation = ["gemini-3.5-flash-lite"], planner = ["gemini-3.5-flash-lite"], quick = ["gemini-3.1-flash-lite"], standard = ["gemini-3.1-flash-lite"], complex = ["gemini-3.5-flash-lite"], deep = ["gemini-3.5-flash-lite"] }
+cycling_order = "antigravity"
+
 [pi.profiles.optimized]
-thinking_level = "medium"
-default_tier = "implementation"
-
-[pi.profiles.moderate]
-thinking_level = "medium"
 default_tier = "implementation"
 
 [pi.profiles.super]
-thinking_level = "low"
 default_tier = "standard"
 
 [pi.profiles.ultra]
-thinking_level = "minimal"
+default_tier = "quick"
+
+[pi.profiles.free]
 default_tier = "quick"
 
 [pi.profiles.recommended]
-thinking_level = "high"
-default_tier = "implementation"
+default_tier = "orchestrator"
 
 [pi.profile_aliases]
 moderate = "optimized"
 default = "optimized"
 
-# CODEWHALE — matriz por KEY consumida por codewhale-state.tmpl e
-# config.toml.tmpl. Ids nativos resolvidos via registry [providers.X]
-# (campo `codewhale_id`). Keys preservam compatibilidade com o state file
-# ~/.codewhale/.active_provider.
-#
-# O codewhale não tem o conceito de ~15 tiers do opencode: usa
-# `default_text_model` (agente principal) + `[subagents.models]` (papéis
-# Fleet: worker/scout/planner/reviewer/builder/verifier) + `[auto.router]`
-# (forte/barato). Por isso cada provider expõe só os tiers que o codewhale
-# consome: orchestrator, implementation, planner, search, review e quick.
-#
-# DRIFT CHECK: os model ids DEVEM existir no catálogo real do codewhale
-# (`codewhale models --provider <id>`). Derivados inicialmente das matrizes
-# opencode (prefixo provider/ removido) — quando o binário mudar de catálogo,
-# atualizar aqui.
-#
-# Mapeados (nativos): deepseek, zai, minimax, xiaomi, openai, opencode.
-# DEFERIDOS (sem mapeamento nativo ou catálogo a confirmar): opencode-go,
-# kimicode (moonshot), google (Gemini — gateway openai-compatible),
-# qwencloud (dashscope compatible-mode), zen-free, mix e gitlab-duo.
-
+# ==============================================================================
+# CODEWHALE — Matrizes por Tier
+# ==============================================================================
 [codewhale]
-default_provider = "xiaomi"
+default_provider = "navy"
 
 [codewhale.subagent_roles]
 worker = "implementation"
@@ -1553,31 +656,73 @@ builder = "implementation"
 verifier = "review"
 consultant = "orchestrator"
 
-[codewhale.models.deepseek]
+# --- NAVY (Codewhale) ---
+[codewhale.models.navy]
+orchestrator = "claude-sonnet-5"
+implementation = "codestral-latest"
+planner = "deepseek-reasoner"
+search = "sonar-pro"
+review = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[codewhale.models.navy-recommended]
+orchestrator = "claude-sonnet-5"
+implementation = "claude-sonnet-5"
+planner = "deepseek-reasoner"
+search = "sonar-deep-research"
+review = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[codewhale.models.navy-optimized]
+orchestrator = "claude-sonnet-5"
+implementation = "codestral-latest"
+planner = "deepseek-reasoner"
+search = "sonar-pro"
+review = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[codewhale.models.navy-super]
 orchestrator = "deepseek-v4-pro"
-implementation = "deepseek-v4-pro"
-planner = "deepseek-v4-flash"
-search = "deepseek-v4-flash"
+implementation = "codestral-latest"
+planner = "deepseek-reasoner"
+search = "sonar-pro"
 review = "deepseek-v4-pro"
 quick = "deepseek-v4-flash"
 
-[codewhale.models.zai]
-orchestrator = "GLM-5.3"
-implementation = "GLM-5.3"
-planner = "GLM-5-Turbo"
-search = "GLM-5-Turbo"
-review = "GLM-5.3"
-quick = "GLM-5-Turbo"
+[codewhale.models.navy-ultra]
+orchestrator = "deepseek-v4-flash"
+implementation = "grok-code-fast-1"
+planner = "deepseek-reasoner"
+search = "sonar-pro"
+review = "codestral-latest"
+quick = "deepseek-v4-flash"
 
-[codewhale.models.minimax]
-orchestrator = "MiniMax-M3"
-implementation = "MiniMax-M3"
-planner = "MiniMax-M2.7"
-search = "MiniMax-M2.7"
-review = "MiniMax-M2.7"
-quick = "MiniMax-M2.7"
+[codewhale.models.navy-free]
+orchestrator = "deepseek-v4-pro"
+implementation = "codestral-latest"
+planner = "deepseek-reasoner"
+search = "sonar-pro"
+review = "codestral-latest"
+quick = "deepseek-v4-flash"
 
+# --- XIAOMI (Codewhale) ---
 [codewhale.models.xiaomi]
+orchestrator = "mimo-v2.5-pro"
+implementation = "mimo-v2.5-pro"
+planner = "mimo-v2.5"
+search = "mimo-v2.5"
+review = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[codewhale.models.xiaomi-recommended]
+orchestrator = "mimo-v2.5-pro"
+implementation = "mimo-v2.5-pro"
+planner = "mimo-v2.5-pro"
+search = "mimo-v2.5"
+review = "mimo-v2.5-pro"
+quick = "mimo-v2.5-pro"
+
+[codewhale.models.xiaomi-optimized]
 orchestrator = "mimo-v2.5-pro"
 implementation = "mimo-v2.5-pro"
 planner = "mimo-v2.5-pro"
@@ -1585,26 +730,75 @@ search = "mimo-v2.5"
 review = "mimo-v2.5-pro"
 quick = "mimo-v2.5"
 
-[codewhale.models.openai]
-orchestrator = "gpt-5.6-terra"
-implementation = "gpt-5.6-terra"
-planner = "gpt-5.6-luna"
-search = "gpt-5.6-luna"
-review = "gpt-5.6-terra"
-quick = "gpt-5.6-luna"
+[codewhale.models.xiaomi-super]
+orchestrator = "mimo-v2.5"
+implementation = "mimo-v2.5"
+planner = "mimo-v2.5"
+search = "mimo-v2.5"
+review = "mimo-v2.5"
+quick = "mimo-v2.5"
 
-[codewhale.models.opencode]
-orchestrator = "kimi-k2.5"
-implementation = "gpt-5.5"
-planner = "gpt-5.4-mini"
-search = "grok-build-0.1"
-review = "gpt-5.5"
-quick = "grok-build-0.1"
+[codewhale.models.xiaomi-ultra]
+orchestrator = "mimo-v2.5"
+implementation = "mimo-v2.5"
+planner = "mimo-v2.5"
+search = "mimo-v2.5"
+review = "mimo-v2.5"
+quick = "mimo-v2.5"
 
-[codewhale.models.commandcode]
-orchestrator = "deepseek/deepseek-v4-flash"
-implementation = "gpt-5.6-sol"
-planner = "deepseek/deepseek-v4-flash"
-search = "deepseek/deepseek-v4-flash"
-review = "google/gemini-3.5-flash-lite"
-quick = "deepseek/deepseek-v4-flash"
+[codewhale.models.xiaomi-free]
+orchestrator = "mimo-v2.5"
+implementation = "mimo-v2.5"
+planner = "mimo-v2.5"
+search = "mimo-v2.5"
+review = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+# --- GOOGLE (Codewhale) ---
+[codewhale.models.google]
+orchestrator = "gemini-3.7-flash"
+implementation = "gemini-3.7-flash"
+planner = "gemini-3.7-flash"
+search = "gemini-3.5-flash"
+review = "gemini-3.7-flash"
+quick = "gemini-3.5-flash"
+
+[codewhale.models.google-recommended]
+orchestrator = "gemini-3.1-pro"
+implementation = "gemini-3.7-flash"
+planner = "gemini-3.1-pro"
+search = "gemini-3.5-flash"
+review = "gemini-3.1-pro"
+quick = "gemini-3.5-flash"
+
+[codewhale.models.google-optimized]
+orchestrator = "gemini-3.7-flash"
+implementation = "gemini-3.7-flash"
+planner = "gemini-3.7-flash"
+search = "gemini-3.5-flash-lite"
+review = "gemini-3.7-flash"
+quick = "gemini-3.5-flash-lite"
+
+[codewhale.models.google-super]
+orchestrator = "gemini-3.5-flash"
+implementation = "gemini-3.5-flash"
+planner = "gemini-3.5-flash"
+search = "gemini-3.5-flash-lite"
+review = "gemini-3.5-flash"
+quick = "gemini-3.5-flash-lite"
+
+[codewhale.models.google-ultra]
+orchestrator = "gemini-3.5-flash-lite"
+implementation = "gemini-3.5-flash-lite"
+planner = "gemini-3.5-flash-lite"
+search = "gemini-3.1-flash-lite"
+review = "gemini-3.5-flash-lite"
+quick = "gemini-3.1-flash-lite"
+
+[codewhale.models.google-free]
+orchestrator = "gemini-3.5-flash-lite"
+implementation = "gemini-3.5-flash-lite"
+planner = "gemini-3.5-flash-lite"
+search = "gemini-3.1-flash-lite"
+review = "gemini-3.5-flash-lite"
+quick = "gemini-3.1-flash-lite"

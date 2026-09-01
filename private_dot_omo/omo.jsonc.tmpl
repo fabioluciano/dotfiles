@@ -1,0 +1,82 @@
+{{- $state := includeTemplate "opencode-state.tmpl" . | fromJson -}}
+{{- $provider := $state.provider -}}
+{{- $profile := $state.profile -}}
+{{- $providerModels := $state.providerModels -}}
+{{- $agents := $.opencode.agent_profiles -}}
+{{- $categories := $.opencode.category_profiles -}}
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+  "[opencode]": {
+    "agents": {
+{{- $agentKeys := keys $agents | sortAlpha }}
+{{- range $i, $agent := $agentKeys }}
+{{- $tier := index $agents $agent -}}
+{{- $chain := index $providerModels $tier | default (index $providerModels "standard") | default (index $providerModels "orchestrator") -}}
+      "{{ $agent }}": {
+        "model": "{{ first $chain }}",
+        "prompt_append": "file://~/.config/opencode/AGENTS.md"{{ if eq $agent "explore" }},
+        "tools": {"edit": false}{{ else if eq $agent "librarian" }},
+        "tools": {"edit": false}{{ else if eq $agent "multimodal-looker" }},
+        "tools": {"edit": false}{{ end }}
+      }{{ if lt $i (sub (len $agentKeys) 1) }},{{ end }}
+{{- end }}
+    },
+    "categories": {
+{{- $categoryKeys := keys $categories | sortAlpha }}
+{{- range $i, $category := $categoryKeys }}
+{{- $tier := index $categories $category -}}
+{{- $chain := index $providerModels $tier | default (index $providerModels "standard") | default (index $providerModels "orchestrator") -}}
+      "{{ $category }}": {
+        "model": "{{ first $chain }}",
+        "prompt_append": "file://~/.config/opencode/AGENTS.md"
+      }{{ if lt $i (sub (len $categoryKeys) 1) }},{{ end }}
+{{- end }}
+    },
+    "sisyphus_agent": {
+      "planner_enabled": true,
+      "replace_plan": false,
+      "default_builder_enabled": true
+    },
+    "agent_order": [
+      "sisyphus",
+      "atlas",
+      "hephaestus",
+      "oracle",
+      "prometheus",
+      "metis",
+      "momus",
+      "librarian",
+      "explore",
+      "multimodal-looker",
+      "sisyphus-junior"
+    ],
+    "experimental": {
+      "disable_omo_env": true,
+      "task_system": true
+    },
+    "runtime_fallback": {
+      "enabled": true,
+      "retry_on_errors": [429, 500, 502, 503, 504],
+      "max_fallback_attempts": 3,
+      "cooldown_seconds": 60,
+      "notify_on_fallback": true
+    },
+    "notification": {
+      "force_enable": true
+    },
+    "codegraph": {
+      "enabled": false,
+      "auto_init": true,
+      "auto_provision": true
+    },
+    "git_master": {
+      "commit_footer": true,
+      "include_co_authored_by": true,
+      "git_env_prefix": "GIT_MASTER=1"
+    }
+  },
+  "_migrations": [
+    "2026-07-opencode-config-unification",
+    "2026-08-reasoning-unification"
+  ]
+}

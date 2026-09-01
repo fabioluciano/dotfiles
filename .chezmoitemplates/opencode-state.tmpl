@@ -3,9 +3,9 @@
      profile stays as-is so callers can apply their own aliases. */ -}}
 {{- $defaultProvider := get $.opencode "default_provider" | default "xiaomi" -}}
 {{- $stateFile := printf "%s/.config/opencode/.active_provider" (env "HOME") -}}
-{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:optimized; }" $stateFile $defaultProvider) | trim -}}
 {{- $provider := $defaultProvider -}}
-{{- $profile := "moderate" -}}
+{{- $profile := "optimized" -}}
 {{- if hasPrefix "provider:" $state -}}
 {{- range $line := splitList "\n" $state }}
 {{- $parts := splitList ":" $line -}}
@@ -14,10 +14,11 @@
 {{- end -}}
 {{- else -}}
 {{- $provider = $state -}}
-{{- $profile = "moderate" -}}
+{{- $profile = "optimized" -}}
 {{- end -}}
-{{- if eq $profile "default" -}}{{- $profile = "moderate" -}}{{- end -}}
-{{- $validProviders := keys $.opencode.models -}}
+{{- if or (eq $profile "default") (eq $profile "moderate") -}}{{- $profile = "optimized" -}}{{- end -}}
+{{- $validProviders := keys $.providers -}}
 {{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
-{{- $providerModels := index $.opencode.models $provider -}}
+{{- $profileKey := printf "%s-%s" $provider $profile -}}
+{{- $providerModels := index $.opencode.models $profileKey | default (index $.opencode.models $provider) -}}
 {{- dict "provider" $provider "profile" $profile "providerModels" $providerModels | toJson -}}

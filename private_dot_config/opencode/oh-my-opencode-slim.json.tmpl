@@ -1,11 +1,9 @@
-{{- /* ── State reading (shared template; moderate stays an alias for optimized) ── */ -}}
+{{- /* ── State reading (shared template) ── */ -}}
 {{- $state := includeTemplate "opencode-state.tmpl" . | fromJson -}}
 {{- $provider := $state.provider -}}
 {{- $profile := $state.profile -}}
 {{- $providerModels := $state.providerModels -}}
-{{- $validProviders := keys $.opencode.models -}}
-{{- /* "moderate" is an alias for "optimized" — they share the same variants */ -}}
-{{- if eq $profile "moderate" -}}{{- $profile = "optimized" -}}{{- end -}}
+{{- $validProviders := keys $.providers -}}
 {{- /* zen-free maps to the opencode-zen-free preset (tuned static config) */ -}}
 {{- $presetName := ternary "opencode-zen-free" $provider (eq $provider "zen-free") -}}
 
@@ -101,21 +99,17 @@
 {{- $sortedProviders := sortAlpha $validProviders -}}
 {{- range $prov := $sortedProviders }}
 {{- if ne $prov "zen-free" }}
-{{- $models := index $.opencode.models $prov -}}
-{{- $variantKey := printf "%s-%s" $prov $profile -}}
-{{- $profileVariants := ternary (get $.opencode.variants $variantKey) (get $.opencode.variants $prov | default dict) (hasKey $.opencode.variants $variantKey) -}}
-{{- $modelOverrides := get (get $.opencode.omos_overrides $prov | default dict) "models" | default dict -}}
-{{- $variantOverrides := get (get $.opencode.omos_overrides $variantKey | default dict) "variants" | default dict -}}
+{{- $profileModelKey := printf "%s-%s" $prov $profile -}}
+{{- $models := index $.opencode.models $profileModelKey | default (index $.opencode.models $prov) -}}
+{{- $modelOverrides := get (get $.opencode "omos_overrides" | default dict) $prov | default dict -}}
     ,"{{ $prov }}": {
 {{- range $ai, $agent := $agentTiers }}
 {{- $agentName := index $agent "name" -}}
 {{- $tier := index $agent "tier" -}}
 {{- $chain := index $models $tier | default (index $models "standard") | default (index $models "orchestrator") -}}
 {{- $model := get $modelOverrides $agentName | default (first $chain) -}}
-{{- $variantValue := get $variantOverrides $agentName | default (get $profileVariants $tier) -}}
       "{{ $agentName }}": {
-        "model": {{ if eq $agentName "observer" }}{{ toJson $chain }}{{ else }}"{{ $model }}"{{ end }}{{ if $variantValue }},
-        "variant": "{{ $variantValue }}"{{ end }},
+        "model": "{{ $model }}",
         "skills": {{ toJson (index $agentSkills $agentName) }},
         "mcps": {{ toJson (index $agentMcps $agentName) }}
       }{{ if lt $ai (sub (len $agentTiers) 1) }},{{ end }}
@@ -129,8 +123,7 @@
     "presets": {
       "default": {
         "alpha": {
-          "model": "{{ first (index $providerModels "architecture") }}"{{- $variantKey := printf "%s-%s" $provider $profile -}}{{- $councilVariants := ternary (get $.opencode.variants $variantKey) (get $.opencode.variants $provider | default dict) (hasKey $.opencode.variants $variantKey) -}}{{- $councilVariantOverrides := get (get $.opencode.omos_overrides $variantKey | default dict) "variants" | default dict -}}{{- $alphaVariant := get $councilVariantOverrides "alpha" | default (get $councilVariants "architecture") }}{{ if $alphaVariant }},
-          "variant": "{{ $alphaVariant }}"{{ end }}
+          "model": "{{ first (index $providerModels "architecture") }}"
         }
       }
     }

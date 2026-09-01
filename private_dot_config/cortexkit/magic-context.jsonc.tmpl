@@ -5,11 +5,21 @@
 {
   "$schema": "https://raw.githubusercontent.com/cortexkit/magic-context/master/assets/magic-context.schema.json",
   "historian": {
-    "model": "{{ $historianModel }}",
-    "two_pass": false
+    "two_pass": false,
+    "opencode": {
+      "model": "{{ $historianModel }}"
+    },
+    "pi": {
+      "model": "{{ $historianModel }}"
+    }
   },
   "dreamer": {
-    "model": "{{ $historianModel }}"
+    "opencode": {
+      "model": "{{ $historianModel }}"
+    },
+    "pi": {
+      "model": "{{ $historianModel }}"
+    }
   },
   "embedding": {
     "provider": "off"

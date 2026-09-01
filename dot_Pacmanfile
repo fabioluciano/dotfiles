@@ -96,8 +96,10 @@ android-tools
 aws-cli-v2
 azure-cli
 buildah
+colima
 cosign
 dive
+docker
 docker-compose
 helm
 k9s

@@ -236,13 +236,12 @@ between tiers (pro → fast → cheap) when the primary model is unavailable
 it never crosses to a different provider. The tier matrix in `.chezmoidata/providers.toml`
 controls the model for each tier.
 
-**Profiles:** pass an optional profile as the last argument. `moderate` is the
-default, `optimized`/`super` trade quality for cost, and `recommended` applies
-the Oh My OpenAgent recommended effort/variant tiers per role where the active
-provider supports them.
-`ultra` minimizes cost further by selecting the lowest safe reasoning variant
-for each provider/model family and leaving unsupported cases for the provider
-runtime default.
+**Tiers & Profiles:** pass an optional tier/profile as the last argument.
+Tiers are purely about model selection based on token cost/consumption:
+- `expensive` / `recommended`: flagship / top-tier models (higher token consumption, highest accuracy).
+- `balanced` / `optimized`: balanced models per role (default).
+- `cheap` / `super`: lightweight, cost-effective models per role.
+- `free` / `ultra`: lowest token consumption / free tier models.
 
 **Verify current provider:**
 

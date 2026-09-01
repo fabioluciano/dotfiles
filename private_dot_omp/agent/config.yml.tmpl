@@ -8,8 +8,8 @@
          opencode-zen/go, minimax, zai, deepseek, etc.) — não precisa declarar
          models.json. Apenas escolhemos o default via `modelRoles` (record
          de role → "provider/model").
-       - Profiles viram `defaultThinkingLevel` (em model.defaultThinkingLevel) +
-         `modelRoles` apontando para o tier (orchestrator/implementation/...).
+       - Tiers/Perfis controlam a seleção de modelos em `modelRoles`
+         (default/smol/slow/plan) baseados no consumo de tokens / custo.
        - mcp.json (`mcp.json` no pi) é um arquivo SEPARADO em omp (não
          `mcpServers` no config.yml — omp rejeita o config inteiro se
          vier).
@@ -47,7 +47,6 @@ modelRoles:
   slow: "{{ $state.slowModel }}"
   plan: "{{ $state.planModel }}"
 modelProviderOrder: {{ toJson $state.providerOrder }}
-defaultThinkingLevel: {{ $state.thinkingLevel }}
 setupVersion: {{ $setupVersion }}
 symbolPreset: nerd
 retry:
