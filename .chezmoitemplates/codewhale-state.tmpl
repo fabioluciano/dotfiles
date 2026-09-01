@@ -13,7 +13,8 @@
 {{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
 {{- end -}}
 {{- end -}}
-{{- $validProviders := keys $.codewhale.models -}}
+{{- $validProviders := keys $.providers -}}
 {{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
-{{- $providerModels := index $.codewhale.models $provider -}}
+{{- $profileKey := printf "%s-%s" $provider $profile -}}
+{{- $providerModels := index $.codewhale.models $profileKey | default (index $.codewhale.models $provider) -}}
 {{- dict "provider" $provider "profile" $profile "providerModels" $providerModels "subagentRoles" $.codewhale.subagent_roles | toJson -}}

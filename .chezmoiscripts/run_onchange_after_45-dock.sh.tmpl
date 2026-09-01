@@ -60,7 +60,6 @@ dockutil --add /Applications/Bruno.app --no-restart
 {{ if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
 dockutil --add /Applications/Parallels\ Desktop.app --no-restart
 {{ end }}
-dockutil --add /Applications/Podman\ Desktop.app --no-restart
 dockutil --add /Applications/Davit.app --no-restart
 
 dockutil --add '' --type small-spacer --section apps --no-restart

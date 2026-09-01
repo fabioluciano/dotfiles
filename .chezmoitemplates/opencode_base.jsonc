@@ -21,18 +21,7 @@
     },
     "plan": {
       "model": "{{ first (index $providerModels "planner") }}"
-    }{{- /* OMO agents: the OMO 4.x plugin has a hardcoded requiresProvider
-        whitelist that drops agents whose active provider isn't in
-        [openai, github-copilot, opencode, vercel, ...]. The TUI then
-        displays the fallbackChain[0] (typically openai/gpt-5.6-sol) for
-        the dropped agent. To force the TUI to show the user-configured
-        model for the active provider, we explicitly add per-agent model
-        overrides here — the opencode binary's TUI renderer picks these
-        up and displays them. The OMO plugin still uses AGENT_MODEL_REQUIREMENTS
-        for runtime resolution (with the same whitelist), but the
-        bypass via hasHephaestusExplicitConfig from oh-my-openagent.jsonc
-        keeps the actual model correct. */ -}}
-{{- range $agent, $tier := $.opencode.agent_profiles }}
+    }{{- range $agent, $tier := $.opencode.agent_profiles }}
 {{- $tierModels := index $providerModels $tier -}}
 {{- $stdModels := index $providerModels "standard" -}}
 {{- $orchModels := index $providerModels "orchestrator" -}}
@@ -353,136 +342,42 @@
     "~/.config/opencode/AGENTS.md"
   ],
   "provider": {
-    // Catálogo de modelos vem do models.dev (auto-atualizado pelo opencode);
-    // sem bloco "models" local. Só sobrescrevemos auth/endpoint quando o env
-    // var difere do que o models.dev espera.
+    "navy": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Navy",
+      "options": {
+        "baseURL": "https://api.navy/v1",
+        "apiKey": "{env:NAVYAI_API_KEY}"
+      },
+      "models": {
+        "claude-sonnet-5": { "name": "Claude Sonnet 5 (NavyAI)" },
+        "claude-opus-5": { "name": "Claude Opus 5 (NavyAI)" },
+        "claude-haiku-4.5": { "name": "Claude Haiku 4.5 (NavyAI)" },
+        "deepseek-v4-pro": { "name": "DeepSeek V4 Pro (Free)" },
+        "deepseek-v4-flash": { "name": "DeepSeek V4 Flash (Free)" },
+        "deepseek-chat": { "name": "DeepSeek Chat (Free)" },
+        "deepseek-reasoner": { "name": "DeepSeek Reasoner (Free)" },
+        "codestral-latest": { "name": "Codestral (Free)" },
+        "mistral-large-latest": { "name": "Mistral Large (Free)" },
+        "hermes-4-405b": { "name": "Nous Hermes 405B (Free)" },
+        "grok-code-fast-1": { "name": "Grok Code Fast 1 (Free)" },
+        "gemini-2.0-flash": { "name": "Gemini 2.0 Flash (Free)" },
+        "gemini-2.5-flash": { "name": "Gemini 2.5 Flash (Free)" },
+        "gpt-4o-mini": { "name": "GPT-4o Mini (Free)" },
+        "o3-mini": { "name": "o3-mini (Free)" },
+        "sonar-pro": { "name": "Sonar Pro (Free)" },
+        "sonar-deep-research": { "name": "Sonar Deep Research (Free)" }
+      }
+    },
     "xiaomi-token-plan-sgp": {
       "options": {
         "baseURL": "https://token-plan-sgp.xiaomimimo.com/v1",
         "apiKey": "{env:MIMO_API_KEY}"
       }
     },
-    "openai": {
-      "options": {}
-    },
     "google": {
       "options": {
         "apiKey": "{env:GEMINI_API_KEY}"
-      }
-    },
-    "opencode": {
-      "options": {
-        "apiKey": "{env:OPENCODE_API_KEY}"
-      }
-    },
-    "minimax": {
-      "npm": "@ai-sdk/anthropic",
-      "name": "MiniMax",
-      "options": {
-        "baseURL": "https://api.minimax.io/anthropic/v1",
-        "apiKey": "{env:MINIMAX_API_KEY}"
-      }
-    },
-    "deepseek": {
-      "options": {
-        "apiKey": "{env:DEEPSEEK_API_KEY}"
-      }
-    },
-    "kimi-for-coding": {
-      "options": {
-        "baseURL": "https://api.kimi.com/coding/v1",
-        "apiKey": "{env:KIMI_CODE_API_KEY}"
-      }
-    },
-    "zai-coding-plan": {
-      "options": {
-        "baseURL": "https://api.z.ai/api/coding/paas/v4",
-        "apiKey": "{env:ZAI_API_KEY}"
-      }
-    },
-    // Built-in alibaba-token-plan provider (npm, baseURL e modelos
-    // vêm do models.dev). Aqui só sobrescrevemos a apiKey para apontar
-    // para o env var já existente (QWENCLOUD_API_TOKEN) em vez do nome
-    // padrão ALIBABA_TOKEN_PLAN_API_KEY, evitando renomear o item do
-    // Bitwarden e o zsh-tokens-sync.
-    "alibaba-token-plan": {
-      "options": {
-        "apiKey": "{env:QWENCLOUD_API_TOKEN}"
-      }
-    },
-    "commandcode-anthropic": {
-      "npm": "@ai-sdk/anthropic",
-      "name": "Command Code (Anthropic)",
-      "options": {
-        "baseURL": "https://api.commandcode.ai/provider/v1",
-        "apiKey": "{env:COMMANDCODE_API_KEY}"
-      }
-    },
-    "commandcode": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Command Code",
-      "options": {
-        "baseURL": "https://api.commandcode.ai/provider/v1",
-        "apiKey": "{env:COMMANDCODE_API_KEY}"
-      },
-      "models": {
-        "claude-opus-5": {
-          "name": "Claude Opus 5"
-        },
-        "claude-opus-4-8": {
-          "name": "Claude Opus 4.8"
-        },
-        "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6"
-        },
-        "claude-haiku-4-5-20251001": {
-          "name": "Claude Haiku 4.5"
-        },
-        "gpt-5.6-terra": {
-          "name": "GPT 5.6 Terra"
-        },
-        "gpt-5.6-sol": {
-          "name": "GPT 5.6 Sol"
-        },
-        "gpt-5.6-luna": {
-          "name": "GPT 5.6 Luna"
-        },
-        "gpt-5.5": {
-          "name": "GPT 5.5"
-        },
-        "gpt-5.4-mini": {
-          "name": "GPT 5.4 Mini"
-        },
-        "deepseek/deepseek-v4-pro": {
-          "name": "DeepSeek V4 Pro"
-        },
-        "deepseek/deepseek-v4-flash": {
-          "name": "DeepSeek V4 Flash"
-        },
-        "moonshotai/Kimi-K3": {
-          "name": "Kimi K3"
-        },
-        "moonshotai/Kimi-K2.7-Code": {
-          "name": "Kimi K2.7 Code"
-        },
-        "zai-org/GLM-5.3": {
-          "name": "GLM 5.3"
-        },
-        "zai-org/GLM-5.2-Fast": {
-          "name": "GLM 5.2 Fast"
-        },
-        "MiniMaxAI/MiniMax-M3": {
-          "name": "MiniMax M3"
-        },
-        "MiniMaxAI/MiniMax-M2.5": {
-          "name": "MiniMax M2.5"
-        },
-        "google/gemini-3.7-flash": {
-          "name": "Gemini 3.7 Flash"
-        },
-        "Qwen/Qwen3.8-Max": {
-          "name": "Qwen 3.8 Max"
-        }
       }
     }
   },

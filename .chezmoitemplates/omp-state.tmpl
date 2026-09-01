@@ -8,29 +8,15 @@
        - smolModel:    "<provider>/<model>"   (quick tier, sempre leve)
        - slowModel:    "<provider>/<model>"   (deep tier, raciocínio)
        - planModel:    "<provider>/<model>"   (planner tier)
-       - thinkingLevel: "minimal|low|medium|high|xhigh|max"
        - enabledModels: array of "provider/model" strings
        - providerOrder: array of provider IDs (ordered for cycleOrder)
-       - fallbackChains: record para `retry.fallbackChains` do config.yml —
-         `default` (tier deep de todos os providers, ativo primeiro; cobre os
-         roles default/slow/plan) e `smol` (tier quick). Seletores explícitos
-         `provider/model`: os ids variam por provider (mimo-v2.5, gpt-5.5,
-         MiniMax-M3...), então wildcards `provider/*` (que mantêm o model id
-         e só trocam o provider) não resolveriam nada aqui.
-
-     Profile mapping (canonical):
-       - optimized = tier=implementation, thinking=medium
-       - moderate  = alias de optimized
-       - super     = tier=standard,        thinking=low
-       - ultra     = tier=quick,           thinking=minimal
-       - recommended = tier=implementation, thinking=high
-
-     Same vocabulary as change-providers for consistency. */ -}}
+       - fallbackChains: record para `retry.fallbackChains` do config.yml
+*/ -}}
 {{- $defaultProvider := get $.omp "default_provider" | default "xiaomi" -}}
 {{- $stateFile := printf "%s/.config/omp/.active_provider" (env "HOME") -}}
-{{- $raw := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:default; }" $stateFile $defaultProvider) | trim -}}
+{{- $raw := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:optimized; }" $stateFile $defaultProvider) | trim -}}
 {{- $provider := $defaultProvider -}}
-{{- $profile := "default" -}}
+{{- $profile := "optimized" -}}
 {{- if hasPrefix "provider:" $raw -}}
 {{- $lines := splitList "\n" $raw -}}
 {{- range $line := $lines -}}
@@ -44,12 +30,9 @@
 {{- end -}}
 {{- else -}}
 {{- $provider = trim $raw -}}
-{{- $profile = "default" -}}
-{{- end -}}
-{{- if eq $profile "default" -}}
 {{- $profile = "optimized" -}}
 {{- end -}}
-{{- if eq $profile "moderate" -}}
+{{- if or (eq $profile "default") (eq $profile "moderate") -}}
 {{- $profile = "optimized" -}}
 {{- end -}}
 {{- $validProviders := keys (get $.omp "providers" | default dict) -}}
@@ -57,12 +40,13 @@
 {{- $provider = $defaultProvider -}}
 {{- end -}}
 {{- $providerData := get (get $.omp "providers" | default dict) $provider | default dict -}}
+{{- $profileKey := printf "%s-%s" $provider $profile -}}
+{{- $providerProfileData := get (get $.omp "providers" | default dict) $profileKey | default dict -}}
 {{- $profileData := get (get $.omp "profiles" | default dict) $profile | default dict -}}
 {{- $defaultTier := get $profileData "default_tier" | default "implementation" -}}
-{{- $thinkingLevel := get $profileData "thinking_level" | default "medium" -}}
 {{- $regEntry := get (get $ "providers" | default dict) $provider | default dict -}}
 {{- $providerId := get $regEntry "omp_id" | default (get $providerData "omp_id" | default $provider) -}}
-{{- $tiers := get $providerData "tiers" | default dict -}}
+{{- $tiers := get $providerProfileData "tiers" | default (get $providerData "tiers" | default dict) -}}
 {{- $pickModel := dict -}}
 {{- range $tier, $chain := $tiers -}}
 {{- $first := first $chain | default "" -}}
@@ -80,14 +64,10 @@
 {{- range $m := $implChain -}}
 {{- $enabledModels = append $enabledModels (printf "%s/%s" $providerId $m) -}}
 {{- end -}}
-{{- /* Fallback chains: quando o modelo ativo falha (429/quota/outage), o omp
-     tenta o primeiro seletor resolvível da chain do role. Provider ativo
-     primeiro (auth/quota já quentes), demais em ordem alfabética das keys do
-     TOML (determinismo — keys sozinho retorna em ordem aleatória). */ -}}
 {{- $allProviders := get $.omp "providers" | default dict -}}
 {{- $orderedProviders := list -}}
 {{- range $pname := keys $allProviders | sortAlpha -}}
-{{- if ne $pname $provider -}}
+{{- if and (ne $pname $provider) (not (regexMatch "-(ultra|super|recommended|optimized)$" $pname)) -}}
 {{- $orderedProviders = append $orderedProviders $pname -}}
 {{- end -}}
 {{- end -}}
@@ -95,7 +75,6 @@
 {{- $defaultChain := list -}}
 {{- $smolChain := list -}}
 {{- range $pname := $orderedProviders -}}
-{{- if ne $pname "gitlab-duo" -}}
 {{- $pdata := get $allProviders $pname -}}
 {{- $pid := get (get (get $ "providers" | default dict) $pname | default dict) "omp_id" | default $pname -}}
 {{- $ptiers := get $pdata "tiers" | default dict -}}
@@ -108,6 +87,5 @@
 {{- $defaultChain = append $defaultChain (printf "%s/%s" $pid (first $deepChain)) -}}
 {{- end -}}
 {{- end -}}
-{{- end -}}
 {{- $fallbackChains := dict "default" $defaultChain "smol" $smolChain -}}
-{{- dict "provider" $provider "profile" $profile "providerId" $providerId "profileData" $profileData "providerData" $providerData "tier" $defaultTier "thinkingLevel" $thinkingLevel "defaultModel" $defaultModel "smolModel" $smolModel "slowModel" $slowModel "planModel" $planModel "enabledModels" $enabledModels "providerOrder" $providerOrder "fallbackChains" $fallbackChains | toJson -}}
+{{- dict "provider" $provider "profile" $profile "providerId" $providerId "profileData" $profileData "providerData" $providerData "tier" $defaultTier "defaultModel" $defaultModel "smolModel" $smolModel "slowModel" $slowModel "planModel" $planModel "enabledModels" $enabledModels "providerOrder" $providerOrder "fallbackChains" $fallbackChains | toJson -}}

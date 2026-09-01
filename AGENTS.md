@@ -142,8 +142,8 @@ signing with that key.
   etc.). Diferenças-chave do pi:
   - omp usa YAML (`~/.omp/agent/config.yml`), não JSON.
   - `modelRoles` (record de role → "provider/model") controla default/smol/slow/plan.
-  - Profile → `defaultThinkingLevel` (`off|minimal|low|medium|high|xhigh|max`)
-    + tier chain (orchestrator/implementation/planner/quick/standard/deep).
+  - Tiers e Perfis selecionam os MODELOS reais baseados em consumo de tokens / custo
+    (orchestrator, implementation, planner, quick, standard, complex, deep).
   - mcp.json fica em arquivo SEPARADO (`~/.omp/agent/mcp.json`) — omp
     rejeita config inteiro se `mcpServers:` aparecer no config.yml. É
     estático (não-template), schema-validado contra o mcp-schema.json do
@@ -175,10 +175,9 @@ signing with that key.
   registry `[providers.<key>].omp_id`); parser em `.chezmoitemplates/omp-state.tmpl`
   (emite também `fallbackChains`: chains `default`/`smol` com o deep/quick
   de todos os providers, ativo primeiro, demais em ordem sortAlpha —
-  `keys` sozinho retorna em ordem aleatória). Além disso o template seta
-  `github.enabled`, `bash.autoBackground` e `lsp.diagnosticsOnEdit`.
-  Profiles: optimized=medium/implementation, moderate=alias, super=low/standard,
-  ultra=minimal/quick, recommended=high/implementation.
+  `keys` sozinho retorna em ordem aleatória).
+  Tiers baseados em custo de tokens: expensive / recommended (flagship / alto consumo),
+  balanced / optimized (balanceado), cheap / super (econômico), free / ultra (custo mínimo).
 - **nvim** (`private_dot_config/nvim/`): AstroNvim-based, Lua config under
   `lua/plugins/`.
 - **antidote**: zsh plugin manager installed via Homebrew/pacman. The static

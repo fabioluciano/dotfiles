@@ -6,29 +6,27 @@ _change-providers() {
 
   commands=(
     'status:mostrar estado de todos os agentes'
-    'reset:restaurar todos para o provider/profile padrão'
+    'reset:restaurar todos para o provider/tier padrão'
     'dry-run:mostrar mudança sem aplicar'
   )
 
-  {{- /* Providers = keys do registry no providers.toml (comuns aos três agentes).
-          Em runtime, o script lê do chezmoi data; aqui no completion usamos
-          a interseção estática. Fallback se .pi.providers não existir. */ -}}
+  {{- /* Providers = keys do registry no providers.toml (comuns aos agentes). */ -}}
   providers=(
-  {{- if .pi.providers }}
-  {{- range $p, $_ := .pi.providers }}
+  {{- if .providers }}
+  {{- range $p := keys .providers | sortAlpha }}
     '{{ $p }}'
   {{- end }}
   {{- else }}
-    'deepseek' 'google' 'kimicode' 'minimax' 'opencode' 'openai' 'qwencloud' 'xiaomi' 'zai'
+    'navy' 'google' 'xiaomi'
   {{- end }}
   )
 
   profiles=(
-    'optimized:medium thinking + implementation tier (default)'
-    'moderate:alias para optimized'
-    'super:low thinking + standard tier'
-    'ultra:minimal thinking + quick tier'
-    'recommended:high thinking + implementation tier'
+    'recommended:tier flagship / modelos de máxima capacidade'
+    'optimized:tier balanceado / modelos médios (padrão)'
+    'super:tier econômico / modelos leves de baixo consumo'
+    'ultra:tier custo mínimo / modelos rápidos'
+    'free:tier gratuito / sem consumo de tokens pagos'
   )
 
   local cur="${words[CURRENT]-}"
@@ -52,23 +50,23 @@ _change-providers() {
       if (( CURRENT == 3 )); then
         _describe 'provider' providers
       elif (( CURRENT == 4 )); then
-        _describe 'profile' profiles
+        _describe 'tier' profiles
       fi
       return
       ;;
     opencode|omp|pi|codewhale)
-      # Digitado manualmente: word[3]: provider, word[4]: profile
+      # Digitado manualmente: word[3]: provider, word[4]: tier
       if (( CURRENT == 3 )); then
         _describe 'provider' providers
       elif (( CURRENT == 4 )); then
-        _describe 'profile' profiles
+        _describe 'tier' profiles
       fi
       return
       ;;
     *)
-      # word[2] was a provider; word[3]: profile
+      # word[2] was a provider; word[3]: tier
       if (( CURRENT == 3 )); then
-        _describe 'profile' profiles
+        _describe 'tier' profiles
       fi
       ;;
   esac

@@ -1,24 +1,8 @@
 {{- /* Configuração global do pi (earendil-works/pi). Renderiza
      `~/.pi/agent/settings.json` a partir de uma state file em
      `~/.config/pi/.active_provider` (provider:foo\nprofile:bar) +
-     `.chezmoidata/providers.toml`.
-
-     DIFERENÇAS DO omp:
-       - pi usa JSON (settings.json), não YAML.
-       - pi só tem defaultProvider + defaultModel + defaultThinkingLevel
-         (sem modelRoles/fallbackChains/modelProviderOrder).
-       - O catálogo vive em models.json (auto-gerenciado por `pi update`),
-         NÃO é template.
-       - Tema Tokyo Night é um arquivo separado em themes/tokyo-night.json.
-       - mcp.json diverge do omp: pi mantém filesystem/playwright/github como
-         MCP servers explícitos (o omp usa built-ins); github = github-mcp-server.
-
-     Preservação de chaves auto-gerenciadas: o pi escreve em settings.json
-     (lastChangelogVersion, etc.). O template lê o valor vivo via jq e o
-     re-emite, para que apply não resete o estado do pi. */ -}}
+     `.chezmoidata/providers.toml`. */ -}}
 {{- $state := includeTemplate "pi-state.tmpl" . | fromJson -}}
-{{- /* Uma única leitura jq do target (em vez de 5 subprocessos) preserva as
-     chaves auto-gerenciadas pelo pi. Defaults ficam no próprio jq. */ -}}
 {{- $liveJSON := output "sh" "-c" "jq -c '{theme:(.theme // \"tokyo-night\"), lastChangelogVersion:(.lastChangelogVersion // \"0.0.0\"), packages:(.packages // []), showHardwareCursor:(.showHardwareCursor // true), showCacheMissNotices:(.showCacheMissNotices // true)}' \"$HOME/.pi/agent/settings.json\" 2>/dev/null || echo '{}'" | trim | default "{}" -}}
 {{- $live := $liveJSON | fromJson -}}
 {{- $liveTheme := get $live "theme" | default "tokyo-night" -}}
@@ -36,7 +20,6 @@
   "packages": {{ $livePackages }},
   "defaultProvider": "{{ $state.providerId }}",
   "defaultModel": "{{ $state.defaultModel }}",
-  "defaultThinkingLevel": "{{ $state.thinkingLevel }}",
   "showHardwareCursor": {{ $liveShowHardwareCursor }},
   "terminal": {
     "showTerminalProgress": true

@@ -1,14 +1,15 @@
 {
   "dependencies": {
-    "@cortexkit/opencode-magic-context": "latest",
-    "@opencode-ai/plugin": "latest",
+    "@cortexkit/opencode-magic-context": "0.40.1",
+    "@opencode-ai/plugin": "1.18.2",
     "cc-safety-net": "latest",
-    "oh-my-openagent": "latest",
-    "oh-my-opencode-slim": "latest",
+    "comment-json": "5.0.0",
+    "oh-my-openagent": "4.19.3",
+    "oh-my-opencode-slim": "2.2.3",
     "opencode-subagent-statusline": "latest"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
-    "oh-my-openagent@4.11.1": true
+    "oh-my-openagent@4.19.3": true
   }
 }
