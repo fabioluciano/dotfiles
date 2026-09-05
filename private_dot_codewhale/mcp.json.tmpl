@@ -1,6 +1,6 @@
 {{- /* Codewhale MCP (~/.codewhale/mcp.json) — espelho dos MCPs do opencode:
-     context7, playwright, gh_grep, github, codebase-memory, kubernetes,
-     terraform. O token do github é injetado via env do chezmoi (nunca gravado
+     context7, playwright, sequential-thinking, git, gh_grep, github,
+     codebase-memory, kubernetes, terraform. O token do github é injetado via env do chezmoi (nunca gravado
      no repo); os demais não precisam de credencial explícita. */ -}}
 {
   "timeouts": {
@@ -16,6 +16,16 @@
     },
     "playwright": {
       "command": "playwright-mcp",
+      "env": {},
+      "execute_timeout": 10
+    },
+    "sequential-thinking": {
+      "command": "mcp-server-sequential-thinking",
+      "env": {},
+      "execute_timeout": 10
+    },
+    "git": {
+      "command": "mcp-server-git",
       "env": {},
       "execute_timeout": 10
     },

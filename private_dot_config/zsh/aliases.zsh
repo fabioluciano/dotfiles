@@ -12,7 +12,7 @@ command -v duf >/dev/null 2>&1 && alias df='duf' || true
 command -v procs >/dev/null 2>&1 && alias ps='procs' || true
 command -v viddy &>/dev/null && alias watch='viddy'
 
-wttr() { curl -s "wttr.in/${1:-}"; }
+wttr() { curl -s --max-time 10 "wttr.in/${1:-}"; }
 
 alias g='git'
 alias gs='git status'
@@ -32,6 +32,10 @@ alias kdp='kubectl describe pod'
 alias kl='kubectl logs'
 alias kaf='kubectl apply -f'
 alias kdel='kubectl delete'
+
+if command -v kubecolor >/dev/null 2>&1; then
+    kcolor() { command kubecolor "$@"; }
+fi
 
 alias vim='nvim'
 alias vi='nvim'

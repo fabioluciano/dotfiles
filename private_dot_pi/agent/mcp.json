@@ -11,6 +11,16 @@
       "command": "playwright-mcp",
       "timeout": 10000
     },
+    "sequential-thinking": {
+      "transport": "stdio",
+      "command": "mcp-server-sequential-thinking",
+      "timeout": 10000
+    },
+    "git": {
+      "transport": "stdio",
+      "command": "mcp-server-git",
+      "timeout": 10000
+    },
     "gh_grep": {
       "type": "http",
       "url": "https://mcp.grep.app",

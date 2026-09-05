@@ -14,7 +14,7 @@
 {{- $chain := index $providerModels $tier | default (index $providerModels "standard") | default (index $providerModels "orchestrator") -}}
       "{{ $agent }}": {
         "model": "{{ first $chain }}",
-        "prompt_append": "file://~/.config/opencode/AGENTS.md"{{ if eq $agent "explore" }},
+        "prompt_append": "file://~/.config/AGENTS.md"{{ if eq $agent "explore" }},
         "tools": {"edit": false}{{ else if eq $agent "librarian" }},
         "tools": {"edit": false}{{ else if eq $agent "multimodal-looker" }},
         "tools": {"edit": false}{{ end }}
@@ -28,7 +28,7 @@
 {{- $chain := index $providerModels $tier | default (index $providerModels "standard") | default (index $providerModels "orchestrator") -}}
       "{{ $category }}": {
         "model": "{{ first $chain }}",
-        "prompt_append": "file://~/.config/opencode/AGENTS.md"
+        "prompt_append": "file://~/.config/AGENTS.md"
       }{{ if lt $i (sub (len $categoryKeys) 1) }},{{ end }}
 {{- end }}
     },

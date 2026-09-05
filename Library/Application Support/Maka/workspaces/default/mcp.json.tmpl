@@ -1,0 +1,41 @@
+{{- /* Maka MCP (workspaces/default/mcp.json) — servidores MCP recomendados:
+     context7, playwright, sequential-thinking, git, gh_grep, github,
+     codebase-memory, kubernetes, terraform.
+     O token do github é injetado via env do chezmoi. */ -}}
+{
+  "version": 2,
+  "mcpServers": {
+    "context7": {
+      "command": "context7-mcp"
+    },
+    "playwright": {
+      "command": "playwright-mcp"
+    },
+    "sequential-thinking": {
+      "command": "mcp-server-sequential-thinking"
+    },
+    "git": {
+      "command": "mcp-server-git"
+    },
+    "gh_grep": {
+      "url": "https://mcp.grep.app"
+    },
+    "github": {
+      "command": "github-mcp-server",
+      "args": ["stdio"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ env "GITHUB_TOKEN" | default (env "GITHUB_PERSONAL_ACCESS_TOKEN") }}"
+      }
+    },
+    "codebase-memory": {
+      "command": "codebase-memory-mcp"
+    },
+    "kubernetes": {
+      "command": "kubernetes-mcp-server",
+      "args": ["--read-only"]
+    },
+    "terraform": {
+      "command": "terraform-mcp-server"
+    }
+  }
+}

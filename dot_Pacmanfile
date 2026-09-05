@@ -39,12 +39,16 @@ nvtop
 procs
 ripgrep
 rsync
+rustnet-bin
 shellcheck
 smug
 starship
 strace
 tailspin
+tailcat-bin
 termshark
+wireshark-cli
+wireshark-qt
 tldr
 tmux
 tmux-plugin-manager
@@ -144,6 +148,7 @@ insomnia-bin
 onlyoffice-bin
 sniffnet
 spotify
+fastpotify-bin
 telegram-desktop
 whatsdesk-bin
 

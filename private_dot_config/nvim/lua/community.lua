@@ -11,7 +11,6 @@ return {
   { import = "astrocommunity.completion.blink-cmp-git" },
 
   { import = "astrocommunity.code-runner.overseer-nvim" },
-  { import = "astrocommunity.code-runner.sniprun" },
 
   { import = "astrocommunity.debugging.nvim-dap-virtual-text" },
   { import = "astrocommunity.debugging.telescope-dap-nvim" },
@@ -76,22 +75,16 @@ return {
   { import = "astrocommunity.test.neotest" },
   { import = "astrocommunity.test.nvim-coverage" },
 
-  { import = "astrocommunity.project.project-nvim" },
-
   { import = "astrocommunity.recipes.vscode" },
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.neovide" },
   { import = "astrocommunity.recipes.picker-lsp-mappings" },
-
-  { import = "astrocommunity.scrolling.mini-animate" },
 
   { import = "astrocommunity.syntax.vim-easy-align" },
 
   { import = "astrocommunity.terminal-integration.vim-tmux-yank" },
   { import = "astrocommunity.terminal-integration.flatten-nvim" },
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
-
-  { import = "astrocommunity.split-and-window.neominimap-nvim" },
 
   { import = "astrocommunity.utility.noice-nvim" },
   { import = "astrocommunity.utility.telescope-live-grep-args-nvim" },

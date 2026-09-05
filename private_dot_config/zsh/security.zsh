@@ -5,6 +5,7 @@
 # been found; this leaves other agents (including macOS Keychain) untouched
 # when GPG or the YubiKey is unavailable.
 _setup_gpg_ssh_agent() {
+  emulate -L zsh
   local gpg_sock_cache cached_sock candidate cache_dir tmp_cache cache_hit
 
   # GPG_TTY: only set if we actually have a tty (avoids error noise in

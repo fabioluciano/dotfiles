@@ -1,0 +1,332 @@
+{{- /* Crush configuration (~/.config/crush/crush.json)
+     Renderizado dinamicamente via change-providers / crush-state.tmpl */ -}}
+{{- $state := includeTemplate "crush-state.tmpl" . | fromJson -}}
+{{- $activeProvider := $state.provider -}}
+{{- $activeModels := $state.providerModels -}}
+{{- $activeDefaultModel := $activeModels.orchestrator | default "kimi-k2.7-code" -}}
+{{- $activeSmallModel := $activeModels.quick | default "deepseek-v4-flash" -}}
+{
+  "$schema": "https://charm.land/crush.json",
+  "models": {
+    "default": {
+      "provider": "{{ $activeProvider }}",
+      "model": "{{ $activeDefaultModel }}"
+    },
+    "small": {
+      "provider": "{{ $activeProvider }}",
+      "model": "{{ $activeSmallModel }}"
+    }
+  },
+  "providers": {
+    "opencode-go": {
+      "id": "opencode-go",
+      "name": "OpenCode Go",
+      "base_url": "https://opencode.ai/zen/go/v1",
+      "type": "openai-compat",
+      "api_key": {{ env "OPENCODE_GO_API_KEY" | default (env "OPENCODE_API_KEY") | quote }},
+      "discover_models": true
+    },
+    "navy": {
+      "id": "navy",
+      "name": "Navy AI",
+      "base_url": "https://api.navy/v1",
+      "type": "openai-compat",
+      "api_key": {{ env "NAVYAI_API_KEY" | default (env "NAVY_API_KEY") | quote }},
+      "discover_models": true
+    },
+    "xiaomi": {
+      "id": "xiaomi",
+      "name": "Xiaomi MiMo",
+      "base_url": "https://token-plan-sgp.xiaomimimo.com/v1",
+      "type": "openai-compat",
+      "api_key": {{ env "MIMO_API_KEY" | quote }},
+      "discover_models": true
+    },
+    "deepseek": {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "base_url": "https://api.deepseek.com",
+      "type": "openai-compat",
+      "api_key": {{ env "DEEPSEEK_API_KEY" | quote }},
+      "discover_models": true
+    },
+    "google": {
+      "id": "google",
+      "name": "Google Gemini",
+      "type": "google",
+      "api_key": {{ env "GEMINI_API_KEY" | default (env "GOOGLE_API_KEY") | quote }},
+      "discover_models": true
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "stdio",
+      "command": "context7-mcp",
+      "args": []
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "playwright-mcp",
+      "args": []
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "mcp-server-sequential-thinking",
+      "args": []
+    },
+    "git": {
+      "type": "stdio",
+      "command": "mcp-server-git",
+      "args": []
+    },
+    "gh_grep": {
+      "type": "http",
+      "url": "https://mcp.grep.app"
+    },
+    "github": {
+      "type": "stdio",
+      "command": "github-mcp-server",
+      "args": [
+        "stdio"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": {{ env "GITHUB_TOKEN" | default (env "GITHUB_PERSONAL_ACCESS_TOKEN") | quote }},
+        "GITHUB_TOKEN": {{ env "GITHUB_TOKEN" | default (env "GITHUB_PERSONAL_ACCESS_TOKEN") | quote }}
+      }
+    },
+    "codebase-memory": {
+      "type": "stdio",
+      "command": "codebase-memory-mcp",
+      "args": []
+    },
+    "kubernetes": {
+      "type": "stdio",
+      "command": "kubernetes-mcp-server",
+      "args": [
+        "--read-only"
+      ]
+    },
+    "terraform": {
+      "type": "stdio",
+      "command": "terraform-mcp-server",
+      "args": []
+    }
+  },
+  "lsp": {
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": [
+        "--stdio"
+      ],
+      "filetypes": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "mjs",
+        "cjs"
+      ],
+      "root_markers": [
+        "package.json",
+        "tsconfig.json",
+        "jsconfig.json",
+        ".git"
+      ]
+    },
+    "golang": {
+      "command": "gopls",
+      "args": [],
+      "filetypes": [
+        "go",
+        "gomod",
+        "gowork",
+        "gotmpl"
+      ],
+      "root_markers": [
+        "go.mod",
+        "go.work",
+        ".git"
+      ]
+    },
+    "python": {
+      "command": "basedpyright-langserver",
+      "args": [
+        "--stdio"
+      ],
+      "filetypes": [
+        "py",
+        "pyi"
+      ],
+      "root_markers": [
+        "pyproject.toml",
+        "setup.py",
+        "requirements.txt",
+        ".git"
+      ]
+    },
+    "rust": {
+      "command": "rust-analyzer",
+      "args": [],
+      "filetypes": [
+        "rs"
+      ],
+      "root_markers": [
+        "Cargo.toml",
+        "rust-toolchain.toml",
+        ".git"
+      ]
+    },
+    "lua": {
+      "command": "lua-language-server",
+      "args": [],
+      "filetypes": [
+        "lua"
+      ],
+      "root_markers": [
+        ".luarc.json",
+        ".stylua.toml",
+        ".git"
+      ]
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": [
+        "start"
+      ],
+      "filetypes": [
+        "sh",
+        "bash",
+        "zsh"
+      ],
+      "root_markers": [
+        ".git"
+      ]
+    },
+    "yaml": {
+      "command": "yaml-language-server",
+      "args": [
+        "--stdio"
+      ],
+      "filetypes": [
+        "yaml",
+        "yml"
+      ],
+      "root_markers": [
+        ".git"
+      ]
+    },
+    "toml": {
+      "command": "taplo",
+      "args": [
+        "lsp",
+        "run"
+      ],
+      "filetypes": [
+        "toml"
+      ],
+      "root_markers": [
+        "Cargo.toml",
+        ".taplo.toml",
+        ".git"
+      ]
+    },
+    "dockerfile": {
+      "command": "docker-langserver",
+      "args": [
+        "--stdio"
+      ],
+      "filetypes": [
+        "dockerfile",
+        "Dockerfile"
+      ],
+      "root_markers": [
+        "Dockerfile",
+        "compose.yaml",
+        "compose.yml",
+        "docker-compose.yml",
+        ".git"
+      ]
+    },
+    "markdown": {
+      "command": "marksman",
+      "args": [
+        "server"
+      ],
+      "filetypes": [
+        "md",
+        "markdown"
+      ],
+      "root_markers": [
+        ".marksman.toml",
+        ".git"
+      ]
+    },
+    "terraform": {
+      "command": "terraform-ls",
+      "args": [
+        "serve"
+      ],
+      "filetypes": [
+        "tf",
+        "tfvars",
+        "hcl"
+      ],
+      "root_markers": [
+        ".terraform",
+        ".git"
+      ]
+    },
+    "helm": {
+      "command": "helm_ls",
+      "args": [
+        "serve"
+      ],
+      "filetypes": [
+        "yaml",
+        "yml"
+      ],
+      "root_markers": [
+        "Chart.yaml"
+      ]
+    },
+    "zig": {
+      "command": "zls",
+      "args": [],
+      "filetypes": [
+        "zig",
+        "zon"
+      ],
+      "root_markers": [
+        "build.zig",
+        "build.zig.zon",
+        ".git"
+      ]
+    }
+  },
+  "options": {
+    "global_context_paths": [
+      "~/.config/AGENTS.md"
+    ],
+    "skills_paths": [
+      "~/.agents/skills",
+      "~/.config/crush/skills"
+    ],
+    "disable_metrics": true,
+    "notification_style": "auto",
+    "auto_lsp": true,
+    "tui": {
+      "transparent": false
+    }
+  },
+  "permissions": {
+    "allowed_tools": [
+      "bash",
+      "view",
+      "edit",
+      "create",
+      "glob",
+      "grep",
+      "ls"
+    ]
+  }
+}

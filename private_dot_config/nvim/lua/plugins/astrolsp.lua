@@ -5,6 +5,35 @@ local conform_first_filetypes = {
   "typescriptreact",
 }
 
+local sql_language_server = vim.fn.exepath "sql-language-server"
+local lsp_servers = {
+  "lua_ls",
+  "basedpyright",
+  "gopls",
+  "rust_analyzer",
+  "ts_ls",
+  "angularls",
+  "volar",
+  "tailwindcss",
+  "html",
+  "cssls",
+  "jsonls",
+  "yamlls",
+  "bashls",
+  "dockerls",
+  "terraformls",
+  "taplo",
+  "zls",
+  "elixirls",
+  "marksman",
+  "cmake",
+  "helm_ls",
+  "mdx_analyzer",
+  "tinymist",
+  "intelephense",
+}
+if sql_language_server ~= "" then table.insert(lsp_servers, "sqlls") end
+
 ---@type LazySpec
 return {
   "AstroNvim/astrolsp",
@@ -14,7 +43,9 @@ return {
     features = {
       autoformat = true,
       codelens = true,
-      inlay_hints = true,
+      -- Ative sob demanda com <Leader>uh/<Leader>uH; evita poluição visual
+      -- e trabalho extra em todos os buffers LSP.
+      inlay_hints = false,
       semantic_tokens = true,
       signature_help = true,
     },
@@ -27,21 +58,37 @@ return {
       disabled = {},
       timeout_ms = 2000,
     },
-    servers = {},
+    -- These servers are installed and versioned by mise. Keeping this list
+    -- explicit prevents Mason's installed packages from becoming the source
+    -- of truth and accidentally enabling formatter LSPs such as stylua.
+    servers = lsp_servers,
+    handlers = {
+      -- stylua is a formatter in this configuration, never a code LSP.
+      stylua = false,
+      selene = false,
+    },
     config = {
       gopls = {
         filetypes = { "go", "gomod", "gowork", "gosum" },
       },
+      sqlls = {
+        cmd = { sql_language_server, "up", "--method", "stdio" },
+      },
     },
-    handlers = {},
     autocmds = {
       lsp_codelens_refresh = {
-        cond = "textDocument/codeLens",
+        cond = function(client)
+          return client:supports_method "textDocument/codeLens"
+            and vim.tbl_contains({ "go", "java", "rust", "typescript", "typescriptreact" }, vim.bo.filetype)
+        end,
         {
-          event = { "InsertLeave", "BufEnter" },
-          desc = "Refresh codelens (buffer)",
+          event = { "LspAttach", "BufWritePost" },
+          desc = "Refresh code lens after attach/save",
           callback = function(args)
-            if require("astrolsp").config.features.codelens then vim.lsp.codelens.enable(true, { bufnr = args.buf }) end
+            if not require("astrolsp").config.features.codelens then return end
+            vim.defer_fn(function()
+              if vim.api.nvim_buf_is_valid(args.buf) then vim.lsp.codelens.refresh { bufnr = args.buf } end
+            end, 200)
           end,
         },
       },

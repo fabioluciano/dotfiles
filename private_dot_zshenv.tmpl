@@ -4,8 +4,21 @@
 # Locale — set here (not in .zshrc) so non-interactive shells (scripts, scp,
 # subprocesses spawned by editors) also get UTF-8. Many tools assume UTF-8 and
 # break (or silently mojibake) without an explicit locale.
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
+# Do not export a locale that the host has not generated: that makes Arch
+# shells print noisy warnings before user configuration has a chance to run.
+_zsh_utf8_locale=
+if command -v locale >/dev/null 2>&1; then
+  _zsh_available_locales=$(locale -a 2>/dev/null || :)
+  case $'\n'"$_zsh_available_locales"$'\n' in
+    *$'\nen_US.UTF-8\n'*|*$'\nen_US.utf8\n'*) _zsh_utf8_locale=en_US.UTF-8 ;;
+    *$'\nC.UTF-8\n'*|*$'\nC.utf8\n'*) _zsh_utf8_locale=C.UTF-8 ;;
+  esac
+fi
+if [[ -n $_zsh_utf8_locale ]]; then
+  export LANG="$_zsh_utf8_locale"
+  export LC_CTYPE="$_zsh_utf8_locale"
+fi
+unset _zsh_available_locales _zsh_utf8_locale
 
 # mise shims — garante as versoes gerenciadas pelo mise tambem em shells
 # NAO-interativos, scripts e processos que dao spawn em zsh. O `mise activate`
@@ -27,22 +40,70 @@ unset _node_ca_bundle
 # OpenCode experimental features
 export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 
-# API tokens are loaded on demand by `zsh-load-tokens` in interactive zsh.
-# Non-interactive shells intentionally do not source the generated secrets file.
-{{- if eq .chezmoi.os "darwin" }}
+# API tokens — só shells interativos auto-carregam (tokens.zsh vem do
+# Bitwarden via zsh-tokens-sync). Scripts/cron/ssh-command não herdam as
+# chaves; os wrappers (opencode/omo/omos/pi/omp/tmux) chamam zsh-load-tokens
+# sob demanda antes de subir o processo.
 
-# >>> omp env var aliases >>>
-# omp (@oh-my-pi/cli) usa nomes de env var diferentes do opencode/pi. Aliases
-# abaixo derivam das chaves existentes (geradas por zsh-tokens-sync do
-# Bitwarden) sem precisar renomear o item nem mexer no sync. Os tokens
-# originais continuam exportados para compat com opencode/pai/sessões antigas.
-# - QWENCLOUD_API_TOKEN  → ALIBABA_TOKEN_PLAN_API_KEY  (Singapore token plan)
-# - MIMO_API_KEY         → XIAOMI_TOKEN_PLAN_SGP_API_KEY (Singapore region)
-# Garante que o alias não falhe se os originais não estiverem setados.
-[[ -n "${QWENCLOUD_API_TOKEN:-}" ]] && export ALIBABA_TOKEN_PLAN_API_KEY="$QWENCLOUD_API_TOKEN"
-[[ -n "${MIMO_API_KEY:-}" ]] && export XIAOMI_TOKEN_PLAN_SGP_API_KEY="$MIMO_API_KEY"
-[[ -n "${GEMINI_API_KEY:-}" && -z "${GOOGLE_API_KEY:-}" ]] && export GOOGLE_API_KEY="$GEMINI_API_KEY"
-[[ -n "${GOOGLE_API_KEY:-}" && -z "${GEMINI_API_KEY:-}" ]] && export GEMINI_API_KEY="$GOOGLE_API_KEY"
-# <<< omp env var aliases <<<
+_ZSH_TOKEN_VARS=(
+  GITHUB_TOKEN GITLAB_TOKEN BITBUCKET_TOKEN JIRA_TOKEN JIRA_EMAIL JIRA_DOMAIN
+  WORK_MAIL ANTHROPIC_API_KEY MIMO_API_KEY OPENAI_API_KEY OPENCODE_API_KEY
+  OPENCODE_GO_API_KEY OPENCODE_ZEN_API_KEY MINIMAX_API_KEY DEEPSEEK_API_KEY
+  ZAI_API_KEY KIMI_CODE_API_KEY QWENCLOUD_API_TOKEN GEMINI_API_KEY GOOGLE_API_KEY
+  COMMANDCODE_API_KEY NAVYAI_API_KEY TOKENRA_API_KEY FREELITELLM_API_KEY NAVY_API_KEY
+  ALIBABA_TOKEN_PLAN_API_KEY XIAOMI_TOKEN_PLAN_SGP_API_KEY
+)
 
-{{- end }}
+_zsh-token-file-safe() {
+  emulate -L zsh
+  zmodload zsh/stat 2>/dev/null || return 1
+  local token_file=$1 token_dir=${1:h}
+  local -A file_stat dir_stat
+  [[ -f $token_file && ! -L $token_file && -O $token_file ]] || return 1
+  zstat -H file_stat -- "$token_file" 2>/dev/null || return 1
+  zstat -H dir_stat -- "$token_dir" 2>/dev/null || return 1
+  (( (file_stat[mode] & 077) == 0 )) || return 1
+  (( (dir_stat[mode] & 022) == 0 )) || return 1
+}
+
+_zsh-derive-token-aliases() {
+  [[ -n ${QWENCLOUD_API_TOKEN:-} ]] && export ALIBABA_TOKEN_PLAN_API_KEY=$QWENCLOUD_API_TOKEN
+  [[ -n ${MIMO_API_KEY:-} ]] && export XIAOMI_TOKEN_PLAN_SGP_API_KEY=$MIMO_API_KEY
+  [[ -n ${NAVYAI_API_KEY:-} ]] && export NAVY_API_KEY=$NAVYAI_API_KEY
+  [[ -n ${GEMINI_API_KEY:-} ]] && export GOOGLE_API_KEY=$GEMINI_API_KEY
+  [[ -n ${GOOGLE_API_KEY:-} ]] && export GEMINI_API_KEY=$GOOGLE_API_KEY
+  [[ -n ${OPENCODE_API_KEY:-} ]] && export OPENCODE_GO_API_KEY=$OPENCODE_API_KEY
+  [[ -n ${OPENCODE_API_KEY:-} ]] && export OPENCODE_ZEN_API_KEY=$OPENCODE_API_KEY
+}
+
+# Definição sempre disponível em qualquer shell (inclusive não-interativos,
+# para os wrappers usarem). O trace fica suspenso enquanto segredos são lidos.
+zsh-load-tokens() {
+  emulate -L zsh
+  local token_file="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/tokens.zsh"
+  local had_xtrace=0 had_verbose=0 token_var
+  [[ -o xtrace ]] && had_xtrace=1
+  [[ -o verbose ]] && had_verbose=1
+  unsetopt xtrace verbose
+
+  if ! _zsh-token-file-safe "$token_file"; then
+    (( had_xtrace )) && setopt xtrace
+    (( had_verbose )) && setopt verbose
+    return 1
+  fi
+
+  for token_var in "${_ZSH_TOKEN_VARS[@]}"; do
+    unset "$token_var"
+  done
+  source "$token_file"
+  _zsh-derive-token-aliases
+  typeset -g _ZSH_TOKENS_LOADED=1
+
+  (( had_xtrace )) && setopt xtrace
+  (( had_verbose )) && setopt verbose
+  return 0
+}
+
+if [[ -o interactive && -z ${_ZSH_TOKENS_LOADED:-} ]]; then
+  zsh-load-tokens || true
+fi

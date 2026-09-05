@@ -5,6 +5,14 @@
       "command": "context7-mcp",
       "timeout": 8000
     },
+    "sequential-thinking": {
+      "command": "mcp-server-sequential-thinking",
+      "timeout": 10000
+    },
+    "git": {
+      "command": "mcp-server-git",
+      "timeout": 10000
+    },
     "gh_grep": {
       "type": "http",
       "url": "https://mcp.grep.app",

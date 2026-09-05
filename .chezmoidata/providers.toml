@@ -15,6 +15,8 @@ codewhale_id = "navy"
 codewhale_kind = "openai-compatible"
 codewhale_base_url = "https://api.navy/v1"
 codewhale_api_key_env = "NAVYAI_API_KEY"
+maka_id = "navy"
+crush_id = "navy"
 models = [
   "claude-sonnet-5",
   "claude-opus-5",
@@ -49,6 +51,8 @@ omp_id = "xiaomi-token-plan-sgp"
 pi_id = "xiaomi-mimo"
 codewhale_id = "xiaomi-mimo"
 codewhale_api_key_env = "MIMO_API_KEY"
+maka_id = "xiaomi-token-plan-sgp"
+crush_id = "xiaomi"
 
 [providers.google]
 display_name = "Google (Gemini / Antigravity)"
@@ -56,10 +60,22 @@ opencode_id = "google"
 omp_id = "google-antigravity"
 pi_id = "antigravity"
 codewhale_id = "google"
+maka_id = "google"
+crush_id = "google"
 
 # ==============================================================================
 # OPENCODE — Matrizes de Modelos por Tier
 # ==============================================================================
+[providers.opencode-go]
+display_name = "Opencode Go (Distribuição Híbrida/Proteção de Cota)"
+opencode_id = "opencode-go"
+omp_id = "opencode-go"
+pi_id = "opencode-go"
+codewhale_id = "opencode-go"
+codewhale_api_key_env = "OPENCODE_GO_API_KEY"
+maka_id = "opencode-go"
+crush_id = "opencode-go"
+
 [opencode]
 default_provider = "navy"
 
@@ -802,3 +818,629 @@ planner = "gemini-3.5-flash-lite"
 search = "gemini-3.1-flash-lite"
 review = "gemini-3.5-flash-lite"
 quick = "gemini-3.1-flash-lite"
+# --- OPENCODE GO (Default / Optimized: Balanceado) ---
+[opencode.models.opencode-go]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+[opencode.models.opencode-go-optimized]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+# --- OPENCODE GO (Recommended: Flagship / Híbrido Cota-Protegida) ---
+[opencode.models.opencode-go-recommended]
+orchestrator = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+implementation = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna", "opencode-go/qwen3.8-max"]
+planner = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+architecture = ["opencode-go/grok-4.6", "opencode-go/hy4-preview"]
+search = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+vision = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+review = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+quick = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+complex = ["opencode-go/kimi-k3", "opencode-go/grok-4.6", "opencode-go/deepseek-v4-pro"]
+visual = ["opencode-go/gpt-5.6-luna"]
+deep = ["opencode-go/kimi-k3", "opencode-go/grok-4.6"]
+ultrabrain = ["opencode-go/kimi-k3", "opencode-go/gpt-5.6-luna"]
+ultrawork = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+
+# --- OPENCODE GO (Super: Econômico / Alta Cota) ---
+[opencode.models.opencode-go-super]
+orchestrator = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+implementation = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+planner = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+architecture = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+search = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+vision = ["opencode-go/deepseek-v4-flash-vision-exp"]
+review = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+long_running = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+quick = ["opencode-go/mimo-v2.5", "opencode-go/deepseek-v4-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+complex = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+visual = ["opencode-go/deepseek-v4-flash-vision-exp"]
+deep = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrabrain = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrawork = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+
+# --- OPENCODE GO (Ultra / Free: Custo Mínimo / Fast - 30k+ req) ---
+[opencode.models.opencode-go-ultra]
+orchestrator = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+planner = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+vision = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+quick = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+standard = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+complex = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/mimo-v2.5"]
+deep = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+
+[opencode.models.opencode-go-free]
+orchestrator = ["opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor"]
+planner = ["opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor"]
+vision = ["opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor"]
+quick = ["opencode-go/muse-spark-1.3-contributor"]
+standard = ["opencode-go/muse-spark-1.3-contributor"]
+complex = ["opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/muse-spark-1.3-contributor"]
+deep = ["opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor"]
+[omp.providers.opencode-go]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+[omp.providers.opencode-go-optimized]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+# --- OPENCODE GO (Recommended: Flagship / Híbrido Cota-Protegida) ---
+[omp.providers.opencode-go-recommended]
+orchestrator = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+implementation = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna", "opencode-go/qwen3.8-max"]
+planner = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+architecture = ["opencode-go/grok-4.6", "opencode-go/hy4-preview"]
+search = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+vision = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+review = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+quick = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+complex = ["opencode-go/kimi-k3", "opencode-go/grok-4.6", "opencode-go/deepseek-v4-pro"]
+visual = ["opencode-go/gpt-5.6-luna"]
+deep = ["opencode-go/kimi-k3", "opencode-go/grok-4.6"]
+ultrabrain = ["opencode-go/kimi-k3", "opencode-go/gpt-5.6-luna"]
+ultrawork = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+
+# --- OPENCODE GO (Super: Econômico / Alta Cota) ---
+[omp.providers.opencode-go-super]
+orchestrator = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+implementation = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+planner = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+architecture = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+search = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+vision = ["opencode-go/deepseek-v4-flash-vision-exp"]
+review = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+long_running = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+quick = ["opencode-go/mimo-v2.5", "opencode-go/deepseek-v4-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+complex = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+visual = ["opencode-go/deepseek-v4-flash-vision-exp"]
+deep = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrabrain = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrawork = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+
+# --- OPENCODE GO (Ultra / Free: Custo Mínimo / Fast - 30k+ req) ---
+[omp.providers.opencode-go-ultra]
+orchestrator = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+planner = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+vision = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+quick = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+standard = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+complex = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/mimo-v2.5"]
+deep = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+
+[omp.providers.opencode-go-free]
+orchestrator = ["opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor"]
+planner = ["opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor"]
+vision = ["opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor"]
+quick = ["opencode-go/muse-spark-1.3-contributor"]
+standard = ["opencode-go/muse-spark-1.3-contributor"]
+complex = ["opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/muse-spark-1.3-contributor"]
+deep = ["opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor"]
+[pi.providers.opencode-go]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+[pi.providers.opencode-go-optimized]
+orchestrator = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+implementation = ["opencode-go/minimax-m3", "opencode-go/deepseek-v4-pro"]
+planner = ["opencode-go/qwen3.7-plus"]
+architecture = ["opencode-go/hy3", "opencode-go/minimax-m3"]
+search = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+vision = ["opencode-go/qwen3.8-flash", "opencode-go/minimax-m3"]
+review = ["opencode-go/qwen3.7-plus", "opencode-go/minimax-m3"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/hy3"]
+quick = ["opencode-go/qwen3.8-flash", "opencode-go/glm-5.3-flash"]
+standard = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+complex = ["opencode-go/deepseek-v4-pro", "opencode-go/qwen3.7-plus"]
+visual = ["opencode-go/qwen3.8-flash"]
+deep = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrabrain = ["opencode-go/qwen3.7-plus", "opencode-go/hy3"]
+ultrawork = ["opencode-go/minimax-m3", "opencode-go/qwen3.8-flash"]
+
+# --- OPENCODE GO (Recommended: Flagship / Híbrido Cota-Protegida) ---
+[pi.providers.opencode-go-recommended]
+orchestrator = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+implementation = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna", "opencode-go/qwen3.8-max"]
+planner = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+architecture = ["opencode-go/grok-4.6", "opencode-go/hy4-preview"]
+search = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+vision = ["opencode-go/gpt-5.6-luna", "opencode-go/kimi-k3"]
+review = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+long_running = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+quick = ["opencode-go/deepseek-v4-flash", "opencode-go/qwen3.8-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/gpt-5.6-luna"]
+complex = ["opencode-go/kimi-k3", "opencode-go/grok-4.6", "opencode-go/deepseek-v4-pro"]
+visual = ["opencode-go/gpt-5.6-luna"]
+deep = ["opencode-go/kimi-k3", "opencode-go/grok-4.6"]
+ultrabrain = ["opencode-go/kimi-k3", "opencode-go/gpt-5.6-luna"]
+ultrawork = ["opencode-go/deepseek-v4-pro", "opencode-go/gpt-5.6-luna"]
+
+# --- OPENCODE GO (Super: Econômico / Alta Cota) ---
+[pi.providers.opencode-go-super]
+orchestrator = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+implementation = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+planner = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+architecture = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+search = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+vision = ["opencode-go/deepseek-v4-flash-vision-exp"]
+review = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+long_running = ["opencode-go/mimo-v2.5", "opencode-go/longcat-2.0"]
+quick = ["opencode-go/mimo-v2.5", "opencode-go/deepseek-v4-flash"]
+standard = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+complex = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+visual = ["opencode-go/deepseek-v4-flash-vision-exp"]
+deep = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrabrain = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+ultrawork = ["opencode-go/deepseek-v4-flash", "opencode-go/longcat-2.0"]
+
+# --- OPENCODE GO (Ultra / Free: Custo Mínimo / Fast - 30k+ req) ---
+[pi.providers.opencode-go-ultra]
+orchestrator = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+planner = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+vision = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+quick = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+standard = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+complex = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/mimo-v2.5"]
+deep = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/mimo-v2.5", "opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor", "opencode-go/mimo-v2.5"]
+
+[pi.providers.opencode-go-free]
+orchestrator = ["opencode-go/muse-spark-1.3-contributor"]
+implementation = ["opencode-go/muse-spark-1.3-contributor"]
+planner = ["opencode-go/muse-spark-1.3-contributor"]
+architecture = ["opencode-go/muse-spark-1.3-contributor"]
+search = ["opencode-go/muse-spark-1.3-contributor"]
+vision = ["opencode-go/muse-spark-1.3-contributor"]
+review = ["opencode-go/muse-spark-1.3-contributor"]
+long_running = ["opencode-go/muse-spark-1.3-contributor"]
+quick = ["opencode-go/muse-spark-1.3-contributor"]
+standard = ["opencode-go/muse-spark-1.3-contributor"]
+complex = ["opencode-go/muse-spark-1.3-contributor"]
+visual = ["opencode-go/muse-spark-1.3-contributor"]
+deep = ["opencode-go/muse-spark-1.3-contributor"]
+ultrabrain = ["opencode-go/muse-spark-1.3-contributor"]
+ultrawork = ["opencode-go/muse-spark-1.3-contributor"]
+[codewhale.models.opencode-go]
+orchestrator = "kimi-k2.7-code"
+implementation = "deepseek-v4-pro"
+planner = "kimi-k2.7-code"
+architecture = "deepseek-v4-pro"
+search = "deepseek-v4-flash"
+vision = "mimo-v2.5"
+review = "kimi-k2.7-code"
+long_running = "deepseek-v4-flash"
+quick = "deepseek-v4-flash"
+standard = "kimi-k2.7-code"
+complex = "deepseek-v4-pro"
+visual = "mimo-v2.5"
+deep = "deepseek-v4-pro"
+ultrabrain = "deepseek-v4-pro"
+ultrawork = "kimi-k2.7-code"
+
+[codewhale.models.opencode-go-optimized]
+orchestrator = "kimi-k2.7-code"
+implementation = "deepseek-v4-pro"
+planner = "kimi-k2.7-code"
+architecture = "deepseek-v4-pro"
+search = "deepseek-v4-flash"
+vision = "mimo-v2.5"
+review = "kimi-k2.7-code"
+long_running = "deepseek-v4-flash"
+quick = "deepseek-v4-flash"
+standard = "kimi-k2.7-code"
+complex = "deepseek-v4-pro"
+visual = "mimo-v2.5"
+deep = "deepseek-v4-pro"
+ultrabrain = "deepseek-v4-pro"
+ultrawork = "kimi-k2.7-code"
+
+[codewhale.models.opencode-go-recommended]
+orchestrator = "kimi-k3"
+implementation = "deepseek-v4-pro"
+planner = "kimi-k3"
+architecture = "grok-4.5"
+search = "deepseek-v4-flash"
+vision = "kimi-k3"
+review = "deepseek-v4-pro"
+long_running = "deepseek-v4-flash"
+quick = "deepseek-v4-flash"
+standard = "deepseek-v4-flash"
+complex = "kimi-k3"
+visual = "kimi-k3"
+deep = "kimi-k3"
+ultrabrain = "kimi-k3"
+ultrawork = "deepseek-v4-pro"
+
+[codewhale.models.opencode-go-super]
+orchestrator = "deepseek-v4-flash"
+implementation = "deepseek-v4-flash"
+planner = "deepseek-v4-flash"
+architecture = "deepseek-v4-flash"
+search = "mimo-v2.5"
+vision = "mimo-v2.5"
+review = "deepseek-v4-flash"
+long_running = "mimo-v2.5"
+quick = "mimo-v2.5"
+standard = "deepseek-v4-flash"
+complex = "deepseek-v4-flash"
+visual = "mimo-v2.5"
+deep = "deepseek-v4-flash"
+ultrabrain = "deepseek-v4-flash"
+ultrawork = "deepseek-v4-flash"
+
+[codewhale.models.opencode-go-ultra]
+orchestrator = "mimo-v2.5"
+implementation = "mimo-v2.5"
+planner = "mimo-v2.5"
+architecture = "mimo-v2.5"
+search = "mimo-v2.5"
+vision = "mimo-v2.5"
+review = "mimo-v2.5"
+long_running = "mimo-v2.5"
+quick = "mimo-v2.5"
+standard = "mimo-v2.5"
+complex = "mimo-v2.5"
+visual = "mimo-v2.5"
+deep = "mimo-v2.5"
+ultrabrain = "mimo-v2.5"
+ultrawork = "mimo-v2.5"
+
+[codewhale.models.opencode-go-free]
+orchestrator = "mimo-v2.5"
+implementation = "mimo-v2.5"
+planner = "mimo-v2.5"
+architecture = "mimo-v2.5"
+search = "mimo-v2.5"
+vision = "mimo-v2.5"
+review = "mimo-v2.5"
+long_running = "mimo-v2.5"
+quick = "mimo-v2.5"
+standard = "mimo-v2.5"
+complex = "mimo-v2.5"
+visual = "mimo-v2.5"
+deep = "mimo-v2.5"
+ultrabrain = "mimo-v2.5"
+ultrawork = "mimo-v2.5"
+
+# ==============================================================================
+# MAKA — Matrizes por Tier
+# ==============================================================================
+[maka]
+default_provider = "opencode-go"
+
+# --- NAVY (Maka) ---
+[maka.models.navy]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[maka.models.navy-recommended]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[maka.models.navy-optimized]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[maka.models.navy-super]
+orchestrator = "deepseek-v4-pro"
+quick = "deepseek-v4-flash"
+
+[maka.models.navy-ultra]
+orchestrator = "deepseek-v4-flash"
+quick = "deepseek-v4-flash"
+
+[maka.models.navy-free]
+orchestrator = "deepseek-v4-pro"
+quick = "deepseek-v4-flash"
+
+# --- XIAOMI (Maka) ---
+[maka.models.xiaomi]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[maka.models.xiaomi-recommended]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[maka.models.xiaomi-optimized]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[maka.models.xiaomi-super]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[maka.models.xiaomi-ultra]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[maka.models.xiaomi-free]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+# --- GOOGLE (Maka) ---
+[maka.models.google]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[maka.models.google-recommended]
+orchestrator = "gemini-3.5-flash"
+quick = "gemini-2.5-flash"
+
+[maka.models.google-optimized]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[maka.models.google-super]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[maka.models.google-ultra]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[maka.models.google-free]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+# --- OPENCODE-GO (Maka) ---
+[maka.models.opencode-go]
+orchestrator = "kimi-k2.7-code"
+quick = "deepseek-v4-flash"
+
+[maka.models.opencode-go-optimized]
+orchestrator = "kimi-k2.7-code"
+quick = "deepseek-v4-flash"
+
+[maka.models.opencode-go-recommended]
+orchestrator = "kimi-k3"
+quick = "deepseek-v4-flash"
+
+[maka.models.opencode-go-super]
+orchestrator = "deepseek-v4-flash"
+quick = "mimo-v2.5"
+
+[maka.models.opencode-go-ultra]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[maka.models.opencode-go-free]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+# ==============================================================================
+# CRUSH — Matrizes por Tier
+# ==============================================================================
+[crush]
+default_provider = "opencode-go"
+
+# --- NAVY (Crush) ---
+[crush.models.navy]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[crush.models.navy-recommended]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[crush.models.navy-optimized]
+orchestrator = "claude-sonnet-5"
+quick = "claude-haiku-4.5"
+
+[crush.models.navy-super]
+orchestrator = "deepseek-v4-pro"
+quick = "deepseek-v4-flash"
+
+[crush.models.navy-ultra]
+orchestrator = "deepseek-v4-flash"
+quick = "deepseek-v4-flash"
+
+[crush.models.navy-free]
+orchestrator = "deepseek-v4-pro"
+quick = "deepseek-v4-flash"
+
+# --- XIAOMI (Crush) ---
+[crush.models.xiaomi]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[crush.models.xiaomi-recommended]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[crush.models.xiaomi-optimized]
+orchestrator = "mimo-v2.5-pro"
+quick = "mimo-v2.5"
+
+[crush.models.xiaomi-super]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[crush.models.xiaomi-ultra]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[crush.models.xiaomi-free]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+# --- GOOGLE (Crush) ---
+[crush.models.google]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[crush.models.google-recommended]
+orchestrator = "gemini-3.5-flash"
+quick = "gemini-2.5-flash"
+
+[crush.models.google-optimized]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[crush.models.google-super]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[crush.models.google-ultra]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+[crush.models.google-free]
+orchestrator = "gemini-2.5-flash"
+quick = "gemini-2.5-flash"
+
+# --- OPENCODE-GO (Crush) ---
+[crush.models.opencode-go]
+orchestrator = "kimi-k2.7-code"
+quick = "deepseek-v4-flash"
+
+[crush.models.opencode-go-optimized]
+orchestrator = "kimi-k2.7-code"
+quick = "deepseek-v4-flash"
+
+[crush.models.opencode-go-recommended]
+orchestrator = "kimi-k3"
+quick = "deepseek-v4-flash"
+
+[crush.models.opencode-go-super]
+orchestrator = "deepseek-v4-flash"
+quick = "mimo-v2.5"
+
+[crush.models.opencode-go-ultra]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"
+
+[crush.models.opencode-go-free]
+orchestrator = "mimo-v2.5"
+quick = "mimo-v2.5"

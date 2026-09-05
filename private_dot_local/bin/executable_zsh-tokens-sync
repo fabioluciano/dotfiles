@@ -26,6 +26,8 @@ MAP=(
   "mimo_api_key=MIMO_API_KEY"
   "openai_api_token=OPENAI_API_KEY"
   "opencode_api_key=OPENCODE_API_KEY"
+  "opencode_go_api_key=OPENCODE_GO_API_KEY"
+  "opencode_zen_api_key=OPENCODE_ZEN_API_KEY"
   "minimax_api_token=MINIMAX_API_KEY"
   "deepseek_api_token=DEEPSEEK_API_KEY"
   "zai_api_token=ZAI_API_KEY"
@@ -59,15 +61,34 @@ item_json="$(bw get item "$ITEM" 2>/dev/null)" || {
   echo "zsh-tokens-sync: item '$ITEM' nao encontrado." >&2; exit 0;
 }
 
-# Parse every custom field once into "name<TAB>value" lines.
-if command -v jq >/dev/null 2>&1; then
-  fields="$(printf '%s' "$item_json" | jq -r '.fields[]? | "\(.name)\t\(.value // "")"')"
-else
-  fields="$(printf '%s' "$item_json" | python3 -c 'import sys, json
-d = json.load(sys.stdin)
-for f in d.get("fields", []):
-    print((f.get("name") or "") + "\t" + (f.get("value") or ""))')"
+command -v jq >/dev/null 2>&1 || {
+  echo "zsh-tokens-sync: jq nao instalado; mantendo tokens atuais." >&2
+  exit 1
+}
+
+if ! printf '%s' "$item_json" | jq -e '
+  [.fields[]?.name] | group_by(.) | all(.[]; length == 1)
+' >/dev/null; then
+  echo "zsh-tokens-sync: campos duplicados no item; mantendo tokens atuais." >&2
+  exit 1
 fi
+
+if ! printf '%s' "$item_json" | jq -e '
+  all(.fields[]?; ((.value // "") | test("[\\u0000-\\u001f]") | not))
+' >/dev/null; then
+  echo "zsh-tokens-sync: valor com caractere de controle; mantendo tokens atuais." >&2
+  # Dados inválidos não devem substituir o arquivo válido nem impedir o
+  # restante do `chezmoi apply`. Corrija o campo no Bitwarden e execute este
+  # sincronizador novamente para atualizar os tokens.
+  exit 0
+fi
+
+field_value() {
+  local field=$1
+  printf '%s' "$item_json" | jq -r --arg field "$field" '
+    first(.fields[]? | select(.name == $field) | .value // "") // ""
+  '
+}
 
 # POSIX single-quote escaping so the value is safe to source in zsh/bash.
 # (Substitution done in an assignment — inside double quotes the backslashes
@@ -86,7 +107,7 @@ _atomic_write_tokens() (
     echo "# Secrets resolved from Bitwarden item '$ITEM'."
     for pair in "${MAP[@]}"; do
       field="${pair%%=*}"; var="${pair#*=}"
-      val="$(printf '%s\n' "$fields" | awk -F'\t' -v k="$field" '$1==k{print $2; exit}')"
+      val="$(field_value "$field")"
       if [ -n "$val" ]; then
         printf 'export %s=%s\n' "$var" "$(sq "$val")"
         export_count=$((export_count + 1))

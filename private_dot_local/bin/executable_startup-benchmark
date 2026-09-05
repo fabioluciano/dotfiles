@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Mede startups cold/warm sem alterar caches, plugins ou a configuracao ativa.
+set -euo pipefail
+
+usage() {
+    printf 'uso: startup-benchmark <nvim|zsh> [amostras]\n' >&2
+    exit 2
+}
+
+target=${1:-}
+samples=${2:-5}
+[[ $target == nvim || $target == zsh ]] || usage
+[[ $samples =~ ^[1-9][0-9]*$ ]] || usage
+
+root=$(chezmoi source-path 2>/dev/null || pwd)
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/startup-benchmark.XXXXXX")
+trap 'rm -rf -- "$scratch"' EXIT
+
+summarize() {
+    local label values count median_index p95_index
+    label=$1
+    values="$scratch/$label.values"
+    count=$(wc -l < "$values" | tr -d ' ')
+    sort -n "$values" -o "$values"
+    median_index=$(( (count + 1) / 2 ))
+    p95_index=$(( (count * 95 + 99) / 100 ))
+    printf '%s median=%ss p95=%ss samples=%s\n' "$label" \
+        "$(sed -n "${median_index}p" "$values")" \
+        "$(sed -n "${p95_index}p" "$values")" "$count"
+}
+
+measure() {
+    local label=$1 command_status real
+    shift
+    if /usr/bin/time -p "$@" >"$scratch/$label.stdout" 2>"$scratch/$label.time"; then
+        command_status=0
+    else
+        command_status=$?
+    fi
+    real=$(awk '$1 == "real" { print $2; exit }' "$scratch/$label.time")
+    [[ -n $real ]] || {
+        sed -n '1,80p' "$scratch/$label.time" >&2
+        return 1
+    }
+    (( command_status == 0 )) || {
+        sed -n '1,80p' "$scratch/$label.stdout" >&2
+        return "$command_status"
+    }
+    printf '%s\n' "$real" >> "$scratch/${label%%-*}.values"
+}
+
+benchmark_zsh() {
+    local rendered="$scratch/zshrc" run_dir index
+    chezmoi execute-template < "$root/dot_zshrc.tmpl" > "$rendered"
+    zsh -n "$rendered"
+
+    for index in $(seq 1 "$samples"); do
+        run_dir="$scratch/cold-$index"
+        mkdir -p "$run_dir/cache" "$run_dir/zdotdir"
+        {
+            printf 'zmodload zsh/zprof\n'
+            cat "$rendered"
+            printf '\nzprof > %q\n' "$scratch/zprof-cold-$index.log"
+        } > "$run_dir/zdotdir/.zshrc"
+        measure "cold-$index" env ZDOTDIR="$run_dir/zdotdir" XDG_CACHE_HOME="$run_dir/cache" zsh -ic exit
+    done
+
+    run_dir="$scratch/warm"
+    mkdir -p "$run_dir/cache" "$run_dir/zdotdir"
+    {
+        printf 'zmodload zsh/zprof\n'
+        cat "$rendered"
+        printf '\nzprof > %q\n' "$scratch/zprof-warm.log"
+    } > "$run_dir/zdotdir/.zshrc"
+    for index in $(seq 1 "$samples"); do
+        measure "warm-$index" env ZDOTDIR="$run_dir/zdotdir" XDG_CACHE_HOME="$run_dir/cache" zsh -ic exit
+    done
+    summarize cold
+    summarize warm
+}
+
+benchmark_nvim() {
+    local run_dir index
+    for index in $(seq 1 "$samples"); do
+        run_dir="$scratch/cold-$index"
+        mkdir -p "$run_dir/data" "$run_dir/state" "$run_dir/cache"
+        measure "cold-$index" env XDG_CONFIG_HOME="$run_dir/config" XDG_DATA_HOME="$run_dir/data" XDG_STATE_HOME="$run_dir/state" XDG_CACHE_HOME="$run_dir/cache" nvim --headless -u NONE --startuptime "$scratch/nvim-cold-$index.log" +qa
+    done
+
+    run_dir="$scratch/warm"
+    mkdir -p "$run_dir/data" "$run_dir/state" "$run_dir/cache"
+    for index in $(seq 1 "$samples"); do
+        measure "warm-$index" env XDG_CONFIG_HOME="$run_dir/config" XDG_DATA_HOME="$run_dir/data" XDG_STATE_HOME="$run_dir/state" XDG_CACHE_HOME="$run_dir/cache" nvim --headless -u NONE --startuptime "$scratch/nvim-warm-$index.log" +qa
+    done
+    summarize cold
+    summarize warm
+}
+
+if [[ $target == zsh ]]; then benchmark_zsh; else benchmark_nvim; fi

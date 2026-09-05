@@ -64,6 +64,8 @@ coverage/
 # Zsh generated files
 .zcompdump*
 .zsh_plugins.zsh
+.local/state/zsh/
+.local/state/zsh_history
 
 # Personal notes
 notes.txt

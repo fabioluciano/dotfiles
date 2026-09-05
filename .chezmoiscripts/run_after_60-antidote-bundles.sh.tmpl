@@ -22,7 +22,10 @@ exit 0
 command -v zsh >/dev/null 2>&1 || exit 0
 
 zsh_dir="${ZDOTDIR:-$HOME}"
-lockfile="${zsh_dir}/.zsh_plugins.lock"
+zsh_cache_dir="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh}"
+mkdir -p "$zsh_cache_dir"
+chmod 700 "$zsh_cache_dir"
+lockfile="${zsh_cache_dir}/.zsh_plugins.lock"
 antidote_script="${antidote_dir}/antidote.zsh"
 pre_manifest="${zsh_dir}/.zsh_plugins_pre.txt"
 plugins_manifest="${zsh_dir}/.zsh_plugins.txt"
@@ -45,7 +48,8 @@ is_signal_status() {
 }
 
 # Acquire the kernel lock in zsh, then keep its file descriptor through exec.
-# Status 75 means that the hook cannot safely enter the critical section.
+# A timestamped directory lock is the portable fallback when zsystem/flock is
+# unavailable. Status 75 means contention; 76 means use the fallback.
 if [[ ${1:-} != --antidote-lock-held ]]; then
     lock_status=0
     if zsh -f -c '
@@ -53,13 +57,15 @@ if [[ ${1:-} != --antidote-lock-held ]]; then
         trap "exit 130" INT
         trap "exit 131" QUIT
         trap "exit 143" TERM
-        zmodload zsh/system 2>/dev/null || exit 75
-        zsystem supports flock 2>/dev/null || exit 75
-        [[ -e "$1" ]] || : >"$1" || exit 75
+        lockfile=$1
+        shift
+        zmodload zsh/system 2>/dev/null || exit 76
+        zsystem supports flock 2>/dev/null || exit 76
+        [[ -e "$lockfile" ]] || : >"$lockfile" || exit 1
         typeset lock_fd
-        zsystem flock -e -t 5 -f lock_fd "$1" || exit 75
-        exec "$2" "$3"
-    ' -- "$lockfile" "$0" --antidote-lock-held; then
+        zsystem flock -e -t 5 -f lock_fd "$lockfile" || exit 75
+        exec "$@"
+    ' zsh "$lockfile" "$0" --antidote-lock-held "$@"; then
         lock_status=0
     else
         lock_status=$?
@@ -67,10 +73,54 @@ if [[ ${1:-} != --antidote-lock-held ]]; then
     if is_signal_status "$lock_status"; then
         exit "$lock_status"
     fi
+    if (( lock_status == 76 )); then
+        lockdir="${lockfile}.d"
+        owner_file="$lockdir/owner"
+        lock_token="$$.$RANDOM.$(date +%s)"
+        lock_now=$(date +%s)
+        lock_acquired=false
+        for lock_attempt in 1 2; do
+            if mkdir "$lockdir" 2>/dev/null; then
+                if printf '%s\t%s\t%s\n' "$$" "$lock_token" "$lock_now" > "$owner_file"; then
+                    lock_acquired=true
+                    break
+                fi
+                rmdir "$lockdir" 2>/dev/null || :
+            elif [[ -r $owner_file ]]; then
+                IFS=$'\t' read -r owner_pid owner_token owner_created < "$owner_file" || owner_pid=
+                lock_now=$(date +%s)
+                if [[ $owner_pid =~ ^[0-9]+$ && $owner_created =~ ^[0-9]+$ ]] &&
+                    { ! kill -0 "$owner_pid" 2>/dev/null || (( lock_now - owner_created > 300 )); }; then
+                    rm -rf -- "$lockdir"
+                    continue
+                fi
+            fi
+            break
+        done
+        if [[ $lock_acquired != true ]]; then
+            warn 'lock dos bundles ocupado; mantendo os artefatos atuais.'
+            exit 0
+        fi
+        release_fallback_lock() {
+            local owner_pid owner_token owner_created
+            [[ -r $owner_file ]] || return 0
+            IFS=$'\t' read -r owner_pid owner_token owner_created < "$owner_file" || return 0
+            if [[ $owner_pid == $$ && $owner_token == "$lock_token" ]]; then
+                rm -f -- "$owner_file"
+                rmdir "$lockdir" 2>/dev/null || :
+            fi
+        }
+        trap release_fallback_lock EXIT
+        if "$0" --antidote-lock-held "$@"; then lock_status=0; else lock_status=$?; fi
+        exit "$lock_status"
+    fi
     if (( lock_status == 75 )); then
         warn 'não foi possível obter o lock comum dos bundles; mantendo os artefatos atuais.'
-    elif (( lock_status != 0 )); then
+        exit 0
+    fi
+    if (( lock_status != 0 )); then
         warn 'o hook dos bundles terminou sem concluir; mantendo os artefatos atuais.'
+        exit "$lock_status"
     fi
     exit 0
 fi
@@ -144,7 +194,7 @@ fail_transaction() {
     if (( rollback_status != 0 )); then
         warn 'o rollback não conseguiu restaurar todos os artefatos; verifique as permissões.'
     fi
-    exit 0
+    exit 1
 }
 
 handle_signal() {

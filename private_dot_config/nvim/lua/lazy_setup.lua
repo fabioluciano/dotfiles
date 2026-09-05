@@ -15,7 +15,7 @@ require("lazy").setup({
 } --[[@as LazySpec]], {
   install = { colorscheme = { "astrotheme", "habamax" } },
   ui = { backdrop = 100 },
-  concurrency = 50, -- Limit concurrent git spawns to avoid "too many open files" on macOS
+  concurrency = 8, -- Conservative cap for plugin installs/updates across macOS and Linux
   performance = {
     rtp = {
       disabled_plugins = {

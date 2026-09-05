@@ -9,7 +9,7 @@
 --
 -- Consequences:
 --   - Editor and shell share the exact same binaries (no version drift).
---   - Versions are synced across machines via chezmoi (Mason state is not).
+--   - Tool ownership is synced across machines; global versions follow latest.
 --   - Mason install failures become non-fatal: if a Mason package fails to
 --     build, the LSP still starts from the mise binary.
 --
@@ -28,31 +28,76 @@ return {
 
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    opts = {
-      ensure_installed = {
-        -- Debug adapters (nvim-dap; no mise equivalent)
+    opts = function(_, opts)
+      local mise_owned = {
+        "angular-language-server",
+        "bash-language-server",
+        "basedpyright",
+        "biome",
+        "cmake-language-server",
+        "cmakelint",
+        "dockerfile-language-server",
+        "elixir-ls",
+        "gofumpt",
+        "goimports",
+        "golangci-lint",
+        "gopls",
+        "helm-ls",
+        "intelephense",
+        "lua-language-server",
+        "markdownlint",
+        "marksman",
+        "mdx-analyzer",
+        "ruff",
+        "rust-analyzer",
+        "shfmt",
+        "sql-language-server",
+        "stylua",
+        "tailwindcss-language-server",
+        "taplo",
+        "terraform-ls",
+        "tflint",
+        "tinymist",
+        "tree-sitter-cli",
+        "typescript-language-server",
+        "vue-language-server",
+        "yaml-language-server",
+        "yamlfmt",
+        "yamllint",
+        "zls",
+      }
+      local owned = {}
+      for _, package in ipairs(mise_owned) do
+        owned[package] = true
+      end
+
+      local mason_only = {
+        -- Debug adapters and helpers without a configured mise source.
         "codelldb",
         "js-debug-adapter",
         "java-debug-adapter",
         "java-test",
         "php-debug-adapter",
         "bash-debug-adapter",
-
-        -- Go code-generation helpers (not in mise)
         "gomodifytags",
         "gotests",
         "iferr",
         "impl",
-
-        -- LSPs not provided by mise
-        "jdtls",       -- Java; also blocked by corporate network on work machines (download.eclipse.org)
-        "lemminx",     -- XML
-        "eslint-lsp",  -- JS/TS; mise ships oxlint instead
-
-        -- PHP tooling not in mise
+        -- Mason is the single cross-platform source for Java/XML tooling.
+        "jdtls",
+        "lemminx",
         "phpactor",
         "php-cs-fixer",
-      },
-    },
+      }
+
+      local seen, packages = {}, {}
+      for _, package in ipairs(vim.list_extend(opts.ensure_installed or {}, mason_only)) do
+        if not owned[package] and not seen[package] then
+          seen[package] = true
+          packages[#packages + 1] = package
+        end
+      end
+      opts.ensure_installed = packages
+    end,
   },
 }

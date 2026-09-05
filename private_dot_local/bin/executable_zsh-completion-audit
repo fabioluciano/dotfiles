@@ -11,8 +11,82 @@ if (( BASH_VERSINFO[0] < 4 )); then
     exit 1
 fi
 
-set -euo pipefail
 umask 077
+
+# Publication and shell-side materialization share this exact lock. Prefer the
+# same zsystem/flock primitive used by .zshrc and retain a directory fallback
+# only when that primitive is unavailable.
+completion_lock_held=false
+if [[ ${1:-} == --completion-lock-held ]]; then
+    completion_lock_held=true
+    shift
+else
+    completion_cache_root="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh}/completion-system"
+    completion_lock="$completion_cache_root/.completion-system.lock"
+    mkdir -p "$completion_cache_root" || {
+        printf '%s\n' 'zsh-completion-audit: error: could not create completion cache root' >&2
+        exit 1
+    }
+    chmod 700 "$completion_cache_root" 2>/dev/null || :
+
+    if command -v zsh >/dev/null 2>&1; then
+        zsh -f -c '
+            lockfile=$1
+            shift
+            zmodload zsh/system 2>/dev/null || exit 76
+            zsystem supports flock 2>/dev/null || exit 76
+            [[ -e $lockfile ]] || : > "$lockfile" || exit 1
+            typeset lock_fd
+            zsystem flock -e -t 5 -f lock_fd "$lockfile" || exit 75
+            exec "$@"
+        ' zsh "$completion_lock" "$0" --completion-lock-held "$@"
+        completion_lock_status=$?
+        if (( completion_lock_status != 76 )); then exit "$completion_lock_status"; fi
+    fi
+
+    completion_lock_dir="${completion_lock}.d"
+    completion_owner="$completion_lock_dir/owner"
+    completion_token="$$.$RANDOM.$(date +%s)"
+    completion_now=$(date +%s)
+    completion_attempt=0
+    while (( completion_attempt < 2 )); do
+        (( completion_attempt += 1 ))
+        if mkdir "$completion_lock_dir" 2>/dev/null; then
+            printf '%s\t%s\t%s\n' "$$" "$completion_token" "$completion_now" > "$completion_owner" || {
+                rmdir "$completion_lock_dir" 2>/dev/null || :
+                exit 1
+            }
+            # shellcheck disable=SC2329
+            cleanup_completion_lock() {
+                local owner_pid owner_token
+                [[ -r $completion_owner ]] || return 0
+                IFS=$'\t' read -r owner_pid owner_token _ < "$completion_owner" || return 0
+                if [[ "$owner_pid" == "$$" && $owner_token == "$completion_token" ]]; then
+                    rm -f -- "$completion_owner"
+                    rmdir "$completion_lock_dir" 2>/dev/null || :
+                fi
+            }
+            trap cleanup_completion_lock EXIT
+            "$0" --completion-lock-held "$@"
+            exit $?
+        fi
+        if [[ -r $completion_owner ]]; then
+            IFS=$'\t' read -r completion_owner_pid completion_owner_token completion_owner_created < "$completion_owner" || completion_owner_pid=
+            completion_now=$(date +%s)
+            if [[ $completion_owner_pid =~ ^[0-9]+$ && -n $completion_owner_token &&
+                $completion_owner_created =~ ^[0-9]+$ ]] &&
+                { ! kill -0 "$completion_owner_pid" 2>/dev/null || (( completion_now - completion_owner_created > 300 )); }; then
+                rm -rf -- "$completion_lock_dir"
+                continue
+            fi
+        fi
+        break
+    done
+    printf '%s\n' 'zsh-completion-audit: error: another process owns the completion lock' >&2
+    exit 75
+fi
+
+set -euo pipefail
 
 export LC_ALL=C
 
@@ -488,39 +562,12 @@ current_value() {
 }
 
 acquire_publish_lock() {
-    local owner_pid owner_token attempt=0
-    while (( attempt < 2 )); do
-        if mkdir "$publish_lock" 2>/dev/null; then
-            lock_token="${BASHPID:-$$}.${RANDOM}.$(hash_text "$$-$RANDOM-$(date +%s%N)")"
-            printf '%s\t%s\n' "$$" "$lock_token" > "$publish_lock/owner" || {
-                rm -rf -- "$publish_lock"
-                return 1
-            }
-            lock_held=true
-            return 0
-        fi
-        if [[ -r "$publish_lock/owner" ]]; then
-            IFS=$'\t' read -r owner_pid owner_token < "$publish_lock/owner" || owner_pid=
-            if [[ $owner_pid =~ ^[0-9]+$ ]] && ! kill -0 "$owner_pid" 2>/dev/null; then
-                rm -rf -- "$publish_lock"
-                (( attempt += 1 ))
-                continue
-            fi
-        fi
-        return 75
-    done
-    return 75
+    [[ $completion_lock_held == true ]] || die 'completion lock was not acquired before publication'
 }
 
-release_publish_lock() {
-    local owner_pid owner_token
-    [[ $lock_held == true && -r "$publish_lock/owner" ]] || return 0
-    IFS=$'\t' read -r owner_pid owner_token < "$publish_lock/owner" || return 0
-    if [[ $owner_pid == "$$" && $owner_token == "$lock_token" ]]; then
-        rm -rf -- "$publish_lock"
-    fi
-    lock_held=false
-}
+# The outer zsh/flock (or portable directory fallback) owns the lock for the
+# entire process lifetime. There is intentionally no second publication lock.
+release_publish_lock() { :; }
 
 write_tombstones() {
     local old_command old_fingerprint
@@ -652,10 +699,7 @@ done
 [[ -n $expected_signature ]] || usage
 
 cache_root="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh}/completion-system"
-publish_lock="$cache_root/.publish.lock"
 targets_marker="$cache_root/targets/.owned"
-lock_held=false
-lock_token=
 stage=
 
 mkdir -p "$cache_root/targets" "$cache_root/generations" "$cache_root/acks" ||
@@ -758,7 +802,7 @@ if [[ $initial_current != missing && $initial_current != empty ]] &&
     done < "$cache_root/generations/$current_generation/ledger.tsv"
 else
     reset_all=true
-    reset_nonce=$(hash_text "reset-all|$lock_token|$RANDOM|$(date +%s%N)") ||
+    reset_nonce=$(hash_text "reset-all|$RANDOM|$(date +%s%N)") ||
         die 'could not derive reset nonce'
 fi
 
