@@ -73,6 +73,7 @@ dockutil --add '' --type small-spacer --section apps --no-restart
 
 # ── Mídia ─────────────────────────────────────────────────────────────────────
 dockutil --add /Applications/Spotify.app --no-restart
+dockutil --add /Applications/Fastpotify.app --no-restart
 {{ if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
 dockutil --add /Applications/NetNewsWire.app --no-restart
 {{ end }}

@@ -20,15 +20,46 @@ skip_global_compinit=1
 export EDITOR=nvim
 export VISUAL=nvim
 export PAGER=less
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
 # Default directory for local development projects; used by OpenCode/MCP configs.
 export PROJECTS_DIR="${PROJECTS_DIR:-$HOME/Developer/projects}"
 
 export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 _zsh_completion_system_root="$ZSH_CACHE_DIR/completion-system"
 _zsh_completion_targets="$_zsh_completion_system_root/targets"
+_zsh_completion_lock="$_zsh_completion_system_root/.completion-system.lock"
 [[ -d $_zsh_completion_system_root ]] || mkdir -p "$_zsh_completion_system_root"
+chmod 700 "$ZSH_CACHE_DIR" "$_zsh_completion_system_root" 2>/dev/null || :
+
+{{- if eq .chezmoi.os "darwin" }}
+# Diretorio de completions do package manager (rastreado para invalidação do
+# dump do compinit; ver _zcompinit_calculate_expected).
+_zsh_site_functions_dir=/opt/homebrew/share/zsh/site-functions
+[[ -d $_zsh_site_functions_dir ]] || _zsh_site_functions_dir=/usr/local/share/zsh/site-functions
+{{- else if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") }}
+_zsh_site_functions_dir=/usr/share/zsh/site-functions
+{{- else }}
+_zsh_site_functions_dir=/nonexistent
+{{- end }}
+
+# Limpeza de artefatos orfaos dos helpers atomicos (temp/rollback) deixados por
+# shells mortos (SIGKILL entre backup e cleanup). Usa glob com idade > 7 dias:
+# .*.rollback.* e arquivos com sufixo mktemp de 6 alfanumericos. Nenhum arquivo
+# legitimo nesses diretórios termina com 6 alfanumericos pos-ponto.
+_zsh_cleanup_stale_artifacts() {
+    emulate -L zsh
+    setopt local_options extended_glob
+    local root
+    local -a stale=()
+    for root in "$ZSH_CACHE_DIR" "${ZDOTDIR:-$HOME}"; do
+        [[ -d $root ]] || continue
+        stale+=(${root}/.*.rollback.*(N.mh+168))
+        stale+=(${root}/.*.[[:alnum:]](#c6)(N.mh+168))
+    done
+    (( ${#stale} )) || return 0
+    rm -f -- "${stale[@]}" 2>/dev/null || :
+}
+_zsh_cleanup_stale_artifacts
+unfunction _zsh_cleanup_stale_artifacts
 
 # Plugin tunables (read when the bundle is sourced below)
 # autosuggestions: suggest from history first, then from completion.
@@ -67,7 +98,6 @@ _zsh_set_pkg_manager_path() {
     done
     path=("${_zsh_preferred[@]}" "${_zsh_pkg_path[@]}")
 }
-_zsh_set_pkg_manager_path
 {{- end }}
 
 # Plugin Manager - antidote (static bundle)
@@ -143,14 +173,22 @@ _zsh_with_writer_lock() {
 
     (
         emulate -L zsh
-        local lockdir="${lockfile}.d"
-        local lock_token="${lockfile}.d/.owner.$$.${RANDOM}"
+        local lockdir="${lockfile}.d" lock_owner="$lockfile.d/owner"
+        local lock_now
+        zmodload zsh/datetime 2>/dev/null || :
+        lock_now=${EPOCHSECONDS:-$(command date +%s)}
+        local lock_token="$$.${RANDOM}.${lock_now}"
+        local lock_created=$lock_now
         local lock_owned=false lock_pending_signal attempt rc=1
 
         _zsh_writer_lock_cleanup() {
-            if [[ $lock_owned == true && -f $lock_token ]]; then
-                rm -f -- "$lock_token" 2>/dev/null || :
-                rmdir "$lockdir" 2>/dev/null || :
+            local owner_pid owner_token owner_created
+            if [[ $lock_owned == true && -r $lock_owner ]]; then
+                IFS=$'\t' read -r owner_pid owner_token owner_created < "$lock_owner" || :
+                if [[ $owner_pid == $$ && $owner_token == "$lock_token" ]]; then
+                    rm -f -- "$lock_owner" 2>/dev/null || :
+                    rmdir "$lockdir" 2>/dev/null || :
+                fi
             fi
             lock_owned=false
         }
@@ -176,13 +214,23 @@ _zsh_with_writer_lock() {
             (( lock_attempts == 0 )) && lock_attempts=1
             for (( attempt = 0; attempt < lock_attempts; attempt++ )); do
                 if mkdir "$lockdir" 2>/dev/null; then
-                    if : >"$lock_token"; then
+                    if printf '%s\t%s\t%s\n' "$$" "$lock_token" "$lock_created" > "$lock_owner"; then
                         lock_owned=true
                         rc=0
                     else
                         rmdir "$lockdir" 2>/dev/null || :
                     fi
                     break
+                fi
+                local owner_pid owner_token owner_created now
+                if [[ -r $lock_owner ]]; then
+                    IFS=$'\t' read -r owner_pid owner_token owner_created < "$lock_owner" || owner_pid=
+                    now=${EPOCHSECONDS:-$(command date +%s)}
+                    if [[ $owner_pid =~ '^[0-9]+$' && $owner_created =~ '^[0-9]+$' ]] &&
+                       { ! kill -0 "$owner_pid" 2>/dev/null || (( now - owner_created > 300 )); }; then
+                        rm -rf -- "$lockdir" 2>/dev/null || :
+                        continue
+                    fi
                 fi
                 [[ -n $lock_pending_signal ]] &&
                     _zsh_writer_lock_abort "$lock_pending_signal"
@@ -211,18 +259,9 @@ _zsh_with_writer_lock() {
 _zsh_with_antidote_lock() {
     emulate -L zsh
     local lock_timeout=$1 callback=$2
-    local lockfile="${ZDOTDIR:-$HOME}/.zsh_plugins.lock"
+    local lockfile="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh}/.zsh_plugins.lock"
     shift 2
-
-    zmodload zsh/system 2>/dev/null || return 1
-    zsystem supports flock 2>/dev/null || return 1
-    [[ -e $lockfile ]] || : >"$lockfile" || return 1
-    (
-        emulate -L zsh
-        local lock_fd
-        zsystem flock -t "$lock_timeout" -f lock_fd "$lockfile" || exit 1
-        "$callback" "$@"
-    )
+    _zsh_with_writer_lock "$lockfile" "$callback" "--lock-timeout=$lock_timeout" "$@"
 }
 
 _zsh_atomic_compile_unlocked() {
@@ -491,9 +530,9 @@ _zsh_produce_command() {
 # --- Stage 1: completions onto fpath (must run BEFORE compinit) --------------
 _zpre_txt="${ZDOTDIR:-$HOME}/.zsh_plugins_pre.txt"
 _zpre_zsh="${ZDOTDIR:-$HOME}/.zsh_plugins_pre.zsh"
-_zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+_zcompdump="${ZSH_CACHE_DIR}/.zcompdump"
 _zcompmeta="${_zcompdump}.meta"
-_zcompinit_cache_schema=1
+_zcompinit_cache_schema=2
 _zcompinit_force=false
 _zcompinit_metadata_ready=true
 _zpre_bundle_needs_refresh=false
@@ -553,16 +592,60 @@ _zsh_completion_generation_matches_unlocked() {
     return 1
 }
 
+_zsh_hash_file() {
+    emulate -L zsh
+    local file=$1
+    if (( $+commands[shasum] )); then
+        command shasum -a 256 -- "$file" 2>/dev/null | read -r REPLY _
+    elif (( $+commands[sha256sum] )); then
+        command sha256sum -- "$file" 2>/dev/null | read -r REPLY _
+    else
+        return 1
+    fi
+    [[ $REPLY =~ '^[a-f0-9]{64}$' ]]
+}
+
+_zsh_hash_pair() {
+    emulate -L zsh
+    local left right
+    _zsh_hash_file "$1" || return 1
+    left=$REPLY
+    _zsh_hash_file "$2" || return 1
+    right=$REPLY
+    if (( $+commands[shasum] )); then
+        REPLY=$(printf '%s\0%s' "$left" "$right" | command shasum -a 256 | { read -r digest _; print -r -- "$digest"; })
+    elif (( $+commands[sha256sum] )); then
+        REPLY=$(printf '%s\0%s' "$left" "$right" | command sha256sum | { read -r digest _; print -r -- "$digest"; })
+    else
+        return 1
+    fi
+    [[ $REPLY =~ '^[a-f0-9]{64}$' ]]
+}
+
+_zsh_completion_artifact_safe() {
+    emulate -L zsh
+    local artifact=$1
+    local -A stat
+    zmodload zsh/stat 2>/dev/null || return 1
+    [[ -O $artifact && ! -L $artifact ]] || return 1
+    zstat -H stat -- "$artifact" 2>/dev/null || return 1
+    (( (stat[mode] & 022) == 0 )) || return 1
+}
+
 _zsh_completion_snapshot_valid() {
     emulate -L zsh
     local generation generation_dir metadata
     local schema_line signature_line predecessor_line content_line
-    local generation_line declarations_line declaration_hash
+    local generation_line declarations_line declaration_hash content_hash actual_hash
 
     _zsh_completion_snapshot_generation=
     [[ -r "$_zsh_completion_system_root/current" &&
         -d "$_zsh_completion_targets" &&
         -f "$_zsh_completion_targets/.owned" ]] || return 1
+    _zsh_completion_artifact_safe "$_zsh_completion_system_root" || return 1
+    _zsh_completion_artifact_safe "$_zsh_completion_system_root/current" || return 1
+    _zsh_completion_artifact_safe "$_zsh_completion_targets" || return 1
+    _zsh_completion_artifact_safe "$_zsh_completion_targets/.owned" || return 1
     IFS= read -r generation < "$_zsh_completion_system_root/current" || return 1
     [[ $generation =~ '^[a-f0-9]{64}$' ]] || return 1
     generation_dir="$_zsh_completion_system_root/generations/$generation"
@@ -571,6 +654,11 @@ _zsh_completion_snapshot_valid() {
         -f "$generation_dir/ledger.tsv" &&
         -f "$generation_dir/tombstones" &&
         -f $metadata ]] || return 1
+    _zsh_completion_artifact_safe "$generation_dir" || return 1
+    _zsh_completion_artifact_safe "$generation_dir/declarations.zsh" || return 1
+    _zsh_completion_artifact_safe "$generation_dir/ledger.tsv" || return 1
+    _zsh_completion_artifact_safe "$generation_dir/tombstones" || return 1
+    _zsh_completion_artifact_safe "$metadata" || return 1
     {
         IFS= read -r schema_line
         IFS= read -r signature_line
@@ -583,8 +671,16 @@ _zsh_completion_snapshot_valid() {
         $predecessor_line == predecessor=* && $content_line == content=* &&
         $generation_line == "generation=$generation" &&
         $declarations_line == declarations=* ]] || return 1
+    content_hash=${content_line#content=}
+    [[ $content_hash =~ '^[a-f0-9]{64}$' ]] || return 1
+    _zsh_hash_pair "$generation_dir/ledger.tsv" "$generation_dir/tombstones" || return 1
+    [[ $REPLY == "$content_hash" ]] || return 1
     declaration_hash=${declarations_line#declarations=}
     [[ $declaration_hash =~ '^[a-f0-9]{64}$' ]] || return 1
+    _zsh_hash_file "$generation_dir/declarations.zsh" || return 1
+    actual_hash=$REPLY
+    [[ $actual_hash == $declaration_hash ]] || return 1
+    zsh -n "$generation_dir/declarations.zsh" 2>/dev/null || return 1
     _zsh_completion_snapshot_generation=$generation
     return 0
 }
@@ -593,13 +689,25 @@ _zsh_completion_refresh_unlocked() {
     emulate -L zsh
     setopt localtraps
     local target=$1 generation=$2 fingerprint=$3 command_name=$4 producer=$5
-    local temp temp_base temp_zwc metadata_temp
+    local temp temp_base temp_zwc metadata_temp artifact backup
+    local -a targets backups existed
     shift 5
 
     _zsh_completion_refresh_cleanup() {
-        local artifact
-        for artifact in "$temp" "$temp_base" "$temp_zwc" "$metadata_temp"; do
-            [[ -n $artifact ]] && rm -f -- "$artifact"
+        local path
+        for path in "$temp" "$temp_base" "$temp_zwc" "$metadata_temp" "${backups[@]}"; do
+            [[ -n $path ]] && rm -f -- "$path"
+        done
+    }
+    _zsh_completion_refresh_rollback() {
+        local index
+        for (( index = 1; index <= ${#targets}; index++ )); do
+            if [[ ${existed[$index]} == true ]]; then
+                mv -f -- "${backups[$index]}" "${targets[$index]}" || return 1
+                backups[$index]=
+            else
+                rm -f -- "${targets[$index]}" || return 1
+            fi
         done
     }
     trap _zsh_completion_refresh_cleanup EXIT
@@ -624,22 +732,35 @@ _zsh_completion_refresh_unlocked() {
     printf '%s\t%s\t%s\n' "$generation" "$fingerprint" "$command_name" \
         >"$metadata_temp" || return 1
 
+    targets=("$target" "${target}.zwc" "${target}.meta")
+    backups=("" "" "")
+    existed=(false false false)
+    for (( artifact = 1; artifact <= ${#targets}; artifact++ )); do
+        if [[ -e ${targets[$artifact]} ]]; then
+            backup=$(mktemp "${target:h}/.${target:t}.rollback.XXXXXX") || return 1
+            cp -p -- "${targets[$artifact]}" "$backup" || return 1
+            backups[$artifact]=$backup
+            existed[$artifact]=true
+        fi
+    done
+
     _zsh_completion_generation_matches_unlocked "$generation" "$fingerprint" \
         "$command_name" || return 75
-    mv -f -- "$temp" "$target" || return 1
-    _zsh_completion_generation_matches_unlocked "$generation" "$fingerprint" \
-        "$command_name" || return 75
-    mv -f -- "$temp_zwc" "${target}.zwc" || return 1
-    _zsh_completion_generation_matches_unlocked "$generation" "$fingerprint" \
-        "$command_name" || return 75
-    mv -f -- "$metadata_temp" "${target}.meta" || return 1
+    if ! mv -f -- "$temp" "$target" ||
+       ! mv -f -- "$temp_zwc" "${target}.zwc" ||
+       ! mv -f -- "$metadata_temp" "${target}.meta" ||
+       ! _zsh_completion_generation_matches_unlocked "$generation" "$fingerprint" \
+           "$command_name"; then
+        _zsh_completion_refresh_rollback || return 1
+        return 75
+    fi
 }
 
 _zsh_completion_refresh() {
     emulate -L zsh
     local target=$1 generation=$2 fingerprint=$3 command_name=$4 producer=$5
     shift 5
-    _zsh_with_writer_lock "${_zcompdump}.lock" _zsh_completion_refresh_unlocked \
+    _zsh_with_writer_lock "$_zsh_completion_lock" _zsh_completion_refresh_unlocked \
         "$target" "$generation" "$fingerprint" "$command_name" "$producer" "$@"
 }
 
@@ -654,7 +775,7 @@ _zsh_remove_completion_cache() {
     local target=$1
     if [[ -e $target || -e ${target}.zwc || -e ${target}.meta ]]; then
         _zcompinit_force=true
-        _zsh_with_writer_lock "${_zcompdump}.lock" \
+        _zsh_with_writer_lock "$_zsh_completion_lock" \
             _zsh_completion_remove_unlocked "$target" ||
             _zcompinit_metadata_ready=false
     fi
@@ -767,7 +888,7 @@ _zsh_completion_clear_targets_unlocked() {
 _zsh_completion_clear_owned_targets() {
     emulate -L zsh
     local rc
-    _zsh_with_writer_lock "${_zcompdump}.lock" _zsh_completion_clear_targets_unlocked
+    _zsh_with_writer_lock "$_zsh_completion_lock" _zsh_completion_clear_targets_unlocked
     rc=$?
     if (( rc == 0 )); then
         _zcompinit_force=true
@@ -893,7 +1014,7 @@ _zsh_completion_migrate_legacy() {
     emulate -L zsh
     local marker="$_zsh_completion_system_root/legacy-migration-v1" rc
     [[ -e $marker ]] && return 0
-    _zsh_with_writer_lock "${_zcompdump}.lock" \
+    _zsh_with_writer_lock "$_zsh_completion_lock" \
         _zsh_completion_migrate_legacy_unlocked
     rc=$?
     if (( rc == 0 || rc == 2 )); then
@@ -913,7 +1034,7 @@ if (( _zsh_completion_migration_rc == 0 )); then
     if ! _zsh_completion_snapshot_valid; then
         _zsh_completion_clear_owned_targets
     elif _zsh_completion_tombstones_pending; then
-        _zsh_with_writer_lock "${_zcompdump}.lock" _zsh_completion_reconcile_unlocked
+        _zsh_with_writer_lock "$_zsh_completion_lock" _zsh_completion_reconcile_unlocked
         _zsh_completion_reconcile_rc=$?
         if (( _zsh_completion_reconcile_rc != 0 )); then
             _zcompinit_metadata_ready=false
@@ -939,7 +1060,8 @@ unset _zsh_completion_snapshot_generation
 
 unfunction _zsh_generate_completion _zsh_generate_pack_completion
 unfunction _zsh_remove_completion_cache _zsh_produce_pack_completion
-unfunction _zsh_completion_generation_matches_unlocked _zsh_completion_snapshot_valid
+unfunction _zsh_hash_file _zsh_hash_pair _zsh_completion_artifact_safe _zsh_completion_generation_matches_unlocked
+unfunction _zsh_completion_snapshot_valid
 unfunction _zsh_completion_refresh_unlocked
 unfunction _zsh_completion_refresh _zsh_completion_remove_unlocked
 unfunction _zsh_completion_clear_targets_unlocked _zsh_completion_clear_owned_targets
@@ -968,7 +1090,7 @@ _zcompinit_get_mtime() {
   fi
 }
 _zcompinit_calculate_expected() {
-  local zfunc_mtime zpre_mtime zpre_txt_mtime completion_dir_mtime
+  local zfunc_mtime zpre_mtime zpre_txt_mtime completion_dir_mtime site_mtime
   _zcompinit_get_mtime "$HOME/.zfunc"
   zfunc_mtime=$_zcompinit_mtime
   _zcompinit_get_mtime "$_zpre_zsh"
@@ -977,7 +1099,9 @@ _zcompinit_calculate_expected() {
   zpre_txt_mtime=$_zcompinit_mtime
   _zcompinit_get_mtime "$_zsh_user_completions_dir"
   completion_dir_mtime=$_zcompinit_mtime
-  print -r -- "${ZSH_VERSION}|${_zcompinit_cache_schema}|${zfunc_mtime}|${zpre_mtime}|${zpre_txt_mtime}|${completion_dir_mtime}"
+  _zcompinit_get_mtime "$_zsh_site_functions_dir"
+  site_mtime=$_zcompinit_mtime
+  print -r -- "${ZSH_VERSION}|${_zcompinit_cache_schema}|${zfunc_mtime}|${zpre_mtime}|${zpre_txt_mtime}|${completion_dir_mtime}|${site_mtime}"
 }
 _zcompinit_expected=$(_zcompinit_calculate_expected)
 if [[ -r $_zcompmeta ]]; then
@@ -988,7 +1112,6 @@ fi
 if [[ $_zcompinit_metadata != $_zcompinit_expected ]]; then
   _zcompinit_force=true
 fi
-_zcompdump_stale=(${_zcompdump}(N.mh+24))
 if [[ -d $_zsh_user_completions_dir && $_zsh_user_completions_dir -nt $_zcompdump ]]; then
     _zcompinit_force=true
 fi
@@ -997,7 +1120,7 @@ if [[ -e $_zpre_zsh && $_zpre_zsh -nt $_zcompdump ]] ||
     _zcompinit_force=true
 fi
 _zcompinit_cache_ready=false
-if [[ ! -s $_zcompdump || ${#_zcompdump_stale} -gt 0 || $_zcompinit_force == true ]]; then
+if [[ ! -s $_zcompdump || $_zcompinit_force == true ]]; then
     if _zsh_atomic_compinit "$_zcompdump" "$_zcompmeta" \
         "$_zcompinit_expected" "$_zcompinit_metadata_ready"; then
         _zcompinit_cache_ready=true
@@ -1009,18 +1132,19 @@ else
     _zcompinit_cache_ready=true
 fi
 unfunction _zcompinit_get_mtime _zcompinit_calculate_expected
-unset _zcompdump_stale
+# (regra de stale por 24h removida: a assinatura de metadados agora cobre todos
+# os diretorios de fpath, invalidando o dump imediatamente quando mudam)
 # Compile the dump in the background so the next start is even faster.
 if [[ $_zcompinit_cache_ready == true && -s $_zcompdump &&
       ( ! -s ${_zcompdump}.zwc || $_zcompdump -nt ${_zcompdump}.zwc ) ]]; then
     _zsh_atomic_compile "$_zcompdump" &!
 fi
 unset _zcompdump
-unset _zsh_user_completions_dir _zsh_completion_system_root _zsh_completion_targets
+unset _zsh_user_completions_dir _zsh_completion_system_root _zsh_completion_targets _zsh_completion_lock
 unset _zcompinit_force _zcompinit_metadata
 unset _zcompinit_metadata_ready _zcompinit_expected _zcompinit_cache_ready
 unset _zcompinit_cache_schema _zcompinit_mtime _zfunc_mtime _zpre_mtime
-unset _zpre_txt_mtime _zcompletion_dir_mtime _zcompmeta
+unset _zpre_txt_mtime _zcompletion_dir_mtime _zcompmeta _zsh_site_functions_dir
 
 # --- Stage 2: remaining plugins (OMZ calls `compdef`; safe now) --------------
 # Regenerate (and compile) the static bundle when the plugin list changes OR
@@ -1060,14 +1184,41 @@ bindkey '^[OB' history-substring-search-down
 
 # History Configuration
 
-HISTFILE=~/.zsh_history
-HISTSIZE=1000000
-SAVEHIST=1000000
+# History no XDG_STATE_HOME (fora do $HOME); cria o diretorio sob demanda.
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+[[ -d ${HISTFILE:h} ]] || mkdir -p "${HISTFILE:h}"
+HISTSIZE=100000
+SAVEHIST=100000
 HISTORY_IGNORE="(ls|cd|pwd|exit|clear|history)"
 
+# Keep noise and credential-bearing commands out of the history file. The
+# space-prefix convention remains available for commands that do not match a
+# known secret pattern.
+zshaddhistory() {
+    emulate -L zsh
+    local line=${1//$'\n'/ }
+    case $line in
+        (ls|ls\ *|cd|cd\ *|pwd|exit|clear|history) return 1 ;;
+    esac
+    local lowered=${line:l}
+    [[ $lowered == *api_key=* ||
+       $lowered == *api_token=* ||
+       $lowered == *access_token=* ||
+       $lowered == *secret=* ||
+       $lowered == *password=* ||
+       $lowered == *private_key=* ||
+       $lowered == *aws_secret_access_key=* ||
+       $lowered == *authorization:* ||
+       $lowered == *bearer\ * ||
+       $lowered == *--token\ * ||
+       $lowered == *--password\ * ||
+       $lowered == *'bw get '* ||
+       $lowered == *'op read '* ]] && return 1
+    return 0
+}
+
 setopt EXTENDED_HISTORY      # Write the history file in the ':start:elapsed;command' format.
-setopt INC_APPEND_HISTORY    # Write to the history file immediately, not when the shell exits.
-setopt SHARE_HISTORY         # Share history between all sessions.
+setopt SHARE_HISTORY         # Share history between all sessions (implica append imediato).
 setopt HIST_IGNORE_DUPS      # Do not record an event that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS  # Delete an old recorded event if a new event is a duplicate.
 setopt HIST_IGNORE_SPACE     # Do not record an event starting with a space.
@@ -1081,7 +1232,7 @@ setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks from each command line 
 setopt AUTO_CD               # `foo` ≡ `cd foo` when foo is a directory
 setopt INTERACTIVE_COMMENTS  # allow #comments in the interactive shell
 setopt NUMERIC_GLOB_SORT     # sort numeric filenames numerically (f2 < f10)
-setopt GLOB_DOTS             # let globs match dotfiles without an explicit leading dot
+setopt NO_BEEP               # sem beeps (completion, erros, etc.)
 
 # Completion Styles
 
@@ -1090,14 +1241,18 @@ zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu no
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+if (( $+commands[eza] )); then
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+fi
 # kubectl: preview the subcommand's help (no-op if the tag doesn't match)
-zstyle ':fzf-tab:complete:(kubectl|k):*' fzf-preview 'kubectl $word --help 2>/dev/null | head -300'
+(( $+commands[kubectl] )) && zstyle ':fzf-tab:complete:(kubectl|k):*' fzf-preview 'kubectl $word --help 2>/dev/null | head -300'
 # systemctl (Linux): preview unit status
-zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
+(( $+commands[systemctl] )) && zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'
 zstyle ':fzf-tab:*' switch-group '<' '>'
-zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-zstyle ':fzf-tab:*' popup-pad 80 0
+if [[ -n ${TMUX:-} ]] && (( $+functions[ftb-tmux-popup] )); then
+    zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+    zstyle ':fzf-tab:*' popup-pad 80 0
+fi
 
 # PATH
 
@@ -1138,12 +1293,31 @@ _cache_eval() {
     [[ -s $cache ]] && source "$cache"
 }
 
-# _lazyload <cmd> <init>: defer a tool's completion/init until first use.
-# <init> runs once (first invocation), then `cmd "$@"` is called (respects any
-# alias reassignment done inside <init>, e.g. kubecolor for kubectl).
+# _lazyload <cmd> <initializer>: defer a tool completion until first use.
+# Initializers are named functions defined below; no external string is ever
+# evaluated as shell code.
+typeset -gA _zsh_lazy_initializers
+_zsh_lazy_dispatch() {
+    emulate -L zsh
+    local cmd=$1 init=${_zsh_lazy_initializers[$1]}
+    shift
+    unfunction "$cmd"
+    unset "_zsh_lazy_initializers[$cmd]"
+    "$init"
+    unfunction "$init"
+    if (( ! ${#_zsh_lazy_initializers} )); then
+        unset _zsh_lazy_initializers
+        unfunction _zsh_lazy_dispatch
+    fi
+    "$cmd" "$@"
+}
 _lazyload() {
+    emulate -L zsh
     local cmd=$1 init=$2
-    eval "$cmd() { unfunction $cmd; $init; $cmd \"\$@\"; }"
+    [[ $cmd =~ '^[[:alpha:]_][[:alnum:]_-]*$' &&
+       $init =~ '^_[[:alnum:]_]+$' && $+functions[$init] -eq 1 ]] || return 1
+    _zsh_lazy_initializers[$cmd]=$init
+    functions[$cmd]='_zsh_lazy_dispatch "$0" "$@"'
 }
 
 # FZF — keybindings + completion (fzf >= 0.48 ships `fzf --zsh`)
@@ -1209,13 +1383,18 @@ command -v starship &>/dev/null && _cache_eval starship starship init zsh
 # the shims exported by ~/.zshenv. `mise activate zsh` runs after Homebrew is
 # pinned so the managed runtimes override Homebrew's duplicate binaries.
 command -v mise &>/dev/null && _cache_eval mise mise activate zsh
+unfunction _cache_eval
 
 # Lazy-loaded completions (loaded on first use)
-command -v bw    &>/dev/null && _lazyload bw    'source <(bw completion --shell zsh)'
-command -v jj    &>/dev/null && _lazyload jj    'source <(jj util completion zsh)'
-command -v ngrok &>/dev/null && _lazyload ngrok 'source <(ngrok completion)'
+_zsh_lazy_init_bw() { source <(command bw completion --shell zsh); }
+_zsh_lazy_init_jj() { source <(command jj util completion zsh); }
+_zsh_lazy_init_ngrok() { source <(command ngrok completion); }
+command -v bw    &>/dev/null && _lazyload bw    _zsh_lazy_init_bw
+command -v jj    &>/dev/null && _lazyload jj    _zsh_lazy_init_jj
+command -v ngrok &>/dev/null && _lazyload ngrok _zsh_lazy_init_ngrok
 {{- if eq .chezmoi.os "linux" }}
-command -v sem   &>/dev/null && _lazyload sem   'source <(sem completions zsh)'
+_zsh_lazy_init_sem() { source <(command sem completions zsh); }
+command -v sem   &>/dev/null && _lazyload sem _zsh_lazy_init_sem
 {{- end }}
 
 # Kubectl — persistent lazy wrapper; completion failure never blocks dispatch.
@@ -1236,36 +1415,27 @@ if (( $+commands[kubectl] )); then
     }
     kubectl() {
         _kubectl_load_completion
-        if (( $+commands[kubecolor] )); then
-            command kubecolor "$@"
-        else
-            command kubectl "$@"
-        fi
+        command kubectl "$@"
     }
 fi
 
 # Helm — lazy load
-command -v helm &>/dev/null && _lazyload helm 'source <(command helm completion zsh)'
+_zsh_lazy_init_helm() { source <(command helm completion zsh); }
+command -v helm &>/dev/null && _lazyload helm _zsh_lazy_init_helm
+(( $+commands[bw] )) || unfunction _zsh_lazy_init_bw
+(( $+commands[jj] )) || unfunction _zsh_lazy_init_jj
+(( $+commands[ngrok] )) || unfunction _zsh_lazy_init_ngrok
+{{- if eq .chezmoi.os "linux" }}
+(( $+commands[sem] )) || unfunction _zsh_lazy_init_sem
+{{- end }}
+(( $+commands[helm] )) || unfunction _zsh_lazy_init_helm
+unfunction _lazyload
 
 # Shell modules
-
-zsh-load-tokens() {
-    emulate -L zsh
-    local token_file="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/tokens.zsh"
-    if [[ -r $token_file ]]; then
-        source "$token_file"
-    fi
-    return 0
-}
 
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh" ]]  && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aliases.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/security.zsh"
 [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aiagents.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/aiagents.zsh"
-
-# Load vault-backed tokens into every interactive shell so external agents and
-# scripts started from this shell inherit the API keys without requiring each
-# tool to define its own wrapper. Keep tokens.zsh unreadable (mode 600).
-zsh-load-tokens
 
 # Profiling (uncomment together with the zprof line at the top)
 

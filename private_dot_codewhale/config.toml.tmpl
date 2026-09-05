@@ -28,9 +28,9 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 allow_shell = true
 
-# Instruções globais (espelho do ~/.config/opencode/AGENTS.md).
+# Instruções globais compartilhadas por todos os agentes.
 instructions = [
-    "~/.codewhale/AGENTS.md",
+    "~/.config/AGENTS.md",
 ]
 
 {{- if or (ne $apiKeyEnv "") (ne $cwKind "") (ne $cwBase "") }}

@@ -1,0 +1,105 @@
+{{- /* Maka connection-catalog.json — renderizado por chezmoi via change-providers / maka-state.tmpl */ -}}
+{{- $state := includeTemplate "maka-state.tmpl" . | fromJson -}}
+{{- $activeProvider := $state.provider -}}
+{{- $activeModels := $state.providerModels -}}
+{{- $activeMainModel := $activeModels.orchestrator | default "kimi-k2.7-code" -}}
+{{- $connIds := dict
+    "opencode-go" "cdd2ecc6-555b-4d3c-9e46-ed7d1805977b"
+    "deepseek" "22222222-2222-4222-8222-222222222222"
+    "xiaomi" "33333333-3333-4333-8333-333333333333"
+    "google" "44444444-4444-4444-8444-444444444444"
+    "navy" "55555555-5555-4555-8555-555555555555"
+-}}
+{{- $defaultConnId := index $connIds $activeProvider | default "cdd2ecc6-555b-4d3c-9e46-ed7d1805977b" -}}
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "defaultTarget": {
+    "connectionId": "{{ $defaultConnId }}",
+    "modelId": "{{ $activeMainModel }}"
+  },
+  "connections": [
+    {
+      "connectionId": "cdd2ecc6-555b-4d3c-9e46-ed7d1805977b",
+      "slug": "opencode-go",
+      "name": "OpenCode Go",
+      "providerType": "opencode-go",
+      "enabled": true,
+      "enabledModelIds": [
+        "kimi-k2.7-code",
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "mimo-v2.5",
+        "minimax-m3",
+        "gpt-5.6-luna",
+        "grok-4.6",
+        "kimi-k3"
+      ],
+      "revision": 1,
+      "models": []
+    },
+    {
+      "connectionId": "22222222-2222-4222-8222-222222222222",
+      "slug": "deepseek",
+      "name": "DeepSeek",
+      "providerType": "deepseek",
+      "enabled": true,
+      "enabledModelIds": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "deepseek-chat",
+        "deepseek-reasoner"
+      ],
+      "revision": 1,
+      "models": []
+    },
+    {
+      "connectionId": "33333333-3333-4333-8333-333333333333",
+      "slug": "xiaomi-token-plan-sgp",
+      "name": "Xiaomi Token Plan (Singapore)",
+      "providerType": "xiaomi-token-plan-sgp",
+      "enabled": true,
+      "enabledModelIds": [
+        "mimo-v2.5-pro",
+        "mimo-v2.5"
+      ],
+      "revision": 1,
+      "models": []
+    },
+    {
+      "connectionId": "44444444-4444-4444-8444-444444444444",
+      "slug": "google",
+      "name": "Google Gemini",
+      "providerType": "google",
+      "enabled": true,
+      "enabledModelIds": [
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-3.5-flash"
+      ],
+      "revision": 1,
+      "models": []
+    },
+    {
+      "connectionId": "55555555-5555-4555-8555-555555555555",
+      "slug": "navy",
+      "name": "Navy AI",
+      "providerType": "openai-compatible",
+      "baseUrl": "https://api.navy/v1",
+      "enabled": true,
+      "enabledModelIds": [
+        "claude-sonnet-5",
+        "claude-opus-5",
+        "deepseek-v4-pro",
+        "deepseek-chat",
+        "deepseek-reasoner",
+        "codestral-latest",
+        "mistral-large-latest",
+        "hermes-4-405b",
+        "grok-code-fast-1"
+      ],
+      "revision": 1,
+      "models": []
+    }
+  ]
+}

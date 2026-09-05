@@ -1,0 +1,221 @@
+{
+  "agent_servers": {
+    "OpenCode": {
+      "command": "opencode",
+      "args": ["acp"]
+    }
+  },
+  "cli_default_open_behavior": "existing_window",
+  "edit_predictions": {
+    "provider": "copilot"
+  },
+  "agent": {
+    "default_model": {
+      "provider": "opencode",
+      "model": "free/big-pickle",
+      "enable_thinking": false
+    },
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "terminal": {
+    "font_size": 13.0
+  },
+  "git_panel": {
+    "tree_view": true,
+    "file_icons": true
+  },
+  "project_panel": {
+    "git_status_indicator": true,
+    "bold_folder_labels": true,
+    "dock": "left"
+  },
+  "which_key": {
+    "enabled": true
+  },
+  "vim_mode": true,
+  "buffer_font_family": "Maple Mono NF",
+  "ui_font_size": 16,
+  "buffer_font_size": 13.0,
+  "icon_theme": "Material Icon Theme",
+  "theme": "Tokyo Night",
+  "tab_size": 2,
+  "hard_tabs": false,
+  "soft_wrap": "editor_width",
+  "vertical_scroll_margin": 8,
+  "horizontal_scroll_margin": 8,
+  "show_whitespaces": "all",
+  "format_on_save": "on",
+  "code_lens": "on",
+  "inlay_hints": {
+    "enabled": true
+  },
+  "semantic_tokens": "combined",
+  "auto_signature_help": true,
+  "session": {
+    "trust_all_worktrees": false
+  },
+  "languages": {
+    "Python": {
+      "language_servers": ["basedpyright", "ruff"],
+      "formatter": {
+        "language_server": {
+          "name": "ruff"
+        }
+      }
+    },
+    "JavaScript": {
+      "language_servers": ["typescript-language-server"],
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": ["format", "--stdin-file-path", "{buffer_path}"]
+        }
+      }
+    },
+    "TypeScript": {
+      "language_servers": ["angular", "typescript-language-server"],
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": ["format", "--stdin-file-path", "{buffer_path}"]
+        }
+      }
+    },
+    "TSX": {
+      "language_servers": ["typescript-language-server"],
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": ["format", "--stdin-file-path", "{buffer_path}"]
+        }
+      }
+    },
+    "Angular": {
+      "language_servers": ["angular", "typescript-language-server"]
+    },
+    "Vue.js": {
+      "language_servers": ["vue"]
+    },
+    "HTML": {
+      "language_servers": ["angular", "vscode-html-language-server"]
+    },
+    "CSS": {
+      "language_servers": ["vscode-css-language-server"]
+    },
+    "JSON": {
+      "language_servers": ["vscode-json-language-server"]
+    },
+    "YAML": {
+      "language_servers": ["yaml-language-server"]
+    },
+    "Shell Script": {
+      "language_servers": ["bash-language-server"]
+    },
+    "Go": {
+      "language_servers": ["gopls"],
+      "formatter": [
+        {
+          "external": {
+            "command": "gofumpt",
+            "arguments": ["-"]
+          }
+        },
+        {
+          "external": {
+            "command": "goimports",
+            "arguments": ["-"]
+          }
+        }
+      ]
+    },
+    "Rust": {
+      "language_servers": ["rust-analyzer"],
+      "formatter": "language_server"
+    },
+    "Lua": {
+      "language_servers": ["lua-language-server"],
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["-"]
+        }
+      }
+    },
+    "Dockerfile": {
+      "language_servers": ["docker-language-server"]
+    },
+    "Terraform": {
+      "language_servers": ["terraform-ls"]
+    },
+    "Zig": {
+      "language_servers": ["zls"]
+    },
+    "Elixir": {
+      "language_servers": ["elixir-ls"]
+    },
+    "Helm": {
+      "language_servers": ["helm"]
+    },
+    "Typst": {
+      "language_servers": ["tinymist"]
+    },
+    "PHP": {
+      "language_servers": ["intelephense"]
+    },
+    "TOML": {
+      "language_servers": ["tombi"]
+    },
+    "Markdown": {
+      "format_on_save": "on"
+    }
+  },
+  "auto_install_extensions": {
+    "angular": true,
+    "ansible": true,
+    "asciidoc": true,
+    "astro": true,
+    "basedpyright": true,
+    "biome": true,
+    "cargo-tom": true,
+    "codebook": true,
+    "color-highlight": true,
+    "comment": true,
+    "csv": true,
+    "docker-compose": true,
+    "dockerfile": true,
+    "elixir": true,
+    "emmet": true,
+    "env": true,
+    "git-firefly": true,
+    "graphql": true,
+    "groovy": true,
+    "helm": true,
+    "html": true,
+    "ini": true,
+    "java": true,
+    "jinja2": true,
+    "just": true,
+    "log": true,
+    "lua": true,
+    "make": true,
+    "markdown-oxide": true,
+    "markdownlint": true,
+    "material-icon-theme": true,
+    "mcp-server-context7": true,
+    "mcp-server-github": true,
+    "mermaid": true,
+    "php": true,
+    "pylsp": true,
+    "svelte": true,
+    "sql": true,
+    "terraform": true,
+    "tokyo-night": true,
+    "tombi": true,
+    "toml": true,
+    "typst": true,
+    "vue": true,
+    "xml": true,
+    "zig": true
+  }
+}

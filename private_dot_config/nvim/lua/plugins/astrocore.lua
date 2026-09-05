@@ -17,8 +17,10 @@ return {
       },
     },
     diagnostics = {
-      virtual_text = true,
+      virtual_text = { spacing = 2, source = "if_many" },
       underline = true,
+      severity_sort = true,
+      update_in_insert = false,
     },
     options = {
       opt = {
@@ -58,8 +60,7 @@ return {
     },
     mappings = {
       n = {
-        ["<Leader>o"]  = { desc = "󱙺 OpenCode" },
-        ["<Leader>e"]  = { "<cmd>Neotree toggle reveal<cr>", desc = " Toggle Explorer" },
+        ["<Leader>e"] = { "<cmd>Neotree toggle reveal<cr>", desc = " Toggle Explorer" },
         ["<Leader>ef"] = {
           function()
             if vim.bo.filetype == "neo-tree" then
@@ -70,69 +71,6 @@ return {
           end,
           desc = "Toggle Explorer Focus",
         },
-
-        ["<Leader>oa"] = { function() require("opencode").ask("@this: ") end,                          desc = "Ask" },
-        ["<Leader>os"] = { function() require("opencode").select() end,                                desc = "Select action" },
-        ["<Leader>ot"] = {
-          function()
-            -- Find an existing opencode terminal window
-            for _, win in ipairs(vim.api.nvim_list_wins()) do
-              local buf = vim.api.nvim_win_get_buf(win)
-              local name = vim.api.nvim_buf_get_name(buf)
-              if name:match("term://.*opencode") then
-                -- Window visible: close it
-                vim.api.nvim_win_close(win, false)
-                return
-              end
-            end
-            -- Find a hidden opencode terminal buffer
-            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-              local name = vim.api.nvim_buf_get_name(buf)
-              if name:match("term://.*opencode") and vim.api.nvim_buf_is_loaded(buf) then
-                -- Reopen in a vertical split
-                vim.cmd("vsplit")
-                vim.api.nvim_win_set_buf(0, buf)
-                vim.cmd("wincmd p")
-                return
-              end
-            end
-            -- No opencode terminal exists yet: start one
-            vim.cmd("vsplit term://opencode | wincmd p")
-          end,
-          desc = "Toggle OpenCode",
-        },
-
-        ["<Leader>op"] = { desc = "󰙎 Prompts" },
-        ["<Leader>opf"] = { function() require("opencode").prompt("fix") end,                          desc = "Fix diagnostics" },
-        ["<Leader>ope"] = { function() require("opencode").prompt("explain") end,                      desc = "Explain" },
-        ["<Leader>opr"] = { function() require("opencode").prompt("review") end,                       desc = "Review" },
-        ["<Leader>opd"] = { function() require("opencode").prompt("document") end,                     desc = "Document" },
-        ["<Leader>opt"] = { function() require("opencode").prompt("test") end,                         desc = "Add tests" },
-        ["<Leader>opo"] = { function() require("opencode").prompt("optimize") end,                     desc = "Optimize" },
-        ["<Leader>opR"] = { function() require("opencode").prompt("refactor") end,                     desc = "Refactor" },
-        ["<Leader>ops"] = { function() require("opencode").prompt("security") end,                     desc = "Security review" },
-        ["<Leader>opD"] = { function() require("opencode").prompt("diagnostics") end,                  desc = "Explain diagnostics" },
-        ["<Leader>opg"] = { function() require("opencode").prompt("diff") end,                         desc = "Review git diff" },
-        ["<Leader>opx"] = { function() require("opencode").prompt("debug") end,                        desc = "Add debug logging" },
-
-        ["<Leader>oS"] = { desc = " Session" },
-        ["<Leader>oSn"] = { function() require("opencode").command("session.new") end,                 desc = "New session" },
-        ["<Leader>oSl"] = { function() require("opencode").command("session.list") end,                desc = "List sessions" },
-        ["<Leader>oSs"] = { function() require("opencode").command("session.select") end,              desc = "Select session" },
-        ["<Leader>oSi"] = { function() require("opencode").command("session.interrupt") end,           desc = "Interrupt" },
-        ["<Leader>oSc"] = { function() require("opencode").command("session.compact") end,             desc = "Compact context" },
-        ["<Leader>oSu"] = { function() require("opencode").command("session.undo") end,                desc = "Undo" },
-        ["<Leader>oSr"] = { function() require("opencode").command("session.redo") end,                desc = "Redo" },
-        ["<Leader>oSh"] = { function() require("opencode").command("session.share") end,               desc = "Share session" },
-
-        ["<Leader>oA"] = { function() require("opencode").command("agent.cycle") end,                  desc = "Cycle agent" },
-
-        -- Operator (go / goo) — motion e line
-        -- <Leader>or enters operator-pending mode: wait for a motion/text-object.
-        -- <Leader>oo does the same but pre-sends "_" (current line) as the motion,
-        -- so it acts on the line under the cursor in one keystroke.
-        ["<Leader>or"] = { function() return require("opencode").operator("@this ") end, expr = true, desc = "Send range to OpenCode" },
-        ["<Leader>oo"] = { function() return require("opencode").operator("@this ") .. "_" end, expr = true, desc = "Send line to OpenCode" },
 
         ["<Leader>R"] = { desc = "󱓞 Run/Tasks" },
         ["<Leader>Rr"] = { "<cmd>OverseerRun<cr>", desc = "Run task" },
@@ -145,33 +83,50 @@ return {
         ["<Leader>tTn"] = { function() require("neotest").run.run() end, desc = "Test nearest" },
         ["<Leader>tTs"] = { function() require("neotest").summary.toggle() end, desc = "Toggle summary" },
 
-        ["<Leader>gD"] = { "<cmd>DiffviewOpen<cr>",  desc = "Diffview open" },
-        ["<Leader>gO"] = { "<cmd>Octo pr list<cr>",  desc = "Octo: list PRs" },
+        ["<Leader>gD"] = { "<cmd>DiffviewOpen<cr>", desc = "Diffview open" },
+        ["<Leader>gO"] = { "<cmd>Octo pr list<cr>", desc = "Octo: list PRs" },
 
         ["<Leader>z"] = { function() require("snacks").zen() end, desc = "Zen mode" },
         ["<Leader>uZ"] = false,
         ["<Leader>uo"] = { "<cmd>Neotree document_symbols<cr>", desc = "Outline (document symbols)" },
 
-        ["<Leader>Ss"] = { function() require("resession").save() end,   desc = "Save session" },
-        ["<Leader>Sl"] = { function() require("resession").load() end,   desc = "Load session (cwd)" },
-        ["<Leader>SL"] = { function() require("resession").load("last") end, desc = "Load last session" },
+        ["<Leader>Ss"] = { function() require("resession").save() end, desc = "Save session" },
+        ["<Leader>Sl"] = { function() require("resession").load() end, desc = "Load session (cwd)" },
+        ["<Leader>SL"] = { function() require("resession").load "last" end, desc = "Load last session" },
         ["<Leader>Sd"] = { function() require("resession").detach() end, desc = "Detach session (stop auto-save)" },
       },
-      v = {
-        -- OpenCode prompts (visual mode — operate on selection)
-        ["<Leader>ope"] = { function() require("opencode").prompt("explain") end,  desc = "Explain selection" },
-        ["<Leader>opr"] = { function() require("opencode").prompt("review") end,   desc = "Review selection" },
-      },
+      v = {},
     },
     autocmds = {
+      -- One debounced lint pipeline; skip special and large buffers.
+      auto_lint = {
+        {
+          event = { "BufWritePost", "BufReadPost", "InsertLeave" },
+          desc = "Lint after meaningful editing boundaries",
+          callback = function(args)
+            if
+              not package.loaded["lint"]
+              or vim.bo[args.buf].buftype ~= ""
+              or require("utils.buffer").is_large(args.buf)
+            then
+              return
+            end
+            vim.b[args.buf].lint_generation = (vim.b[args.buf].lint_generation or 0) + 1
+            local generation = vim.b[args.buf].lint_generation
+            vim.defer_fn(function()
+              if vim.api.nvim_buf_is_valid(args.buf) and vim.b[args.buf].lint_generation == generation then
+                require("lint").try_lint(nil, { bufnr = args.buf })
+              end
+            end, 250)
+          end,
+        },
+      },
       -- Enable spell only for text files (markdown, text, gitcommit, etc.)
       spell_text_files = {
         {
           event = "FileType",
           pattern = { "markdown", "text", "gitcommit", "plaintex", "tex", "rst", "asciidoc" },
-          callback = function()
-            vim.opt_local.spell = true
-          end,
+          callback = function() vim.opt_local.spell = true end,
           desc = "Enable spell checking for text files",
         },
       },
@@ -180,34 +135,45 @@ return {
         {
           event = "FileType",
           pattern = {
-            "lua", "python", "javascript", "typescript", "typescriptreact", "javascriptreact",
-            "go", "rust", "c", "cpp", "java", "php", "ruby", "sh", "bash", "zsh", "yaml", "toml",
+            "lua",
+            "python",
+            "javascript",
+            "typescript",
+            "typescriptreact",
+            "javascriptreact",
+            "go",
+            "rust",
+            "c",
+            "cpp",
+            "java",
+            "php",
+            "ruby",
+            "sh",
+            "bash",
+            "zsh",
+            "yaml",
+            "toml",
           },
           callback = function()
             vim.opt_local.spell = true
             -- Only check spelling in comments and strings via treesitter
-            vim.opt_local.spelloptions:append("noplainbuffer")
+            vim.opt_local.spelloptions:append "noplainbuffer"
           end,
           desc = "Enable spell checking only in comments for code files",
         },
       },
-      -- VSCode-like layout: neo-tree left | empty buffer center | terminal bottom
-      vscode_layout = {
+      -- Opening a directory keeps startup light: only Neo-tree opens.
+      directory_layout = {
         {
           event = "VimEnter",
-          desc = "VSCode-like layout when a directory is passed as argument",
+          desc = "Open Neo-tree when a directory is passed",
           nested = true,
           callback = function()
             if vim.fn.argc(-1) == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
               vim.schedule(function()
                 vim.cmd.cd(vim.fn.argv(0))
-                -- enew first: replaces any netrw/directory buffer so neo-tree
-                -- opens as a narrow left split instead of filling the whole screen
-                vim.cmd("enew")
-                vim.cmd("Neotree filesystem left")
-                vim.cmd("wincmd l")
-                vim.cmd("ToggleTerm direction=horizontal")
-                vim.cmd("wincmd p")
+                vim.cmd.enew()
+                vim.cmd "Neotree filesystem left"
               end)
             end
           end,

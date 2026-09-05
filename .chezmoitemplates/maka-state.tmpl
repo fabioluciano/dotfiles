@@ -1,0 +1,19 @@
+{{- /* Reads ~/.maka/.active_provider and returns a JSON object with
+     provider, profile, and providerModels. Consumido por connection-catalog.json.tmpl */ -}}
+{{- $defaultProvider := get $.maka "default_provider" | default "opencode-go" -}}
+{{- $stateFile := printf "%s/.maka/.active_provider" (env "HOME") -}}
+{{- $state := output "sh" "-c" (printf "cat %s 2>/dev/null || { echo provider:%s; echo profile:optimized; }" $stateFile $defaultProvider) | trim -}}
+{{- $provider := $defaultProvider -}}
+{{- $profile := "optimized" -}}
+{{- if hasPrefix "provider:" $state -}}
+{{- range $line := splitList "\n" $state }}
+{{- $parts := splitList ":" $line -}}
+{{- if eq (first $parts) "provider" }}{{- $provider = last $parts -}}{{- end -}}
+{{- if eq (first $parts) "profile" }}{{- $profile = last $parts -}}{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- $validProviders := keys $.providers -}}
+{{- if not (has $provider $validProviders) -}}{{- $provider = $defaultProvider -}}{{- end -}}
+{{- $profileKey := printf "%s-%s" $provider $profile -}}
+{{- $modelsDict := index $.maka.models $profileKey | default (index $.maka.models $provider) -}}
+{{- dict "provider" $provider "profile" $profile "providerModels" $modelsDict | toJson -}}

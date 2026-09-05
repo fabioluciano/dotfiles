@@ -1,0 +1,30 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Make the chezmoi-managed Maka profile visible at a custom XDG config path.
+# The source tree targets ~/.config/Maka; Maka uses $XDG_CONFIG_HOME/Maka when
+# that variable is set. A symlink keeps both paths pointed at one profile.
+set -euo pipefail
+
+canonical="{{ .chezmoi.homeDir }}/.config/Maka"
+xdg_config_home="${XDG_CONFIG_HOME:-{{ .chezmoi.homeDir }}/.config}"
+target="${xdg_config_home}/Maka"
+
+[[ "$target" == "$canonical" ]] && exit 0
+[[ -d "$canonical" ]] || exit 0
+
+if [[ -L "$target" ]]; then
+    [[ "$(readlink "$target")" == "$canonical" ]] && exit 0
+    echo "maka-xdg: symlink existente aponta para outro destino: $target" >&2
+    exit 1
+fi
+
+if [[ -e "$target" ]]; then
+    echo "maka-xdg: configuração existente não será sobrescrita: $target" >&2
+    echo "maka-xdg: mova-a para backup e execute 'chezmoi apply' novamente." >&2
+    exit 1
+fi
+
+mkdir -p "$(dirname "$target")"
+ln -s "$canonical" "$target"
+echo "maka-xdg: $target -> $canonical"
+{{- end -}}

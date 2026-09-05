@@ -14,7 +14,6 @@ vim.filetype.add {
   extension = {
     zsh = "sh",
     sh = "sh",
-    tmpl = "gotmpl",
     conf = "conf",
     env = "sh",
   },
@@ -40,7 +39,16 @@ vim.filetype.add {
   pattern = {
     ["%.env%.[%w_.-]+"] = "sh",
     ["Dockerfile.*"] = "dockerfile",
-    [".*%.tmpl"] = "gotmpl",
+    [".*%.sh%.tmpl"] = "sh",
+    [".*%.zsh%.tmpl"] = "sh",
+    [".*%.bash%.tmpl"] = "sh",
+    [".*%.toml%.tmpl"] = "toml",
+    [".*%.json%.tmpl"] = "json",
+    [".*%.jsonc%.tmpl"] = "jsonc",
+    [".*%.yaml%.tmpl"] = "yaml",
+    [".*%.yml%.tmpl"] = "yaml",
+    [".*%.lua%.tmpl"] = "lua",
+    [".*%.md%.tmpl"] = "markdown",
     [".*%.gotmpl"] = "gotmpl",
   },
 }
@@ -65,29 +73,62 @@ vim.diagnostic.config {
 }
 
 local spell_dir = vim.fn.stdpath "data" .. "/site/spell"
-vim.fn.mkdir(spell_dir, "p")
+local spell_downloads = {}
 
-local function ensure_spell_file(lang)
-  local spl = spell_dir .. "/" .. lang .. ".utf-8.spl"
-  if vim.fn.filereadable(spl) == 0 then
-    -- One-time, non-fatal download. Guard on curl + bounded timeouts so an
-    -- offline/corporate-network start never blocks or errors the editor.
-    if vim.fn.executable "curl" ~= 1 then
-      vim.notify("curl ausente; pulando download do spell '" .. lang .. "'", vim.log.levels.WARN)
-      return
-    end
-    local url = "https://ftp.nluug.nl/pub/vim/runtime/spell/" .. lang .. ".utf-8.spl"
-    vim.notify("Downloading " .. lang .. ".utf-8.spl…", vim.log.levels.INFO)
-    vim.fn.system { "curl", "-fsSL", "--connect-timeout", "10", "--max-time", "60", "-o", spl, url }
-    if vim.v.shell_error ~= 0 then vim.notify("Failed to download " .. lang .. " spell file", vim.log.levels.WARN) end
+local function has_spell_file(lang)
+  if vim.fn.filereadable(spell_dir .. "/" .. lang .. ".utf-8.spl") == 1 then return true end
+  for path in vim.gsplit(vim.o.runtimepath, ",", { plain = true }) do
+    if vim.fn.filereadable(path .. "/spell/" .. lang .. ".utf-8.spl") == 1 then return true end
   end
+  return false
 end
 
-vim.defer_fn(function()
-  for _, lang in ipairs { "en", "pt" } do
-    ensure_spell_file(lang)
+local function ensure_spell_file(lang, force)
+  if #vim.api.nvim_list_uis() == 0 or (not force and has_spell_file(lang)) or spell_downloads[lang] then return end
+  if vim.fn.executable "curl" ~= 1 then
+    vim.notify_once("curl ausente; spellfiles não serão baixados", vim.log.levels.WARN)
+    return
   end
-end, 500)
+
+  vim.fn.mkdir(spell_dir, "p")
+  local destination = spell_dir .. "/" .. lang .. ".utf-8.spl"
+  local temporary = destination .. ".tmp." .. vim.fn.getpid()
+  local url = "https://ftp.nluug.nl/pub/vim/runtime/spell/" .. lang .. ".utf-8.spl"
+  spell_downloads[lang] = true
+  vim.system({ "curl", "-fsSL", "--connect-timeout", "10", "--max-time", "60", "-o", temporary, url }, function(result)
+    spell_downloads[lang] = nil
+    local stat = (vim.uv or vim.loop).fs_stat(temporary)
+    if result.code == 0 and stat and stat.size > 0 then
+      local ok, err = (vim.uv or vim.loop).fs_rename(temporary, destination)
+      if not ok then
+        (vim.uv or vim.loop).fs_unlink(temporary)
+        vim.schedule(
+          function() vim.notify("Falha ao promover spellfile " .. lang .. ": " .. tostring(err), vim.log.levels.WARN) end
+        )
+      end
+    else
+      (vim.uv or vim.loop).fs_unlink(temporary)
+      vim.schedule(function() vim.notify("Falha ao baixar spellfile " .. lang, vim.log.levels.WARN) end)
+    end
+  end)
+end
+
+vim.api.nvim_create_user_command("UpdateSpellFiles", function()
+  for _, lang in ipairs { "en", "pt" } do
+    ensure_spell_file(lang, true)
+  end
+end, { desc = "Download/update Vim spell files asynchronously" })
+
+vim.api.nvim_create_autocmd("OptionSet", {
+  pattern = "spell",
+  callback = function()
+    if vim.v.option_new == "1" then
+      for _, lang in ipairs(vim.opt_local.spelllang:get()) do
+        ensure_spell_file(lang, false)
+      end
+    end
+  end,
+})
 
 -- AstroNvim (astrocore) maintains `vim.t.bufs` and fires the `AstroBufsUpdated`
 -- User autocmd whenever the buffer list changes. Filter unnamed/scratch buffers

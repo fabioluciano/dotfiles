@@ -56,6 +56,14 @@ logid.cfg
 Library
 {{- end }}
 
+{{- if eq .chezmoi.os "darwin" }}
+# macOS Zed uses ~/Library/Application Support/Zed, not ~/.config/zed
+.config/zed
+# Maka uses ~/Library/Application Support/Maka on macOS; keep the Linux
+# ~/.config/Maka source variant available for Arch machines.
+.config/Maka
+{{- end }}
+
 
 # Public GPG key — usado pelos run_before, nao aplicar em ~
 keys/

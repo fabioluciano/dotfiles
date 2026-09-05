@@ -54,7 +54,7 @@ _change-providers() {
       fi
       return
       ;;
-    opencode|omp|pi|codewhale)
+    opencode|omp|pi|codewhale|maka|crush)
       # Digitado manualmente: word[3]: provider, word[4]: tier
       if (( CURRENT == 3 )); then
         _describe 'provider' providers

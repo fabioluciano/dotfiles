@@ -29,14 +29,14 @@
   "council"      (list)
 -}}
 {{- $agentMcps := dict
-  "orchestrator" (list "github" "kubernetes" "terraform")
-  "oracle"       (list "codebase-memory")
-  "librarian"    (list "websearch" "context7" "gh_grep")
-  "explorer"     (list "codebase-memory")
-  "designer"     (list "playwright")
-  "fixer"        (list)
-  "observer"     (list "playwright")
-  "council"      (list)
+  "orchestrator" (list "github" "kubernetes" "terraform" "sequential-thinking" "git")
+  "oracle"       (list "codebase-memory" "sequential-thinking" "git")
+  "librarian"    (list "websearch" "context7" "gh_grep" "sequential-thinking" "git")
+  "explorer"     (list "codebase-memory" "sequential-thinking" "git")
+  "designer"     (list "playwright" "sequential-thinking" "git")
+  "fixer"        (list "sequential-thinking" "git")
+  "observer"     (list "playwright" "sequential-thinking" "git")
+  "council"      (list "sequential-thinking" "git")
 -}}
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
@@ -47,53 +47,53 @@
         "model": "opencode/hy3-free",
         "temperature": 0.4,
         "skills": ["*"],
-        "mcps": ["github", "kubernetes", "terraform"]
+        "mcps": ["github", "kubernetes", "terraform", "sequential-thinking", "git"]
       },
       "oracle": {
         "model": "opencode/big-pickle",
         "temperature": 0.4,
         "variant": "max",
         "skills": ["simplify"],
-        "mcps": ["codebase-memory"]
+        "mcps": ["codebase-memory", "sequential-thinking", "git"]
       },
       "librarian": {
         "model": "opencode/deepseek-v4-flash-free",
         "temperature": 0.2,
         "skills": [],
-        "mcps": ["websearch", "context7", "gh_grep"]
+        "mcps": ["websearch", "context7", "gh_grep", "sequential-thinking", "git"]
       },
       "explorer": {
         "model": "opencode/north-mini-code-free",
         "temperature": 0.2,
         "skills": [],
-        "mcps": ["codebase-memory"]
+        "mcps": ["codebase-memory", "sequential-thinking", "git"]
       },
       "designer": {
         "model": "opencode/mimo-v2.5-free",
         "temperature": 0.3,
         "variant": "medium",
         "skills": [],
-        "mcps": ["playwright"]
+        "mcps": ["playwright", "sequential-thinking", "git"]
       },
       "fixer": {
         "model": "opencode/deepseek-v4-flash-free",
         "temperature": 0.2,
         "variant": "high",
         "skills": [],
-        "mcps": []
+        "mcps": ["sequential-thinking", "git"]
       },
       "observer": {
         "model": "opencode/mimo-v2.5-free",
         "temperature": 0.2,
         "variant": "low",
         "skills": [],
-        "mcps": ["playwright"]
+        "mcps": ["playwright", "sequential-thinking", "git"]
       },
       "council": {
         "model": "opencode/hy3-free",
         "temperature": 0.4,
         "skills": [],
-        "mcps": []
+        "mcps": ["sequential-thinking", "git"]
       }
     }
 {{- $sortedProviders := sortAlpha $validProviders -}}

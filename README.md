@@ -39,21 +39,32 @@ chezmoi init --apply https://github.com/fabioluciano/dot.git
 
 Package installs run automatically on `chezmoi apply` via the
 `run_onchange_after_*` scripts in `.chezmoiscripts/` — they re-run only when the
-corresponding manifest changes (tracked by its content hash). Separately,
-`run_after_60-antidote-bundles.sh.tmpl` runs after those package hooks on every
+corresponding manifest changes (tracked by its content hash). Token sync
+(`run_onchange_after_46-zsh-tokens`) and `mise install`
+(`run_onchange_after_47-mise-install`) run after the package hooks so that
+`bw`/`kubectl-argo-rollouts`/etc. already exist on first bootstrap; renaming
+the hooks means they will execute once more on the next apply. Separately,
+`run_after_60-antidote-bundles.sh.tmpl` runs after the package hooks on every
 `chezmoi apply`: it runs `antidote update --bundles` to update plugin clones
-without updating Antidote itself, then rebuilds both static bundles. The hook is
-non-fatal for treatable errors, waits up to five seconds for its common lock, and
-preserves all four bundle artifacts, although the update may already have
-changed some plugin clones before a later failure.
+without updating Antidote itself, then rebuilds both static bundles. The hook
+shares the canonical lock `~/.cache/zsh/.zsh_plugins.lock` with the zsh startup
+so the two cannot regenerate bundles simultaneously. Treatable contention is
+non-fatal and keeps the current artifacts; genuine failures propagate a
+non-zero status, although the update may already have changed some plugin
+clones before a later failure.
 
 ## Day-to-day
 
 ```sh
 chezmoi edit <file>     # edit a source file in $EDITOR
-chezmoi diff            # preview pending changes
+chezmoi diff            # preview pending changes (now includes scripts)
 chezmoi apply           # apply (package sync on manifest changes; Antidote hook every apply)
 chezmoi update          # pull latest from the repo and apply
+mise run lint           # strict, non-mutating static checks (exits non-zero on failure)
+mise run lint-report    # same checks, does not block
+mise run doctor-chezmoi # chezmoi doctor + dry-run apply
+mise run benchmark-nvim # measure isolated Neovim cold/warm startup, median and p95
+mise run benchmark-zsh  # same for zsh, including zprof output in scratch
 mise run update-safe    # update host packages only (topgrade)
 mise run update-full    # full update: packages + dotfiles + krew + nvim + tmux
 ```
@@ -251,6 +262,41 @@ change-providers status
 
 The `change-providers` command is part of this dotfiles repo (chezmoi-managed
 at `~/.local/bin/change-providers`).
+
+## Validation and health checks
+
+This is configuration, not an application, so there is no build/test suite.
+Validation is static and non-mutating:
+
+- Safe (read-only):
+  - `mise run lint-report` or `dotfiles-lint --report` — all checks, never blocks.
+  - `mise run lint` or `dotfiles-lint --strict` — same checks, exits non-zero on failure.
+  - `chezmoi doctor`, `chezmoi diff`, `chezmoi status`.
+  - `chezmoi execute-template < file.tmpl` — render a template to stdout for inspection
+    (do not use on templates that read live secrets/Bitwarden/YubiKey).
+  - `zsh -n`, `bash -n`, `shellcheck`, `taplo check`, `yamllint`, `luac -p`, `stylua --check`.
+- Mutating (requires intent):
+  - `chezmoi --dry-run apply` — safe preview, but review which hooks would run.
+  - `chezmoi apply` — installs packages, syncs tokens, runs Antidote, runs `mise install`.
+  - `nvim --headless +qa` — may bootstrap `lazy.nvim`, install Mason packages and download spellfiles.
+  - `nvim --headless '+Lazy! sync' +qa` (or `mise run update-nvim`) — updates plugins.
+  - `mise install` / `mise upgrade` / `mise run update-full` — updates all tools.
+
+Global tools intentionally follow `latest`. Pin specific versions only per-project
+via a `.mise.toml` / `mise.toml` in the project root; do not commit pins to global config.
+
+## Verifying a fresh-machine bootstrap (manual checklist)
+
+Before running `chezmoi init --apply` on a new machine, inspect first:
+
+```sh
+git status
+git diff
+chezmoi diff
+chezmoi --dry-run apply
+```
+
+Confirm no `REBASE_HEAD`/conflicts, then apply.
 
 ## Managing opencode skills
 

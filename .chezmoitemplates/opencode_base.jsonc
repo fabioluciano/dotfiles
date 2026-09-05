@@ -339,7 +339,7 @@
     ]
   },
   "instructions": [
-    "~/.config/opencode/AGENTS.md"
+    "~/.config/AGENTS.md"
   ],
   "provider": {
     "navy": {
@@ -406,6 +406,22 @@
       "type": "local",
       "command": [
         "playwright-mcp"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "mcp-server-sequential-thinking"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    },
+    "git": {
+      "type": "local",
+      "command": [
+        "mcp-server-git"
       ],
       "enabled": true,
       "timeout": 10000

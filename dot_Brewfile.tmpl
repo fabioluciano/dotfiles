@@ -3,11 +3,13 @@
 
 # TAPS
 tap "anomalyco/tap", trusted: true
+tap "aprilnea/tap", trusted: true
 tap "argoproj/tap", trusted: true
 tap "bendews/tap", trusted: true
 tap "buildpacks/tap", trusted: true
 tap "can1357/tap", trusted: true
 tap "charmbracelet/tap", trusted: true
+tap "crmne/tap", trusted: true
 tap "esengine/reasonix", trusted: true
 tap "hashicorp/tap", trusted: true
 tap "Hmbown/deepseek-tui", trusted: true
@@ -88,8 +90,10 @@ brew "rsync"
 brew "rustnet"
 brew "sd"
 brew "starship"
+brew "tailcat"
 brew "tailspin"
 brew "termshark"
+brew "wireshark"
 brew "tldr"
 brew "tmux"
 brew "topgrade"
@@ -148,7 +152,6 @@ brew "just"
 brew "mole"
 brew "sem-cli"
 brew "shellcheck"
-brew "jdtls"                # Java LSP (Eclipse JDT Language Server)
 brew "luarocks"
 
 # CLOUD, KUBERNETES & PLATFORM OPS
@@ -196,6 +199,9 @@ brew "vfkit"
 brew "ykman"
 brew "yubico-piv-tool"
 
+# TAP FORMULAS (argoproj) — from the argoproj/tap tap above.
+brew "argoproj/tap/kubectl-argo-rollouts"
+
 # GIT, REVIEW & AGENT WORKFLOW
 brew "gh"
 brew "git-absorb"
@@ -223,10 +229,12 @@ brew "switchaudio-osx"
 
 
 # DESKTOP APPS — AI & AGENT TOOLS
+cask "antigravity-cli"
 cask "captin"
 cask "chatgpt"
 cask "claude"
 cask "claude-code"
+cask "codex"
 cask "steipete/tap/codexbar", trusted: true
 cask "nkzw-tech/tap/codiff", trusted: true
 cask "copilot-cli"
@@ -247,7 +255,9 @@ cask "ghostty"
 cask "github"
 cask "ngrok"
 cask "obsidian"
+cask "aprilnea/tap/openlogi@latest", trusted: true
 cask "proxyman"
+cask "wireshark-app"
 cask "shortcat"
 cask "visual-studio-code"
 cask "vscodium"
@@ -261,8 +271,10 @@ cask "keepingyouawake"
 cask "maccy"
 cask "muzzle"
 cask "pronotes"
+cask "rectangle-pro"
 cask "reminders-menubar"
 cask "spotify"
+cask "crmne/tap/fastpotify", trusted: true
 cask "spotmenu"
 cask "stats"
 cask "swift-quit"
@@ -300,12 +312,11 @@ cask "font-maple-mono-nf"
 cask "font-symbols-only-nerd-font"
 
 # DESKTOP APPS — WORK MACHINE ONLY
+{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "onlyoffice"
 cask "microsoft-office"
 cask "microsoft-teams"
 cask "microsoft-auto-update"
-
-{{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "slack"
 cask "thaw"
 cask "zoom"

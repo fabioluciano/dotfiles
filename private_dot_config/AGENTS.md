@@ -38,6 +38,8 @@ Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, cur
 | LSP / diagnostics / rename symbols | `lsp` — run `lsp_diagnostics` after editing |
 | Prior sessions / recall | `session` |
 | Media / PDFs / diagrams | `look_at` |
+| Multi-step analysis / revisable planning | `sequential-thinking` |
+| Repository status, history, diffs and branches | `git` |
 | Orchestration / delegation / tasks | `skill`, `task_*`, `team_*` |
 | Generic web (last resort) | `webfetch` / `websearch` |
 

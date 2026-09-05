@@ -1,0 +1,16 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Remove o atributo de quarentena de apps não-notarizados gerenciados pelo chezmoi.
+# Roda em todo 'chezmoi apply'; é um no-op silencioso se o app não estiver presente.
+
+set -euo pipefail
+
+unquarantine() {
+    local app="$1"
+    [[ -e "$app" ]] || return 0
+    find "$app" -exec xattr -d com.apple.quarantine {} \; 2>/dev/null || true
+    echo "unquarantine: $app"
+}
+
+unquarantine "/Applications/Fastpotify.app"
+{{- end -}}

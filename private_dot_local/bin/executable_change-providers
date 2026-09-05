@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # change-providers — troca provider/tier nos agentes de coding (opencode,
-# omp, pi, codewhale). Único executável; subcomando positional opcional
+# omp, pi, codewhale, maka, crush). Único executável; subcomando positional opcional
 # seleciona agente.
 #
 # Uso:
@@ -9,6 +9,8 @@
 #   change-providers omp <provider> [tier]      # só omp
 #   change-providers pi <provider> [tier]       # só pi
 #   change-providers codewhale <provider> [tier]# só codewhale
+#   change-providers maka <provider> [tier]     # só maka
+#   change-providers crush <provider> [tier]    # só crush
 #   change-providers status                     # estado de cada agente
 #   change-providers reset                      # reset de todos
 #   change-providers dry-run <provider> [tier]  # mostra sem aplicar
@@ -20,32 +22,46 @@ set -euo pipefail
 PROFILES=(optimized recommended super ultra free)
 DEFAULT_PROFILE="optimized"
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  MAKA_WORKSPACE="${HOME}/Library/Application Support/Maka/workspaces/default"
+else
+  MAKA_WORKSPACE="${XDG_CONFIG_HOME:-${HOME}/.config}/Maka/workspaces/default"
+fi
+
 # Agent metadata: state_file, target_files (space-separated), jq namespace.
 declare -A AGENT_STATE=(
   [opencode]="${HOME}/.config/opencode/.active_provider"
   [omp]="${HOME}/.config/omp/.active_provider"
   [pi]="${HOME}/.config/pi/.active_provider"
   [codewhale]="${HOME}/.codewhale/.active_provider"
+  [maka]="${HOME}/.maka/.active_provider"
+  [crush]="${HOME}/.config/crush/.active_provider"
 )
 declare -A AGENT_NAMESPACE=(
   [opencode]="opencode.models"
   [omp]="omp.providers"
   [pi]="pi.providers"
   [codewhale]="codewhale.models"
+  [maka]="maka.models"
+  [crush]="crush.models"
 )
 declare -A AGENT_DEFAULT_TOML_KEY=(
   [opencode]="opencode.default_provider"
   [omp]="omp.default_provider"
   [pi]="pi.default_provider"
   [codewhale]="codewhale.default_provider"
+  [maka]="maka.default_provider"
+  [crush]="crush.default_provider"
 )
 declare -A AGENT_TARGETS=(
-  [opencode]="${HOME}/.config/opencode/opencode.jsonc ${HOME}/.config/opencode/omo.jsonc ${HOME}/.config/opencode/omo-slim.jsonc ${HOME}/.config/opencode/oh-my-opencode-slim.json ${HOME}/.config/cortexkit/magic-context.jsonc"
-  [omp]="${HOME}/.omp/agent/config.yml ${HOME}/.omp/agent/models.yml"
-  [pi]="${HOME}/.pi/agent/settings.json ${HOME}/.pi/agent/models.json"
+  [opencode]="${HOME}/.config/opencode/opencode.jsonc|${HOME}/.config/opencode/omo.jsonc|${HOME}/.config/opencode/omo-slim.jsonc|${HOME}/.config/opencode/oh-my-opencode-slim.json|${HOME}/.config/cortexkit/magic-context.jsonc"
+  [omp]="${HOME}/.omp/agent/config.yml|${HOME}/.omp/agent/models.yml"
+  [pi]="${HOME}/.pi/agent/settings.json|${HOME}/.pi/agent/models.json"
   [codewhale]="${HOME}/.codewhale/config.toml"
+  [maka]="${MAKA_WORKSPACE}/connection-catalog.json|${MAKA_WORKSPACE}/credentials.json|${MAKA_WORKSPACE}/credential-vault.json|${HOME}/.maka/AGENTS.md"
+  [crush]="${HOME}/.config/crush/crush.json|${HOME}/.config/crush/CRUSH.md"
 )
-ALL_AGENTS=(opencode omp pi codewhale)
+ALL_AGENTS=(opencode omp pi codewhale maka crush)
 
 usage() {
   cat >&2 <<EOF
@@ -163,6 +179,7 @@ write_state() {
 apply_targets() {
   local targets=() a
   for a in "$@"; do
+    local IFS='|'
     # shellcheck disable=SC2206
     local files=(${AGENT_TARGETS[$a]})
     targets+=("${files[@]}")

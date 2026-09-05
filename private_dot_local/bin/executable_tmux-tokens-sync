@@ -1,17 +1,21 @@
 #!/usr/bin/env zsh
 # Synchronize generated vault exports into the tmux server environment.
+# Chamado via run-shell no tmux.conf — executa em subshell NÃO-interativo,
+# por isso não pode depender de funções definidas no .zshenv/.zshrc.
 set -euo pipefail
 
 token_file="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/tokens.zsh"
-[[ -r "$token_file" ]] || exit 0
 
+# No-op se o servidor tmux não estiver rodando ou o arquivo não existir
 command tmux has-session &>/dev/null || exit 0
-
-source "$token_file"
+[[ -f "$token_file" && ! -L "$token_file" ]] || exit 0
 
 while IFS= read -r line; do
-    if [[ "$line" =~ "^export ([[:alpha:]_][[:alnum:]_]*)=" ]]; then
+    if [[ "$line" =~ "^export ([[:alpha:]_][[:alnum:]_]*)=(.*)$" ]]; then
         variable="${match[1]}"
-        command tmux set-environment -g "$variable" "${(P)variable}"
+        # Avalia o valor (pode ter aspas simples/duplas) de forma segura
+        value="${match[2]#\'}" ; value="${value%\'}"   # strip single quotes
+        value="${value#\"}"   ; value="${value%\"}"    # strip double quotes
+        command tmux set-environment -g "$variable" "$value"
     fi
 done < "$token_file"

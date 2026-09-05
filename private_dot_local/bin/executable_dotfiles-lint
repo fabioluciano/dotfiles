@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# Valida o source state do chezmoi sem aplicar arquivos ou atualizar ferramentas.
+set -uo pipefail
+
+mode=${1:---strict}
+case $mode in
+    --strict|--report) ;;
+    *) printf 'uso: dotfiles-lint [--strict|--report]\n' >&2; exit 2 ;;
+esac
+
+root=$(chezmoi source-path 2>/dev/null || pwd)
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-lint.XXXXXX")
+render_dir="$scratch/rendered"
+failures=0
+mkdir -p "$render_dir"
+trap 'rm -rf -- "$scratch"' EXIT
+
+pass() { printf 'PASS %s\n' "$1"; }
+fail() { printf 'FAIL %s\n' "$1" >&2; failures=$((failures + 1)); }
+skip() { printf 'SKIP %s (%s)\n' "$1" "$2"; }
+
+run_check() {
+    local name=$1 command=$2
+    if sh -c "$command"; then pass "$name"; else fail "$name"; fi
+}
+
+require_check() {
+    local tool=$1 name=$2 command=$3
+    if ! command -v "$tool" >/dev/null 2>&1; then skip "$name" "$tool ausente"; return; fi
+    run_check "$name" "$command"
+}
+
+cd "$root" || exit 1
+
+require_check bash bash-syntax \
+    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f \\( -name '*.sh' -o -name '*.bash' \\) -exec bash -n {} +"
+require_check zsh zsh-syntax \
+    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f -name '*.zsh' -exec zsh -n {} +"
+require_check shellcheck shellcheck \
+    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f \\( -name '*.sh' -o -name '*.bash' \\) -exec shellcheck --severity=warning {} +"
+
+run_taplo() {
+    local label=$1
+    shift
+    local output="$scratch/taplo-${label//\//_}.out"
+    if ! command -v taplo >/dev/null 2>&1; then
+        skip "$label" 'taplo ausente'
+        return
+    fi
+    if taplo check "$@" >"$output" 2>&1; then
+        pass "$label"
+    elif rg -q 'Attempted to create a NULL object' "$output"; then
+        skip "$label" 'Taplo panic no runtime macOS; check indisponivel neste ambiente'
+    else
+        cat "$output" >&2
+        fail "$label"
+    fi
+}
+
+toml_files=()
+while IFS= read -r -d '' toml_file; do toml_files+=("$toml_file"); done < <(
+    find . -path './.git' -prune -o -path './node_modules' -prune -o -type f -name '*.toml' -print0
+)
+if (( ${#toml_files[@]} )); then
+    run_taplo toml "${toml_files[@]}"
+else
+    skip toml 'nenhum arquivo TOML encontrado'
+fi
+require_check yamllint yaml \
+    "find private_dot_config/nvim -type f \\( -name '*.yaml' -o -name '*.yml' \\) -exec yamllint -d relaxed {} +"
+require_check luac lua-syntax \
+    "find private_dot_config/nvim -type f -name '*.lua' -exec luac -p {} +"
+require_check stylua lua-format \
+    "stylua --check private_dot_config/nvim"
+
+run_selene() {
+    local selene_bin
+    if command -v selene >/dev/null 2>&1 && selene --version >/dev/null 2>&1; then
+        selene_bin=$(command -v selene)
+    elif command -v mise >/dev/null 2>&1 && selene_bin=$(mise where 'aqua:Kampfkarren/selene' 2>/dev/null)/selene && [[ -x $selene_bin ]]; then
+        :
+    else
+        skip lua-lint 'selene ausente ou nao ativado'
+        return
+    fi
+    if "$selene_bin" --config private_dot_config/nvim/selene.toml private_dot_config/nvim; then
+        pass lua-lint
+    else
+        fail lua-lint
+    fi
+}
+
+run_selene
+run_check git-diff "git diff --check"
+
+render_and_check() {
+    local template checker rendered
+    template=$1
+    checker=$2
+    rendered="$render_dir/${template//\//_}"
+    if ! chezmoi execute-template < "$template" > "$rendered" 2>/dev/null; then
+        skip "template:$template" "nao renderizavel neste ambiente"
+        return
+    fi
+    if "$checker" -n "$rendered"; then pass "template:$template"; else fail "template:$template"; fi
+}
+
+if command -v chezmoi >/dev/null 2>&1; then
+    render_and_check private_dot_zshenv.tmpl zsh
+    render_and_check dot_zshrc.tmpl zsh
+    render_and_check .chezmoiscripts/run_after_60-antidote-bundles.sh.tmpl bash
+    render_and_check .chezmoiscripts/run_onchange_after_46-zsh-tokens.sh.tmpl bash
+    render_and_check .chezmoiscripts/run_onchange_after_47-mise-install.sh.tmpl bash
+    if chezmoi execute-template < private_dot_config/mise/config.toml.tmpl > "$render_dir/mise.toml"; then
+        run_taplo template:mise "$render_dir/mise.toml"
+    else
+        fail template:mise
+    fi
+    if chezmoi execute-template < dot_Brewfile.tmpl > "$render_dir/Brewfile"; then
+        if command -v ruby >/dev/null 2>&1; then
+            if ruby -c "$render_dir/Brewfile"; then pass template:Brewfile; else fail template:Brewfile; fi
+        else
+            skip template:Brewfile 'ruby ausente'
+        fi
+    else
+        fail template:Brewfile
+    fi
+else
+    skip templates 'chezmoi ausente'
+fi
+
+printf 'SUMMARY failures=%d mode=%s\n' "$failures" "${mode#--}"
+if [[ $mode == --strict && $failures -ne 0 ]]; then exit 1; fi
+exit 0

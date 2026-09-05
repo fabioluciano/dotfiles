@@ -8,15 +8,9 @@ recipient = "fabio@naoimporta.com"
 [edit]
 command = "nvim"
 
-[diff]
-exclude = ["scripts"]
-
 [merge]
 command = "nvim"
 args = ["-d", "{{"{{"}} .Destination {{"}}"}}", "{{"{{"}} .Source {{"}}"}}", "{{"{{"}} .Target {{"}}"}}"]
-
-[status]
-exclude = ["scripts"]
 
 [data]
 name = "Fábio Luciano"
