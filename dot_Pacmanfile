@@ -131,6 +131,7 @@ virt-manager
 #   opencode, mimo-code, rtk
 #   (see dot_Brewfile.tmpl section "GIT, REVIEW & AGENT WORKFLOW")
 git-absorb
+git-credential-manager-bin
 git-delta
 github-cli
 git-lfs
