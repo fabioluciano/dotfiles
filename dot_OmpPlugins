@@ -7,3 +7,8 @@
 #
 
 pi-commandcode-provider
+
+# Ponytail (regras de "senior dev preguiçoso" + skills) — fonte git do README
+# oficial; o omp aceita specs git e carrega o manifest legacy `pi.extensions`
+# (ponytail.package.json declara `pi.extensions` + `pi.skills`).
+git:github.com/DietrichGebert/ponytail

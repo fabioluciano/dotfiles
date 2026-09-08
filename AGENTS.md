@@ -165,6 +165,16 @@ secrets, the Bitwarden item, or runtime state.
   `.chezmoidata/providers.toml` (`[opencode.models]`). opencode *skills* are NOT tracked by
   chezmoi (gitignored under `.config/opencode/skills/`; managed by the `skills`
   CLI).
+- **opencode2** (`private_dot_config/opencode2/`): OpenCode 2.0 preview CLI
+  (`@opencode-ai/cli`, binário `opencode2`). Arquitetura cliente-servidor com schema
+  nativo `https://opencode.ai/config.json`, preferências de terminal em `cli.json`
+  (`https://opencode.ai/v2/cli.json`) e serviço background próprio.
+  - Isolado em `~/.config/opencode2/` via `OPENCODE_CONFIG_DIR`, evitando colisões
+    com as configurações, plugins legados (OMO) e runtime do OpenCode 1.
+  - Integrado ao `change-providers opencode2 <provider> [tier]` (estado em
+    `~/.config/opencode2/.active_provider`, fallback para o estado do OpenCode 1).
+  - Wrapper no Zsh (`opencode2` e alias `oc2`) carrega tokens via `zsh-load-tokens`,
+    ressincroniza o provedor e executa com `OPENCODE_CONFIG_DIR`.
 - **omp** (@oh-my-pi/cli, `private_dot_omp/agent/` + `private_dot_local/bin/`):
   ecossistema paralelo ao opencode, com semântica diferente de pi. omp é
   um fork Rust do pi (16k+ stars, omp.sh) com 40+ providers built-in
