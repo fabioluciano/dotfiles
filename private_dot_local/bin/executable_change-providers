@@ -31,6 +31,7 @@ fi
 # Agent metadata: state_file, target_files (space-separated), jq namespace.
 declare -A AGENT_STATE=(
   [opencode]="${HOME}/.config/opencode/.active_provider"
+  [opencode2]="${HOME}/.config/opencode2/.active_provider"
   [omp]="${HOME}/.config/omp/.active_provider"
   [pi]="${HOME}/.config/pi/.active_provider"
   [codewhale]="${HOME}/.codewhale/.active_provider"
@@ -39,6 +40,7 @@ declare -A AGENT_STATE=(
 )
 declare -A AGENT_NAMESPACE=(
   [opencode]="opencode.models"
+  [opencode2]="opencode.models"
   [omp]="omp.providers"
   [pi]="pi.providers"
   [codewhale]="codewhale.models"
@@ -47,6 +49,7 @@ declare -A AGENT_NAMESPACE=(
 )
 declare -A AGENT_DEFAULT_TOML_KEY=(
   [opencode]="opencode.default_provider"
+  [opencode2]="opencode.default_provider"
   [omp]="omp.default_provider"
   [pi]="pi.default_provider"
   [codewhale]="codewhale.default_provider"
@@ -55,13 +58,14 @@ declare -A AGENT_DEFAULT_TOML_KEY=(
 )
 declare -A AGENT_TARGETS=(
   [opencode]="${HOME}/.config/opencode/opencode.jsonc|${HOME}/.config/opencode/omo.jsonc|${HOME}/.config/opencode/omo-slim.jsonc|${HOME}/.config/opencode/oh-my-opencode-slim.json|${HOME}/.config/cortexkit/magic-context.jsonc"
+  [opencode2]="${HOME}/.config/opencode2/opencode.jsonc"
   [omp]="${HOME}/.omp/agent/config.yml|${HOME}/.omp/agent/models.yml"
   [pi]="${HOME}/.pi/agent/settings.json|${HOME}/.pi/agent/models.json"
   [codewhale]="${HOME}/.codewhale/config.toml"
   [maka]="${MAKA_WORKSPACE}/connection-catalog.json|${MAKA_WORKSPACE}/credentials.json|${MAKA_WORKSPACE}/credential-vault.json|${HOME}/.maka/AGENTS.md"
   [crush]="${HOME}/.config/crush/crush.json|${HOME}/.config/crush/CRUSH.md"
 )
-ALL_AGENTS=(opencode omp pi codewhale maka crush)
+ALL_AGENTS=(opencode opencode2 omp pi codewhale maka crush)
 
 usage() {
   cat >&2 <<EOF

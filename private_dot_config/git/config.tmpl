@@ -99,6 +99,8 @@
   pu = push
   puf = push --force-with-lease
   pl = pull
+  unpushed = log @{u}..HEAD --graph --pretty=format:'%C(yellow)%h%Creset%C(auto)%d%Creset %s %C(green)(%cr)%Creset %C(bold blue)<%an>%Creset'
+  outgoing = log @{u}..HEAD --graph --pretty=format:'%C(yellow)%h%Creset%C(auto)%d%Creset %s %C(green)(%cr)%Creset %C(bold blue)<%an>%Creset'
 
   # Stash
   sl = stash list

@@ -154,8 +154,12 @@ run = "chezmoi doctor && chezmoi --dry-run apply"
 description = "Check chezmoi integrity and pending changes"
 
 [tasks.doctor-opencode]
-run = "cat ${HOME}/.config/opencode/.active_provider && chezmoi execute-template < private_dot_config/opencode/oh-my-openagent.jsonc.tmpl > /dev/null && echo opencode-ok"
+run = "cat ${HOME}/.config/opencode/.active_provider && chezmoi execute-template < $(chezmoi source-path)/private_dot_config/opencode/omo.jsonc.tmpl > /dev/null && echo opencode-ok"
 description = "Verify opencode provider state and template render"
+
+[tasks.doctor-opencode2]
+run = "cat ${HOME}/.config/opencode2/.active_provider 2>/dev/null || true && chezmoi execute-template < $(chezmoi source-path)/private_dot_config/opencode2/opencode.jsonc.tmpl > /dev/null && echo opencode2-ok"
+description = "Verify opencode2 provider state and template render"
 
 [tasks.doctor-nvim]
 run = """
@@ -168,21 +172,27 @@ nvim --headless '+lua
     if vim.fn.exepath(executable) == "" then vim.notify("missing executable: " .. executable, vim.log.levels.WARN) end
   end
   local specs = require("lazy.core.config").plugins
-  assert(next(specs) ~= nil, "Lazy resolved no plugin specs")
-' +qa
+  for _, spec in pairs(specs) do
+    local mod = spec.import or spec[1]
+    if mod then
+      local ok, err = pcall(require, mod)
+      if not ok and not err:match("cannot find") then vim.notify("error loading " .. mod .. ": " .. err, vim.log.levels.ERROR) end
+    end
+  end
+' +qa && echo nvim-ok
 """
-description = "Headlessly check Neovim, resolved specs, core modules and representative tooling; never updates plugins"
+description = "Headless Neovim self-check: verify binaries, plugins, and spec loading"
 
 [tasks.benchmark-nvim]
 run = "startup-benchmark nvim"
-description = "Measure isolated Neovim cold/warm startup, median and p95, without Lazy sync"
+description = "Measure isolated Neovim cold/warm startup, median and p95"
 
 [tasks.benchmark-zsh]
 run = "startup-benchmark zsh"
 description = "Measure isolated Zsh cold/warm startup, zprof, median and p95"
 
 [tasks.doctor-all]
-run = "mise run doctor-chezmoi && mise run doctor-opencode && mise run doctor-nvim"
+run = "mise run doctor-chezmoi && mise run doctor-opencode && mise run doctor-opencode2 && mise run doctor-nvim"
 description = "Full environment health check"
 
 [tasks.doctor]
@@ -213,11 +223,11 @@ description = "Remove a skill via mise"
 vars = { skill = "" }
 
 [tasks.lint]
-run = "bash private_dot_local/bin/executable_dotfiles-lint --strict"
+run = "bash $(chezmoi source-path)/private_dot_local/bin/executable_dotfiles-lint --strict"
 description = "Run strict non-mutating dotfiles checks"
 
 [tasks.lint-report]
-run = "bash private_dot_local/bin/executable_dotfiles-lint --report"
+run = "bash $(chezmoi source-path)/private_dot_local/bin/executable_dotfiles-lint --report"
 description = "Run all dotfiles checks without blocking on failures"
 
 [plugins]

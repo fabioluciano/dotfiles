@@ -67,6 +67,7 @@ _opencode_provider_mtime=
 opencode() {
   zsh-load-tokens
   _opencode_resync_provider
+  OPENCODE_CONFIG_DIR="${HOME}/.config/opencode" \
   OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
 }
 
@@ -77,6 +78,7 @@ opencode() {
 omo() {
   zsh-load-tokens
   _opencode_resync_provider
+  OPENCODE_CONFIG_DIR="${HOME}/.config/opencode" \
   OPENCODE_CONFIG="$HOME/.config/opencode/omo.jsonc" \
   OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omo.json" \
   OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
@@ -84,10 +86,41 @@ omo() {
 omos() {
   zsh-load-tokens
   _opencode_resync_provider
+  OPENCODE_CONFIG_DIR="${HOME}/.config/opencode" \
   OPENCODE_CONFIG="$HOME/.config/opencode/omo-slim.jsonc" \
   OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omos.json" \
   OPENCODE_EXPERIMENTAL_WEBSOCKETS=1 command opencode "$@"
 }
+
+# OpenCode 2.0 preview entrypoint — isolated in ~/.config/opencode2 to avoid
+# collisions with OpenCode 1 configs, plugins, and services.
+_opencode2_resync_provider() {
+  emulate -L zsh
+  local state_file="${HOME}/.config/opencode2/.active_provider"
+  [[ -r "$state_file" ]] || state_file="${HOME}/.config/opencode/.active_provider"
+  [[ -r "$state_file" ]] || return 0
+  (( $+functions[zstat] )) || zmodload zsh/stat 2>/dev/null || return 0
+  local mtime new_provider=
+  zstat -A mtime +mtime -- "$state_file" 2>/dev/null || return 0
+  [[ $mtime == "$_opencode2_provider_mtime" ]] && return 0
+  _opencode2_provider_mtime=$mtime
+  while IFS=':' read -r key value; do
+    if [[ "$key" == "provider" && -n "$value" ]]; then
+      new_provider=$value
+      break
+    fi
+  done < "$state_file"
+  [[ -z "$new_provider" || "$new_provider" == "$OPENCODE_PROVIDER" ]] && return 0
+  export OPENCODE_PROVIDER="$new_provider"
+}
+_opencode2_provider_mtime=
+
+opencode2() {
+  zsh-load-tokens
+  _opencode2_resync_provider
+  OPENCODE_CONFIG_DIR="${HOME}/.config/opencode2" command opencode2 "$@"
+}
+alias oc2=opencode2
 
 # pi and omp also read API tokens from the vault-backed file; ensure the
 # tokens are loaded on demand before launching them from a fresh shell.

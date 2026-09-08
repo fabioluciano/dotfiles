@@ -74,3 +74,4 @@ keys/
 
 # opencode skills: geridas pela `skills` CLI (npx skills add), NAO pelo chezmoi
 .config/opencode/skills/
+.config/opencode2/skills/
