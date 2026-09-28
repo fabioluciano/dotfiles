@@ -1,5 +1,5 @@
 vim.opt.termguicolors = true
-vim.o.autoread = true -- Required for opencode-nvim events.reload (auto-reload buffers edited by opencode)
+vim.o.autoread = true -- Reload buffers edited by external tools
 
 -- Workaround: Neovim 0.12 + tmux mode 2031 (DECSET) incompatibility
 -- Prevents silent exit when tmux sends unexpected terminal mode responses

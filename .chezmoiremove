@@ -1,5 +1,58 @@
-.config/opencode/opencode.json
+# Configurações aposentadas; preserva diretórios de sessões e autenticação.
+.PiPackages
+.Zerobrewfile
+.cc-safety-net/policy.json
+.codewhale/.active_provider
+.codewhale/config.toml
+.codewhale/mcp.json
+.codewhale/settings.toml
+.config/Maka/workspaces/default/connection-catalog.json
+.config/Maka/workspaces/default/credential-vault.json
+.config/Maka/workspaces/default/credentials.json
+.config/Maka/workspaces/default/mcp.json
+.config/Maka/workspaces/default/settings.json
+.config/cortexkit/magic-context.jsonc
+.config/crush/.active_provider
+.config/crush/crush.json
+.config/mcp/mcp.json
+.config/mimocode/mimocode.jsonc
+.config/nvim/lua/plugins/ai.lua
+.config/nvim/lua/plugins/opencode.lua
+.config/omp/.active_provider
+.config/opencode/.active_provider
 .config/opencode/oh-my-openagent.json
 .config/opencode/oh-my-openagent.jsonc
+.config/opencode/oh-my-opencode-slim.json
+.config/opencode/omo-slim.jsonc
+.config/opencode/omo.jsonc
+.config/opencode/opencode.json
+.config/opencode/opencode.jsonc
+.config/opencode/package-lock.json
+.config/opencode/package.json
+.config/opencode/tui-omo.json
+.config/opencode/tui-omos.json
+.config/opencode/tui.json
+.config/opencode2/.active_provider
+.config/opencode2/cli.json
+.config/opencode2/opencode.jsonc
+.config/pi/.active_provider
+.local/bin/change-providers
+.maka/.active_provider
+.maka/AGENTS.md
+.omo/omo.jsonc
+.pi-lens/config.json
+.pi/agent/fusion-models.json
+.pi/agent/mcp.json
+.pi/agent/models.json
+.pi/agent/settings.json
+.pi/agent/themes/tokyo-night.json
+.pi/lsp-client.json
+.zfunc/_change-providers
 .zfunc/_zb
-.Zerobrewfile
+Library/Application Support/Maka/workspaces/default/connection-catalog.json
+Library/Application Support/Maka/workspaces/default/credential-vault.json
+Library/Application Support/Maka/workspaces/default/credentials.json
+Library/Application Support/Maka/workspaces/default/mcp.json
+Library/Application Support/Maka/workspaces/default/settings.json
+.omp/agent/models.yml
+reasonix.toml

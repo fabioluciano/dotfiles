@@ -2,11 +2,9 @@
 # Formato: um plugin por linha (mesmo formato aceito por `omp plugin install`).
 # Linhas com # ou vazias são ignoradas.
 #
-# Sem pin de versão (diferente do pi): `omp plugin upgrade <nome>` atualiza.
+# Atualização: `omp plugin upgrade <nome>` atualiza.
 # Para remover: `omp plugin uninstall <nome>` e tire a linha do manifest.
 #
-
-pi-commandcode-provider
 
 # Ponytail (regras de "senior dev preguiçoso" + skills) — fonte git do README
 # oficial; o omp aceita specs git e carrega o manifest legacy `pi.extensions`

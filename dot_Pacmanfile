@@ -127,9 +127,6 @@ tekton-cli
 virt-manager
 
 # GIT, REVIEW & AGENT WORKFLOW
-# TODO: map macOS-only agent tools to AUR equivalents:
-#   opencode, mimo-code, rtk
-#   (see dot_Brewfile.tmpl section "GIT, REVIEW & AGENT WORKFLOW")
 git-absorb
 git-credential-manager-bin
 git-delta

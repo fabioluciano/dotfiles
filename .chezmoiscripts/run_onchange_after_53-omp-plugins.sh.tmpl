@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # Instala/reconcilia os plugins do omp (extensoes) a partir de ~/.OmpPlugins.
-# Re-executa quando o manifest muda. Espelho do dot_PiPackages + script do pi,
-# mas para `omp plugin install` (idempotente: retorna 0 se ja instalado).
+# Re-executa quando o manifest muda; install é idempotente.
 # Formato do manifest: um plugin por linha (mesmo formato aceito por
 # `omp plugin install`). Linhas com # ou vazias sao ignoradas.
 #
-# Remocao de plugins nao e feita aqui (consistente com krew/brew/pi): para
+# Remocao de plugins nao e feita aqui (consistente com krew/brew): para
 # remover um plugin, rode `omp plugin uninstall <nome>` manualmente e tire a
 # linha do manifest.
 # OmpPlugins hash: {{ include "dot_OmpPlugins" | sha256sum }}

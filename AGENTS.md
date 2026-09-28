@@ -14,7 +14,7 @@ target names. Editing the right file means understanding the name encoding:
 - `private_` prefix → target gets `0600`/`0700` perms (chezmoi attribute only;
   strip it mentally when mapping to the target path)
 - `executable_` prefix → target gets `+x` (e.g.
-  `private_dot_local/bin/executable_change-providers` → `~/.local/bin/change-providers`)
+  `private_dot_local/bin/executable_zsh-tokens-sync` → `~/.local/bin/zsh-tokens-sync`)
 - `.tmpl` suffix → Go-template rendered by chezmoi before writing
 - `private_dot_config/` → `~/.config/`
 
@@ -74,7 +74,6 @@ Package sync scripts and the post-apply Antidote hook:
 | `run_onchange_after_46-zsh-tokens`         | (bin script)    | `~/.config/zsh/tokens.zsh` | Bitwarden `bw`     |
 | `run_onchange_after_47-mise-install`       | `mise/config.toml`| `~/.config/mise`| `mise install`              |
 | `run_onchange_after_50-krew`               | `dot_Krewfile`  | `~/.Krewfile`   | `kubectl krew install`        |
-| `run_onchange_after_52-pi-packages`        | `dot_PiPackages` | `~/.pi/agent/settings.json` (packages); `~/.local/share/groovy-lsp/groovy-language-server-all.jar` (server-side LSP build) | `pi install` + `gradle shadowJar` (server-side pin in `# gerenciado:groovy-lsp-pin:...` — upstream has no GH Releases / no aqua entry) |
 | `run_onchange_after_53-omp-plugins`        | `dot_OmpPlugins` | `~/.omp/plugins/` (npm plugins) | `omp plugin install` |
 | `run_after_60-antidote-bundles.sh.tmpl`    | (every apply) | `~/.zsh_plugins_pre.zsh`, `~/.zsh_plugins.zsh` | `antidote update --bundles` + bundle rebuild |
 
@@ -90,10 +89,8 @@ Template values come from `.chezmoi.toml.tmpl` (chezmoi's own config, special-ca
 run by `chezmoi init` before any other target so `.email` etc. are available on
 the very first apply on a fresh machine) `[data]`: `name`, `email`, `github_user`,
 `weather_city`, `machineName` (prompted once via `promptStringOnce`, defaults to
-`.chezmoi.hostname`). Reference as `{{ .email }}` etc. `.chezmoidata/providers.toml`
-is the single provider matrix consumed by both the opencode and omp templates
-(`[opencode.*]` and `[omp.*]` sections, plus a shared `[providers.<key>]` registry
-holding each provider's native id per binary, `opencode_id`/`omp_id`).
+`.chezmoi.hostname`). Reference as `{{ .email }}` etc. OMP models are
+configured directly in `private_dot_omp/agent/config.yml.tmpl`.
 
 Platform branching uses `.chezmoi.os` (`darwin`/`linux`) and
 `.chezmoi.osRelease.id` (`arch`). `.chezmoiignore` is itself a template that
@@ -133,7 +130,7 @@ non-blocking report:
 - `mise run lint` — exits non-zero on any failure; use in CI/pre-apply gates.
 - `mise run lint-report` — same checks, always returns zero so it can be noisy/optional.
 - `mise run doctor-chezmoi` — `chezmoi doctor && chezmoi --dry-run apply`.
-- `mise run doctor-opencode` — verifies the active provider file and template render.
+- `mise run doctor-omp` — verifies OMP and its model catalog.
 - `mise run doctor-nvim` — verifies the Neovim binary headless without plugin bootstrap (`nvim --headless -u NONE`).
 - `mise run benchmark-nvim` / `mise run benchmark-zsh` — measure isolated cold/warm startup with median, p95 and (for Zsh) `zprof`; use temporary XDG/cache directories and never touch plugin state.
 
@@ -157,80 +154,18 @@ secrets, the Bitwarden item, or runtime state.
 
 ## Notable subsystems
 
-- **opencode** (`private_dot_config/opencode/`): the `change-providers opencode`
-  command (`~/.local/bin/change-providers`) switches all opencode agents between
-  configured LLM providers by writing
-  `~/.config/opencode/.active_provider` then running `chezmoi apply` on the
-  `oh-my-openagent.json` template. The tier→model matrix lives in
-  `.chezmoidata/providers.toml` (`[opencode.models]`). opencode *skills* are NOT tracked by
-  chezmoi (gitignored under `.config/opencode/skills/`; managed by the `skills`
-  CLI).
-- **opencode2** (`private_dot_config/opencode2/`): OpenCode 2.0 preview CLI
-  (`@opencode-ai/cli`, binário `opencode2`). Arquitetura cliente-servidor com schema
-  nativo `https://opencode.ai/config.json`, preferências de terminal em `cli.json`
-  (`https://opencode.ai/v2/cli.json`) e serviço background próprio.
-  - Isolado em `~/.config/opencode2/` via `OPENCODE_CONFIG_DIR`, evitando colisões
-    com as configurações, plugins legados (OMO) e runtime do OpenCode 1.
-  - Integrado ao `change-providers opencode2 <provider> [tier]` (estado em
-    `~/.config/opencode2/.active_provider`, fallback para o estado do OpenCode 1).
-  - Wrapper no Zsh (`opencode2` e alias `oc2`) carrega tokens via `zsh-load-tokens`,
-    ressincroniza o provedor e executa com `OPENCODE_CONFIG_DIR`.
-- **omp** (@oh-my-pi/cli, `private_dot_omp/agent/` + `private_dot_local/bin/`):
-  ecossistema paralelo ao opencode, com semântica diferente de pi. omp é
-  um fork Rust do pi (16k+ stars, omp.sh) com 40+ providers built-in
-  (alibaba-token-plan, xiaomi, opencode, minimax, kimi-code, zai, deepseek,
-  etc.). Diferenças-chave do pi:
-  - omp usa YAML (`~/.omp/agent/config.yml`), não JSON.
-  - `modelRoles` (record de role → "provider/model") controla default/smol/slow/plan.
-  - Tiers e Perfis selecionam os MODELOS reais baseados em consumo de tokens / custo
-    (orchestrator, implementation, planner, quick, standard, complex, deep).
-  - mcp.json fica em arquivo SEPARADO (`~/.omp/agent/mcp.json`) — omp
-    rejeita config inteiro se `mcpServers:` aparecer no config.yml. É
-    estático (não-template), schema-validado contra o mcp-schema.json do
-    omp. Contém só servers sem built-in equivalente: context7, gh_grep
-    (http), codebase-memory, kubernetes (--read-only), terraform.
-    Removidos por duplicarem built-ins: filesystem (read/write/glob),
-    memory (memory tools), playwright (tool `browser`), github (tool
-    `github` via `gh`, habilitado com `github.enabled: true`).
-  - setupVersion: key VÁLIDA do config.yml (schema `type: number, default: 0`;
-    o próprio omp a escreve pós-setup). O gate do setup wizard é
-    `setupVersion < CURRENT_SETUP_VERSION` (=1). O template config.yml.tmpl
-    DEVE renderizá-la (preserva o valor do target, default 1) — omitir apaga
-    o valor a cada apply e o wizard reabre em todo launch. `symbolPreset: nerd`
-    também vem do template pelo mesmo motivo.
-  - **Path crítico**: omp lê de `~/.omp/agent/` (não `Library/Application Support/omp/`).
-  - **Env vars**: omp usa `ALIBABA_TOKEN_PLAN_API_KEY`, `XIAOMI_TOKEN_PLAN_SGP_API_KEY`
-    (diferentes do opencode/pi). Aliases via `private_dot_zshenv.tmpl` derivam
-    das chaves Bitwarden (`QWENCLOUD_API_TOKEN` → `ALIBABA_TOKEN_PLAN_API_KEY`,
-    `MIMO_API_KEY` → `XIAOMI_TOKEN_PLAN_SGP_API_KEY`).
-  - **Tema**: Tokyo Night vem embutido no binário (`dark-tokyo-night`,
-    `light-tokyo-night`). Setado via `theme.dark` / `theme.light`.
-  - **URL alibaba**: omp já tem `https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1`
-    correto embutido (não precisou override).
-
-  O `change-providers omp` subcomando (`~/.local/bin/change-providers`) escreve
-  `~/.config/omp/.active_provider` (`provider:foo\nprofile:bar`) e
-  rerenderiza `~/.omp/agent/config.yml`. Matriz em
-  `.chezmoidata/providers.toml` (`[omp.providers]`; id nativo resolvido via
-  registry `[providers.<key>].omp_id`); parser em `.chezmoitemplates/omp-state.tmpl`
-  (emite também `fallbackChains`: chains `default`/`smol` com o deep/quick
-  de todos os providers, ativo primeiro, demais em ordem sortAlpha —
-  `keys` sozinho retorna em ordem aleatória).
-  Tiers baseados em custo de tokens: expensive / recommended (flagship / alto consumo),
-  balanced / optimized (balanceado), cheap / super (econômico), free / ultra (custo mínimo).
-- **maka** (`maka-agent`, `~/.maka/` + workspace `default/`): Apache Maka AI agent
-  integrado ao `change-providers maka <provider> [tier]`.
-  - State em `~/.maka/.active_provider` (`provider:foo\nprofile:bar`).
-  - Matriz em `.chezmoidata/providers.toml` (`[maka.models]`); parser em `.chezmoitemplates/maka-state.tmpl`.
-  - Conexões e defaultTarget renderizados via `connection-catalog.json.tmpl` no workspace (`~/Library/Application Support/Maka/workspaces/default/` no macOS e `$XDG_CONFIG_HOME/Maka/workspaces/default/` no Linux, com fallback para `~/.config/Maka/`).
-  - Credenciais renderizadas em `credentials.json.tmpl` (modo `0600`).
-  - Instruções globais em `~/.maka/AGENTS.md` e MCPs em `mcp.json.tmpl`.
-- **crush** (`charmbracelet/crush`, `~/.config/crush/`): Charmbracelet terminal AI
-  assistant integrado ao `change-providers crush <provider> [tier]`.
-  - State em `~/.config/crush/.active_provider` (`provider:foo\nprofile:bar`).
-  - Matriz em `.chezmoidata/providers.toml` (`[crush.models]`); parser em `.chezmoitemplates/crush-state.tmpl`.
-  - Configuração renderizada em `~/.config/crush/crush.json` via `crush.json.tmpl`.
-  - Instruções globais em `~/.config/crush/CRUSH.md` e MCPs configurados.
+- **omp** (`private_dot_omp/agent/`): the only managed AI agent.
+  - Installed with Homebrew on macOS and mise on Linux.
+  - `config.yml.tmpl` defines `modelRoles` directly (default/smol/slow/plan),
+    theme and LSP settings; it preserves the live `setupVersion`.
+  - Models and endpoints come from the native OMP catalog; no custom model matrix.
+  - `mcp.json` is separate from the main configuration.
+  - `omp --model provider/model` selects a model for one launch. Change the
+    source `modelRoles` and apply that target for persistent defaults.
+  - The Zsh wrapper loads vault-backed tokens via `zsh-load-tokens` on demand.
+  - `dot_OmpPlugins` and its hook manage OMP extensions.
+  - Retired configuration paths are listed in `.chezmoiremove`; keep sessions
+    and credentials out of recursive removals.
 - **nvim** (`private_dot_config/nvim/`): AstroNvim-based, Lua config under
   `lua/plugins/`.
 - **antidote**: zsh plugin manager installed via Homebrew/pacman. The static

@@ -61,10 +61,6 @@ tokens() {
     zsh-tokens-sync "$@" && tmux-tokens-sync
 }
 
-# OpenCode: opencode base sem orquestrador, omo completo, omos slim.
-alias oc='opencode'
-alias omo='OPENCODE_CONFIG="$HOME/.config/opencode/omo.jsonc" OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omo.json" opencode'
-alias omos='OPENCODE_CONFIG="$HOME/.config/opencode/omo-slim.jsonc" OPENCODE_TUI_CONFIG="$HOME/.config/opencode/tui-omos.json" opencode'
 
 # Load vault-backed tokens only when starting tmux.
 tmux() {
