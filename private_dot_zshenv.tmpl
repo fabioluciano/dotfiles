@@ -37,12 +37,9 @@ unset _node_ca_bundle
 {{- end }}
 {{- end }}
 
-# OpenCode experimental features
-export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
-
 # API tokens — só shells interativos auto-carregam (tokens.zsh vem do
 # Bitwarden via zsh-tokens-sync). Scripts/cron/ssh-command não herdam as
-# chaves; os wrappers (opencode/omo/omos/pi/omp/tmux) chamam zsh-load-tokens
+# chaves; os wrappers (omp/tmux) chamam zsh-load-tokens
 # sob demanda antes de subir o processo.
 
 _ZSH_TOKEN_VARS=(

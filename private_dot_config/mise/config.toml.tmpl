@@ -1,4 +1,7 @@
 [tools]
+{{- if eq .chezmoi.os "linux" }}
+"github:can1357/oh-my-pi" = "latest"
+{{- end }}
 # Global tools always follow latest; projects pin versions in their own mise config.
 go = "latest"
 java = "latest"
@@ -33,9 +36,7 @@ pnpm = "latest"
 pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:typescript" = "latest"
 "npm:skills" = "latest"
-"npm:maka-agent" = "latest"
 "npm:@fission-ai/openspec" = "latest"
-"npm:@magnitudedev/cli" = "latest"
 "npm:@andymatuschak/note-link-janitor" = { version = "latest", allow_low_downloads = true }
 
 # MCP servers (float at latest)
@@ -146,20 +147,16 @@ fi
 description = "Update tmux TPM plugins"
 
 [tasks.update-full]
-run = "mise run update-safe && mise run update-dotfiles && mise run update-krew && mise run update-nvim && mise run update-tmux && mise run skills-update"
-description = "Full update path including dotfiles, kubectl plugins, Neovim, tmux, and opencode skills"
+run = "mise run update-safe && mise run update-dotfiles && mise run update-krew && mise run update-nvim && mise run update-tmux"
+description = "Full update path including dotfiles, kubectl plugins, Neovim, tmux"
 
 [tasks.doctor-chezmoi]
 run = "chezmoi doctor && chezmoi --dry-run apply"
 description = "Check chezmoi integrity and pending changes"
 
-[tasks.doctor-opencode]
-run = "cat ${HOME}/.config/opencode/.active_provider && chezmoi execute-template < $(chezmoi source-path)/private_dot_config/opencode/omo.jsonc.tmpl > /dev/null && echo opencode-ok"
-description = "Verify opencode provider state and template render"
-
-[tasks.doctor-opencode2]
-run = "cat ${HOME}/.config/opencode2/.active_provider 2>/dev/null || true && chezmoi execute-template < $(chezmoi source-path)/private_dot_config/opencode2/opencode.jsonc.tmpl > /dev/null && echo opencode2-ok"
-description = "Verify opencode2 provider state and template render"
+[tasks.doctor-omp]
+run = "omp --version && omp models"
+description = "Verify OMP and its model catalog"
 
 [tasks.doctor-nvim]
 run = """
@@ -192,35 +189,12 @@ run = "startup-benchmark zsh"
 description = "Measure isolated Zsh cold/warm startup, zprof, median and p95"
 
 [tasks.doctor-all]
-run = "mise run doctor-chezmoi && mise run doctor-opencode && mise run doctor-opencode2 && mise run doctor-nvim"
+run = "mise run doctor-chezmoi && mise run doctor-omp && mise run doctor-nvim"
 description = "Full environment health check"
 
 [tasks.doctor]
 run = "mise doctor"
 description = "Run mise doctor"
-
-[tasks.skills-list]
-run = "mise exec -- skills list"
-description = "List installed skills via mise"
-
-[tasks.skills-find]
-run = "mise exec -- skills find {{"{{vars.query}}"}}"
-description = "Find skills by query"
-vars = { query = "" }
-
-[tasks.skills-add]
-run = "mise exec -- skills add {{"{{vars.repo}}"}} -a opencode -g -y"
-description = "Add a skill repo via mise"
-vars = { repo = "" }
-
-[tasks.skills-update]
-run = "mise exec -- skills update -g"
-description = "Update all global skills via mise"
-
-[tasks.skills-remove]
-run = "mise exec -- skills remove {{"{{vars.skill}}"}} -a opencode"
-description = "Remove a skill via mise"
-vars = { skill = "" }
 
 [tasks.lint]
 run = "bash $(chezmoi source-path)/private_dot_local/bin/executable_dotfiles-lint --strict"

@@ -213,55 +213,34 @@ before committing.
 
 **Note:** Package installs (brew/pacman) are not automatically undone by
 reverting a dotfile commit. If you added a formula and want to remove it,
-edit `dot_Brewfile.tmpl`/`dot_Pacmanfile` and run
-`chezmoi apply` again.
+remove it from `dot_Brewfile.tmpl`/`dot_Pacmanfile` and uninstall it explicitly
+with the package manager.
 
-## Switching providers (`change-providers`)
+## AI agent: OMP
 
-The `change-providers` command switches providers across all coding agents
-(opencode, omp, pi) in one shot, or per-agent via subcommand:
+OMP is the only managed AI agent. Homebrew installs it on macOS; mise installs
+it on Linux. The Zsh wrapper loads API tokens from the existing Bitwarden-backed
+file on demand.
 
-```sh
-change-providers zai               # switch all agents to ZAI (default profile)
-change-providers zai recommended   # all agents, recommended profile
-change-providers opencode zai      # only opencode
-change-providers omp xiaomi ultra  # only omp, xiaomi, ultra profile
-change-providers pi deepseek       # only pi
-change-providers status            # show all agents' state
-change-providers reset             # reset all to default
-change-providers dry-run zai       # preview without applying
-```
+Configuration lives in `private_dot_omp/agent/`:
 
-**How it works:**
-
-1. Writes the chosen provider name to each agent's state file
-   (`~/.config/{opencode,omp,pi}/.active_provider`).
-2. Runs `chezmoi apply` to re-render each agent's config from its template,
-   which reads `.active_provider` as the single source of truth.
-3. Each agent resolves the native provider id for its binary via the shared
-   `[providers.<key>]` registry in `.chezmoidata/providers.toml`.
-
-**Fallback behavior:** opencode is configured with automatic intra-provider fallback
-between tiers (pro → fast → cheap) when the primary model is unavailable
-(rate-limited, throttled, etc.). Fallback stays within the active provider —
-it never crosses to a different provider. The tier matrix in `.chezmoidata/providers.toml`
-controls the model for each tier.
-
-**Tiers & Profiles:** pass an optional tier/profile as the last argument.
-Tiers are purely about model selection based on token cost/consumption:
-- `expensive` / `recommended`: flagship / top-tier models (higher token consumption, highest accuracy).
-- `balanced` / `optimized`: balanced models per role (default).
-- `cheap` / `super`: lightweight, cost-effective models per role.
-- `free` / `ultra`: lowest token consumption / free tier models.
-
-**Verify current provider:**
+- `config.yml.tmpl`: direct model roles, theme and LSP settings.
+- `mcp.json`: MCP servers.
 
 ```sh
-change-providers status
+omp
+omp --model xiaomi-token-plan-sgp/mimo-v2.5
+mise run doctor-omp
 ```
 
-The `change-providers` command is part of this dotfiles repo (chezmoi-managed
-at `~/.local/bin/change-providers`).
+For persistent model changes, edit `modelRoles` in the source template and run
+`chezmoi apply ~/.omp/agent/config.yml`. There is no provider matrix or profile
+synchronization; models and endpoints come from the native OMP catalog. OMP extensions are listed in `dot_OmpPlugins`.
+
+Retired configuration files are removed through `.chezmoiremove`; session
+history and authentication stores are preserved. Removing a package from a
+manifest prevents future installation but does not uninstall an existing copy;
+uninstall that package explicitly with its package manager.
 
 ## Validation and health checks
 
@@ -297,11 +276,3 @@ chezmoi --dry-run apply
 ```
 
 Confirm no `REBASE_HEAD`/conflicts, then apply.
-
-## Managing opencode skills
-
-Opencode skills are managed by the `skills` CLI and are **not** tracked by chezmoi.
-Skill files live in `~/.config/opencode/skills/` and the lock file is at
-`~/.agents/.skill-lock.json`. Use `mise run skills-*` tasks (defined in
-`~/.config/mise/config.toml`) or run the `skills` CLI directly to install,
-update, and remove skills across machines.
