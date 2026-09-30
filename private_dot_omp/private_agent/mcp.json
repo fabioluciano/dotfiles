@@ -24,12 +24,51 @@
     },
     "kubernetes": {
       "command": "kubernetes-mcp-server",
-      "args": ["--read-only"],
+      "args": [
+        "--read-only"
+      ],
       "timeout": 15000
     },
     "terraform": {
       "command": "terraform-mcp-server",
       "timeout": 10000
+    },
+    "graphify": {
+      "command": "graphify-mcp",
+      "timeout": 15000
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "timeout": 15000
+    },
+    "github": {
+      "command": "github-mcp-server",
+      "args": [
+        "stdio"
+      ],
+      "timeout": 15000
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "serena-agent",
+        "serena",
+        "start-mcp-server",
+        "--project-from-cwd",
+        "--context",
+        "claude-code",
+        "--open-web-dashboard",
+        "False"
+      ],
+      "timeout": 30000
+    },
+    "tolaria": {
+      "command": "tolaria-mcp-wrapper",
+      "env": {
+        "WS_UI_PORT": "9711"
+      },
+      "timeout": 15000
     }
   }
 }

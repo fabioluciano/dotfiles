@@ -2,23 +2,36 @@
      Preserva a versão do setup escrita pelo binário. */ -}}
 {{- $setupVersion := output "sh" "-c" "awk '/^setupVersion:/ {print $2; exit}' \"$HOME/.omp/agent/config.yml\" 2>/dev/null || true" | trim | default "2" -}}
 {{- if not (regexMatch "^[0-9]+$" $setupVersion) -}}{{- $setupVersion = "2" -}}{{- end -}}
-disabledExtensions:
-  - context-file:user:CLAUDE.md
 theme:
   dark: dark-tokyo-night
   light: light-tokyo-night
 modelRoles:
-  default: "xiaomi-token-plan-sgp/mimo-v2.5-pro"
-  smol: "xiaomi-token-plan-sgp/mimo-v2.5-pro"
-  slow: "xiaomi-token-plan-sgp/mimo-v2.5-pro"
-  plan: "xiaomi-token-plan-sgp/mimo-v2.5-pro"
+  default: "openai-codex/gpt-5.6-luna:xhigh"
+  smol: "xiaomi-token-plan-sgp/mimo-v2.5:low"
+  slow: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
+  plan: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
+  vision: "xiaomi-token-plan-sgp/mimo-v2.5:medium"
 setupVersion: {{ $setupVersion }}
 symbolPreset: nerd
 github:
   enabled: true
+disabledProviders:
+  - web
+  - apple
+  - opencode-go
+  - opencode-zen
+  - commandcode
+  - alibaba-token-plan
+tools:
+  approvalMode: write
+  approval:
+    bash: allow
+    browser: allow
+    eval: allow
 bash:
   autoBackground:
     enabled: true
+  allowCompoundCommands: true
 lsp:
   enabled: true
   diagnosticsOnEdit: true
@@ -44,6 +57,9 @@ lsp:
     vue-language-server:
       command: ["vue-language-server", "--stdio"]
       extensions: [".vue"]
+    angular-language-server:
+      command: ["omp-ngserver", "--stdio"]
+      extensions: [".ts", ".tsx", ".html"]
     zls:
       command: ["zls"]
       extensions: [".zig", ".zon"]
@@ -71,6 +87,9 @@ lsp:
     docker-compose-langserver:
       command: ["docker-compose-langserver", "--stdio"]
       extensions: ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]
+    terraform-ls:
+      command: ["terraform-ls", "serve"]
+      extensions: [".tf", ".tfvars"]
     vscode-css-language-server:
       command: ["vscode-css-language-server", "--stdio"]
       extensions: [".css", ".scss", ".less"]
@@ -82,6 +101,12 @@ lsp:
       extensions: [".json", ".jsonc"]
     vscode-eslint-language-server:
       command: ["vscode-eslint-language-server", "--stdio"]
+      extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
+    biome:
+      command: ["biome", "lsp-proxy"]
+      extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json", ".jsonc", ".css", ".scss"]
+    oxlint:
+      command: ["oxlint", "--lsp"]
       extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
     gopls:
       command: ["gopls"]
@@ -107,3 +132,60 @@ lsp:
     ruff:
       command: ["ruff", "server"]
       extensions: [".py", ".pyi"]
+task:
+  maxConcurrency: 4
+  maxRecursionDepth: 1
+  enableLsp: true
+memory:
+  backend: mnemopi
+mnemopi:
+  scoping: global
+  embeddingVariant: multilingual
+  llmMode: none
+  injectionTokenLimit: 2000
+  polyphonicRecall: true
+  proactiveLinking: true
+  enhancedRecall: true
+skills:
+  enabled: true
+  enableSkillCommands: true
+  enableAgentsUser: true
+  enableAgentsProject: true
+  registryUrl: https://skills.omp.sh
+defaultThinkingLevel: auto
+statusLine:
+  preset: default
+  separator: slash
+  contextLine: percentage
+  sessionAccent: true
+  transparent: false
+spelling:
+  autocorrect: false
+error:
+  notify: "on"
+autoResume: true
+startup:
+  quiet: true
+update:
+  channel: canary
+features:
+  unexpectedStopDetection: smart
+contextPromotion:
+  enabled: true
+autolearn:
+  enabled: true
+  autoContinue: true
+edit:
+  mode: hashline
+readLineNumbers: true
+read:
+  renderMarkdown: true
+  toolResultPreview: true
+astGrep:
+  enabled: true
+security:
+  enabled: true
+mcp:
+  notifications: true
+plan:
+  autosave: true

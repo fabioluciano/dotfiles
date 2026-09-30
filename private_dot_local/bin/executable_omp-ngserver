@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Inicia o Angular Language Server com os peers instalados pelo mise.
+set -euo pipefail
+
+server_root=$(mise where npm:@angular/language-server)
+probe_root="$server_root/node_modules/.mise/node_modules"
+exec ngserver \
+    --tsProbeLocations "$probe_root" \
+    --ngProbeLocations "$probe_root" \
+    "$@"
