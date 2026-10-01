@@ -11,6 +11,16 @@ modelRoles:
   slow: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
   plan: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
   vision: "xiaomi-token-plan-sgp/mimo-v2.5:medium"
+  advisor: "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+advisor:
+  enabled: true
+retry:
+  usageAwareFallback: true
+  usageReservePolicy: auto
+  waitForUsageReset: true
+  fallbackChains:
+    default:
+      - xiaomi-token-plan-sgp/mimo-v2.6-pro
 setupVersion: {{ $setupVersion }}
 symbolPreset: nerd
 github:
@@ -28,6 +38,7 @@ tools:
     bash: allow
     browser: allow
     eval: allow
+    task: allow
 bash:
   autoBackground:
     enabled: true
@@ -136,6 +147,8 @@ task:
   maxConcurrency: 4
   maxRecursionDepth: 1
   enableLsp: true
+  isolation:
+    enabled: true
 memory:
   backend: mnemopi
 mnemopi:
@@ -177,6 +190,8 @@ autolearn:
   autoContinue: true
 edit:
   mode: hashline
+  autoRepair:
+    enabled: true
 readLineNumbers: true
 read:
   renderMarkdown: true
@@ -189,3 +204,22 @@ mcp:
   notifications: true
 plan:
   autosave: true
+display:
+  showTokenUsage: true
+  showTurnTime: true
+  cacheMissMarker: true
+secrets:
+  enabled: true
+dev:
+  autoqaConsent: granted
+codexResets:
+  autoRedeem: "yes"
+providers:
+  maxInFlightRequests:
+    xiaomi-token-plan-sgp: 2
+  openai-codex:
+    codeMode: auto
+prewalk:
+  enabled: true
+checkpoint:
+  enabled: true
