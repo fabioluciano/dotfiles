@@ -1,5 +1,17 @@
 {
   "mcpServers": {
+    "serena": {
+      "command": "/Users/fabioluciano/.local/bin/serena",
+      "args": [
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project-from-cwd",
+        "--open-web-dashboard",
+        "false"
+      ],
+      "timeout": 60
+    },
     "context7": {
       "command": "context7-mcp",
       "timeout": 8
