@@ -17,6 +17,10 @@
       "url": "https://mcp.grep.app",
       "timeout": 8
     },
+    "codebase-memory": {
+      "command": "codebase-memory-mcp",
+      "timeout": 15
+    },
     "kubernetes": {
       "command": "kubernetes-mcp-server",
       "args": [
@@ -27,6 +31,10 @@
     "terraform": {
       "command": "terraform-mcp-server",
       "timeout": 10
+    },
+    "graphify": {
+      "command": "graphify-mcp",
+      "timeout": 15
     },
     "playwright": {
       "command": "playwright-mcp",
