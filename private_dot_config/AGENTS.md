@@ -20,8 +20,7 @@ Use `question` when facing a user decision: trade-offs, approach choices, confli
 
 ## Do not hallucinate!
 
-**Do not hallucinate!** Never invent APIs, functions, file paths, or commands without verification. Look up via MCP tools (`codebase-memory`, `context7`) or say "I don't know." Ground every claim in evidence — agents that hallucinate waste time and erode trust.
-
+**Do not hallucinate!** Never invent APIs, functions, file paths, or commands without verification. Look up via MCP tools (`serena`, `context7`) or say "I don't know." Ground every claim in evidence — agents that hallucinate waste time and erode trust.
 ## MCP-FIRST (mandatory, no exceptions for delegated work)
 
 Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, curl). Applies universally — every agent, subagent, and delegated child. Delegation is not an escape hatch: delegated prompts must explicitly restate this policy.
@@ -30,7 +29,7 @@ Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, cur
 
 | Domain | Required MCP |
 |--------|-------------|
-| Code / symbols / impact analysis | `codebase-memory` — index first if missing |
+| Code / symbols / impact analysis | `serena` — semantic retrieval, editing & refactoring |
 | External docs / libraries | `context7` (`resolve-library-id` → `query-docs`) |
 | GitHub / public code examples | `github` (ops) / `gh_grep` (public examples) |
 | Browser / UI / E2E / screenshots | `playwright` — never replace with curl |
@@ -44,7 +43,7 @@ Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, cur
 | Generic web (last resort) | `webfetch` / `websearch` |
 
 **Examples:**
-- "What breaks if I change X?" → `codebase-memory_trace_path` (inbound)
+- "What breaks if I change X?" → `serena_find_referencing_symbols`
 - "How does Zod v4 define transforms?" → `context7_resolve-library-id` → `context7_query-docs`
 - "Summarize 10k-line log" → `ctx_execute_file`
 - "Verify page visually" → `playwright_browser_navigate` → `playwright_browser_snapshot`

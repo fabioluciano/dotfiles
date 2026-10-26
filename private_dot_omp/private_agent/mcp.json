@@ -1,6 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
   "mcpServers": {
+    "serena": {
+      "command": "/Users/fabioluciano/.local/bin/serena",
+      "args": [
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project-from-cwd",
+        "--open-web-dashboard",
+        "false"
+      ],
+      "timeout": 60000
+    },
     "context7": {
       "command": "context7-mcp",
       "timeout": 8000
@@ -18,10 +30,6 @@
       "url": "https://mcp.grep.app",
       "timeout": 8000
     },
-    "codebase-memory": {
-      "command": "codebase-memory-mcp",
-      "timeout": 15000
-    },
     "kubernetes": {
       "command": "kubernetes-mcp-server",
       "args": [
@@ -33,41 +41,15 @@
       "command": "terraform-mcp-server",
       "timeout": 10000
     },
-    "graphify": {
-      "command": "graphify-mcp",
-      "timeout": 15000
-    },
     "playwright": {
       "command": "playwright-mcp",
       "timeout": 15000
     },
     "github": {
-      "command": "github-mcp-server",
+      "command": "/Users/fabioluciano/.local/share/mise/installs/aqua-github-github-mcp-server/latest/github-mcp-server",
       "args": [
         "stdio"
       ],
-      "timeout": 15000
-    },
-    "serena": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "serena-agent",
-        "serena",
-        "start-mcp-server",
-        "--project-from-cwd",
-        "--context",
-        "claude-code",
-        "--open-web-dashboard",
-        "False"
-      ],
-      "timeout": 30000
-    },
-    "tolaria": {
-      "command": "tolaria-mcp-wrapper",
-      "env": {
-        "WS_UI_PORT": "9711"
-      },
       "timeout": 15000
     }
   }

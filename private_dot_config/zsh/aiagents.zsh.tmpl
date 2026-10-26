@@ -1,4 +1,6 @@
-# OMP: carrega os tokens do cofre somente ao iniciar o agente.
+# OMP: carrega os tokens do cofre e define defaults antes de iniciar o agente.
+export PONYTAIL_DEFAULT_MODE=ultra
+
 omp() {
     zsh-load-tokens
     command omp "$@"

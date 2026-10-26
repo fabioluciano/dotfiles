@@ -50,7 +50,6 @@ _ZSH_TOKEN_VARS=(
   COMMANDCODE_API_KEY NAVYAI_API_KEY TOKENRA_API_KEY FREELITELLM_API_KEY NAVY_API_KEY
   ALIBABA_TOKEN_PLAN_API_KEY XIAOMI_TOKEN_PLAN_SGP_API_KEY
 )
-
 _zsh-token-file-safe() {
   emulate -L zsh
   zmodload zsh/stat 2>/dev/null || return 1
@@ -59,8 +58,11 @@ _zsh-token-file-safe() {
   [[ -f $token_file && ! -L $token_file && -O $token_file ]] || return 1
   zstat -H file_stat -- "$token_file" 2>/dev/null || return 1
   zstat -H dir_stat -- "$token_dir" 2>/dev/null || return 1
-  (( (file_stat[mode] & 077) == 0 )) || return 1
-  (( (dir_stat[mode] & 022) == 0 )) || return 1
+  # zsh avalia literais 077/022 como DECIMAL (octalzeroes desligado),
+  # então a máscara errava S_IROTH e rejeitava ~/.config/zsh (0755).
+  # 8#077 = 63 e 8#022 = 18 forçam a semântica octal pretendida.
+  (( (file_stat[mode] & 8#077) == 0 )) || return 1
+  (( (dir_stat[mode] & 8#022) == 0 )) || return 1
 }
 
 _zsh-derive-token-aliases() {

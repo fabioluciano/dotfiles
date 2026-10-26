@@ -66,6 +66,14 @@ keys/
 # Local agent history and one-off maintenance scripts are not dotfiles.
 .omo/
 .pi/
+!.pi/
+!.pi/agent/
+.pi/agent/auth.json
+.pi/agent/mcp-auth.json
+.pi/agent/models-store.json
+.pi/sessions/
+!.pi/agent/settings.json
+!.pi/agent/mcp.json
 .crush/
 .slim/
 .commandcode/
@@ -78,3 +86,9 @@ keys/
 .code-review-graph/
 .ruff_cache/
 fix_*.py
+
+# Repository-local configuration is applied only after the clone exists.
+{{- if not (stat (joinPath .chezmoi.destDir "Developer/projects/omnihealth/.git")) }}
+Developer/projects/omnihealth
+Developer/projects/omnihealth/**
+{{- end }}

@@ -5,33 +5,137 @@
 theme:
   dark: dark-tokyo-night
   light: light-tokyo-night
+computer:
+  enabled: true
+  display: active
+  maxHeight: 2400
 modelRoles:
-  default: "openai-codex/gpt-5.6-luna:xhigh"
-  smol: "xiaomi-token-plan-sgp/mimo-v2.5:low"
-  slow: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
-  plan: "xiaomi-token-plan-sgp/mimo-v2.5-pro:high"
-  vision: "xiaomi-token-plan-sgp/mimo-v2.5:medium"
-  advisor: "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+  default: opencode-go/deepseek-v4.1-flash
+  task: opencode-go/deepseek-v4.1-flash
+  smol: openai-codex/gpt-6-luna:low
+  tiny: openai-codex/gpt-6-luna:low
+  memory: openai-codex/gpt-6-luna:auto
+  commit: openai-codex/gpt-6-luna:low
+  slow: google-antigravity/claude-sonnet-4-6:auto
+  plan: google-antigravity/claude-sonnet-4-6:auto
+  advisor: openai-codex/gpt-6.1-sol:auto
+  vision: google-antigravity/gemini-3.8-flash:medium
+  judge: openai-codex/gpt-6-luna:auto
+  image: google-antigravity/gemini-3.1-flash-image
+  web: web/parallel
 advisor:
   enabled: true
 retry:
   usageAwareFallback: true
+  usageReservePct: 0
   usageReservePolicy: auto
   waitForUsageReset: true
   fallbackChains:
+    # --- Trabalho principal: barato -> medio -> barato -> plano gratuito.
     default:
-      - xiaomi-token-plan-sgp/mimo-v2.6-pro
+      - "openai-codex/gpt-6-luna:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    task:
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "openai-codex/gpt-6-luna:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    # --- Raciocinio longo: fortes primeiro, deepseek antes do gemini-flash.
+    slow:
+      - "google-antigravity/claude-sonnet-4-6:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "openai-codex/gpt-6.1-sol:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+    plan:
+      - "google-antigravity/claude-sonnet-4-6:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "openai-codex/gpt-6.1-sol:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+    # --- Trabalho leve: gratuito primeiro, depois a escada paga barata.
+    smol:
+      - "openai-codex/gpt-6-luna:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    tiny:
+      - "openai-codex/gpt-6-luna:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    memory:
+      - "openai-codex/gpt-6-luna:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    commit:
+      - "openai-codex/gpt-6-luna:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    advisor:
+      - "openai-codex/gpt-6.1-sol:auto"
+      - "opencode-go/deepseek-v4.1-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    # --- Visao: todos os itens aceitam input de imagem (verificado no catalogo).
+    vision:
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "openai-codex/gpt-6-luna:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    judge:
+      - "openai-codex/gpt-6-luna:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+    image:
+      - "google-antigravity/gemini-3.1-flash-image"
+      - "google-antigravity/gemini-3-pro-image"
+      - "openai-codex/gpt-image-2"
+    web:
+      - "web/duckduckgo"
+      - "web/exa"
+      - "web/firecrawl"
+compaction:
+  # thresholdPercent não definido → OMP usa modo automático: max(16384, 15% da janela).
+  idleEnabled: true
+  idleThresholdTokens: 200000
+  # Experimental: notas persistentes e histórico pesquisável entre janelas.
+  experimentalContextManagement: true
+  handoffSaveToDisk: true
+snapcompact:
+  # Inclui AGENTS.md no snapshot para manter contexto de projeto após compactação.
+  systemPrompt: agents-md
+  # Experimental: resultados grandes como imagens; requer modelo com visão.
+  toolResults: true
+branchSummary:
+  enabled: true
+composer:
+  tokenRate: true
+terminal:
+  showProgress: true
+eval:
+  autoBackground:
+    enabled: true
 setupVersion: {{ $setupVersion }}
 symbolPreset: nerd
 github:
   enabled: true
 disabledProviders:
-  - web
   - apple
-  - opencode-go
-  - opencode-zen
   - commandcode
   - alibaba-token-plan
+  - anthropic
+  - deepseek
+  - gitlab-duo
+  - gitlab-duo-agent
+  - llama.cpp
+  - local
+  - minimax
+  - openai
+  - zai
 tools:
   approvalMode: write
   approval:
@@ -43,6 +147,9 @@ bash:
   autoBackground:
     enabled: true
   allowCompoundCommands: true
+  gitGuard: true
+bashInterceptor:
+  enabled: true
 lsp:
   enabled: true
   diagnosticsOnEdit: true
@@ -144,18 +251,25 @@ lsp:
       command: ["ruff", "server"]
       extensions: [".py", ".pyi"]
 task:
-  maxConcurrency: 4
+  maxConcurrency: 8
   maxRecursionDepth: 1
   enableLsp: true
+  showResolvedModelBadge: true
+  prewalk: true
+  enableEffort: true
+  structured: true
   isolation:
     enabled: true
 memory:
   backend: mnemopi
 mnemopi:
-  scoping: global
+  scoping: per-project-tagged
   embeddingVariant: multilingual
-  llmMode: none
-  injectionTokenLimit: 2000
+  # smol: usa openai-codex/gpt-6-luna para consolidar/sintetizar memórias.
+  llmMode: smol
+  injectionTokenLimit: 4000
+  recallLimit: 12
+  recallContextTurns: 5
   polyphonicRecall: true
   proactiveLinking: true
   enhancedRecall: true
@@ -190,6 +304,7 @@ autolearn:
   autoContinue: true
 edit:
   mode: hashline
+  streamingAbort: true
   autoRepair:
     enabled: true
 readLineNumbers: true
@@ -208,6 +323,7 @@ display:
   showTokenUsage: true
   showTurnTime: true
   cacheMissMarker: true
+  subagentLivePreview: true
 secrets:
   enabled: true
 dev:

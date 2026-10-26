@@ -6,11 +6,9 @@
 # Para remover: `omp plugin uninstall <nome>` e tire a linha do manifest.
 #
 
-# Ponytail (regras de "senior dev preguiçoso" + skills) — fonte git do README
-# oficial; o omp aceita specs git e carrega o manifest legacy `pi.extensions`
-# (ponytail.package.json declara `pi.extensions` + `pi.skills`).
-git:github.com/DietrichGebert/ponytail
+# Ponytail (regras de "senior dev preguiçoso" + skills) — instalado via marketplace
+ponytail@ponytail
 
 # Superpowers (obra) — skills + runtime bootstrap para agentes de código;
 # pacote pi (`pi.extensions` + `pi.skills`), instalado via spec git.
-git:github.com/obra/superpowers
+github:obra/superpowers

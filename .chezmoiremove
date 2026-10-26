@@ -1,4 +1,6 @@
 # Configurações aposentadas; preserva diretórios de sessões e autenticação.
+# Obs.: as configs ativas do pi são gerenciadas pelo chezmoi em
+# private_dot_pi/private_agent/. Os demais arquivos desta lista continuam aposentados.
 .PiPackages
 .Zerobrewfile
 .cc-safety-net/policy.json
@@ -42,9 +44,7 @@
 .omo/omo.jsonc
 .pi-lens/config.json
 .pi/agent/fusion-models.json
-.pi/agent/mcp.json
 .pi/agent/models.json
-.pi/agent/settings.json
 .pi/agent/themes/tokyo-night.json
 .pi/lsp-client.json
 .zfunc/_change-providers

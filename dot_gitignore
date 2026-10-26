@@ -10,6 +10,7 @@
 .codewhale/
 .codegraph/
 .playwright-mcp/
+.serena/
 .idea/
 *.swp
 *.swo

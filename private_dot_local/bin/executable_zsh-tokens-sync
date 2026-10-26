@@ -39,11 +39,7 @@ MAP=(
   "navyai_api_key=NAVYAI_API_KEY"
   "tokenra_api_key=TOKENRA_API_KEY"
   "freellmapi_api_key=FREELITELLM_API_KEY"
-  "navy_api_key=NAVY_API_KEY"
 )
-
-command -v bw >/dev/null 2>&1 || { echo "zsh-tokens-sync: bw nao instalado; pulando." >&2; exit 0; }
-
 if ! bw unlock --check >/dev/null 2>&1; then
   if [ -c /dev/tty ] && [ -r /dev/tty ] && [ -w /dev/tty ]; then
     if raw_session="$(bw unlock --raw </dev/tty 2>/dev/tty)"; then
