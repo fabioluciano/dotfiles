@@ -1,0 +1,39 @@
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6-luna",
+  "defaultThinkingLevel": "medium",
+  "modelThinkingLevels": {
+    "openai/gpt-6-luna": "medium",
+    "openai/gpt-6.1-sol": "high",
+    "xiaomi-token-plan-sgp/mimo-v2.6-flash": "medium",
+    "xiaomi-token-plan-sgp/mimo-v2.6-pro": "high"
+  },
+  "enabledModels": [
+    "openai/gpt-6-luna:medium",
+    "openai/gpt-6-luna:low",
+    "openai/gpt-6.1-sol:high",
+    "xiaomi-token-plan-sgp/mimo-v2.6-flash:medium",
+    "xiaomi-token-plan-sgp/mimo-v2.6-flash:low",
+    "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
+  ],
+  "defaultTools": [
+    "+grep",
+    "+find",
+    "+ls",
+    "+codemode",
+    "+tool_search"
+  ],
+  "enableSkillCommands": true,
+  "quietStartup": true,
+  "tuiMode": "fullscreen",
+  "showCacheMissNotices": true,
+  "steeringMode": "all",
+  "followUpMode": "all",
+  "retry": {
+    "enabled": true,
+    "provider": {
+      "maxRetries": 0
+    }
+  },
+  "lastChangelogVersion": "1.0.0"
+}

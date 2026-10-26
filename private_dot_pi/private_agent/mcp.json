@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "context7-mcp",
+      "timeout": 8
+    },
+    "sequential-thinking": {
+      "command": "mcp-server-sequential-thinking",
+      "timeout": 10
+    },
+    "git": {
+      "command": "mcp-server-git",
+      "timeout": 10
+    },
+    "gh_grep": {
+      "type": "http",
+      "url": "https://mcp.grep.app",
+      "timeout": 8
+    },
+    "kubernetes": {
+      "command": "kubernetes-mcp-server",
+      "args": [
+        "--read-only"
+      ],
+      "timeout": 15
+    },
+    "terraform": {
+      "command": "terraform-mcp-server",
+      "timeout": 10
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "timeout": 15
+    },
+    "github": {
+      "command": "github-mcp-server",
+      "args": [
+        "stdio"
+      ],
+      "timeout": 15
+    }
+  }
+}

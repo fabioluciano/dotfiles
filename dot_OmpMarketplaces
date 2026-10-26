@@ -1,0 +1,5 @@
+# Omp marketplaces — manifesto declarativo consumido por run_onchange_after_53-omp-plugins.
+# Formato: um marketplace por linha (mesmo formato aceito por `omp plugin marketplace add`).
+# Linhas com # ou vazias são ignoradas.
+
+DietrichGebert/ponytail
