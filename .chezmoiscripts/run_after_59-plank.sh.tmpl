@@ -1,6 +1,8 @@
 {{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
 #!/usr/bin/env bash
-# Ajusta uma instância do Plank por monitor conectado, com zoom e tema
+# Configures one Plank Reloaded dock on the primary monitor, with categories,
+# native separators, zoom and a transparent theme.
+# Ajusta uma instância do Plank no monitor principal, com zoom e tema
 # transparente, no estilo do dock do macOS. As preferências ficam no dconf
 # (schema relocável) e os itens em ~/.config/plank/<dock>/launchers, então a
 # fonte da verdade é este script, não um arquivo.
@@ -8,6 +10,15 @@ set -euo pipefail
 
 command -v gsettings >/dev/null 2>&1 || exit 0
 command -v xrandr >/dev/null 2>&1 || exit 0
+[[ -x /usr/bin/python3 ]] || exit 0
+[[ -f /usr/lib/plank/docklets/libdocklet-separator.so ]] || exit 0
+
+organize_only=false
+case ${1:-} in
+    --organize-only) organize_only=true ;;
+    '') ;;
+    *) echo "usage: $0 [--organize-only]" >&2; exit 2 ;;
+esac
 
 # Sem o schema do Plank instalado não há o que ajustar.
 gsettings list-keys "net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/" >/dev/null 2>&1 || exit 0
@@ -49,49 +60,40 @@ configure_dock() {
     local schema="net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/${name}/"
     local launchers="${HOME}/.config/plank/${name}/launchers"
 
-    gsettings set "${schema}" theme 'Transparent'
-    gsettings set "${schema}" position 'bottom'
-    gsettings set "${schema}" alignment 'center'
-    gsettings set "${schema}" items-alignment 'center'
-    gsettings set "${schema}" offset 0
-    gsettings set "${schema}" icon-size 48
-    gsettings set "${schema}" zoom-enabled true
-    gsettings set "${schema}" zoom-percent 160
-    gsettings set "${schema}" hide-mode 'intelligent'
-    gsettings set "${schema}" tooltips-enabled true
+    if [[ "${organize_only}" == false ]]; then
+        gsettings set "${schema}" theme 'Transparent'
+        gsettings set "${schema}" position 'bottom'
+        gsettings set "${schema}" alignment 'center'
+        gsettings set "${schema}" items-alignment 'center'
+        gsettings set "${schema}" offset 0
+        gsettings set "${schema}" icon-size 48
+        gsettings set "${schema}" zoom-enabled true
+        gsettings set "${schema}" zoom-percent 160
+        gsettings set "${schema}" hide-mode 'intelligent'
+        gsettings set "${schema}" tooltips-enabled true
+    fi
     gsettings set "${schema}" monitor "${monitor}"
+    gsettings set "${schema}" active-display false
+    # Keep category separators and files in their explicitly configured positions.
+    gsettings set "${schema}" anchor-docklets false
+    gsettings set "${schema}" anchor-files false
 
     mkdir -p "${launchers}"
-    local dock_items=() entry
-    for entry in "${items[@]}"; do
-        local file=${entry%%:*} target=${entry#*:}
-        printf '[PlankDockItemPreferences]\nLauncher=file://%s\n' "${target}" \
-            > "${launchers}/${file}"
-        dock_items+=("${file}")
-    done
-
-    local quoted=""
-    for file in "${dock_items[@]}"; do
-        quoted+="'${file}',"
-    done
-    gsettings set "${schema}" dock-items "[${quoted%,}]"
+    local current dock_items
+    current=$(gsettings get "${schema}" dock-items)
+    dock_items=$(/usr/bin/python3 - "${launchers}" "${current}" "${items[@]}" <<'PYTHON'
+{{ include ".chezmoitemplates/plank/organize.py" }}
+PYTHON
+    )
+    gsettings set "${schema}" dock-items "${dock_items}"
 }
 
-# Uma instância por monitor: dock1 no primário, dock2 no primeiro secundário.
+# Only dock1 belongs on the primary output; leave inactive dock2 data intact.
 mapfile -t outputs < <(xrandr --query | awk '/ connected/ {print $1}')
 (( ${#outputs[@]} > 0 )) || exit 0
 
 primary=$(xrandr --query | awk '/ primary/ {print $1; exit}')
 [[ -n "${primary}" ]] || primary=${outputs[0]}
 
-ordered=("${primary}")
-for output in "${outputs[@]}"; do
-    [[ "${output}" == "${primary}" ]] || ordered+=("${output}")
-done
-
-index=1
-for output in "${ordered[@]}"; do
-    configure_dock "dock${index}" "${output}"
-    index=$((index + 1))
-done
+configure_dock dock1 "${primary}"
 {{- end -}}

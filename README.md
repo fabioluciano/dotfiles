@@ -232,6 +232,32 @@ Entries using `kind:defer` are a deliberate exception: Antidote injects
 pinning that injected dependency. This keeps those plugins on the deferred
 startup path.
 
+## Plank Reloaded (Arch Linux)
+
+Plank Reloaded runs a single dock (`dock1`) on the primary X11 monitor.
+The legacy `plank-multidock` startup entry point now starts only that dock;
+secondary dock data is retained but is not launched automatically.
+
+The Plank hook groups existing pinned launchers into system/files, browsers,
+communication, notes, development, media, other applications, and folders/trash.
+Native separator docklets divide nonempty groups using empty spaces, not lines
+(`DockySeparatorPreferences/Style=2`, with no custom icon). This style is
+enforced for managed `dotfiles-separator-*` items, including existing ones.
+Existing launcher filenames
+and preferences are preserved; default applications are seeded only for an
+empty dock. The grouping implementation lives in
+`.chezmoitemplates/plank/organize.py` and uses the system Python.
+File/docklet anchoring and active-display tracking are disabled so category
+ordering is respected and the dock stays on the primary monitor.
+
+For an isolated organization update without resetting theme, icon size or zoom:
+
+```sh
+chezmoi execute-template < "$(chezmoi source-path)/.chezmoiscripts/run_after_59-plank.sh.tmpl" | bash -s -- --organize-only
+```
+
+Run regression tests with `/usr/bin/python3 -B .chezmoitemplates/plank/test_organize.py`.
+
 ## Xfce XML configuration
 
 Xfconf XML remains versioned under `.chezmoitemplates/xfce/`. Edit those XMLs
