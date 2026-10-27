@@ -1,0 +1,97 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Ajusta uma instância do Plank por monitor conectado, com zoom e tema
+# transparente, no estilo do dock do macOS. As preferências ficam no dconf
+# (schema relocável) e os itens em ~/.config/plank/<dock>/launchers, então a
+# fonte da verdade é este script, não um arquivo.
+set -euo pipefail
+
+command -v gsettings >/dev/null 2>&1 || exit 0
+command -v xrandr >/dev/null 2>&1 || exit 0
+
+# Sem o schema do Plank instalado não há o que ajustar.
+gsettings list-keys "net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/" >/dev/null 2>&1 || exit 0
+
+# Itens do dock, na mesma ordem do dock do macOS. Só entram os aplicativos
+# instalados, para o script continuar válido em outras máquinas.
+items=()
+add_item() {
+    local name=$1 target=$2
+    [[ -e "${target}" ]] || return 0
+    items+=("${name}.dockitem:${target}")
+}
+
+add_item files /usr/share/applications/thunar.desktop
+add_item apps /usr/share/applications/vicinae.desktop
+add_item settings /usr/share/applications/xfce-settings-manager.desktop
+
+add_item firefox /usr/share/applications/firefox.desktop
+add_item chrome /usr/share/applications/google-chrome.desktop
+
+add_item mail /usr/share/applications/org.mozilla.Thunderbird.desktop
+add_item telegram /usr/share/applications/org.telegram.desktop.desktop
+add_item discord /usr/share/applications/discord.desktop
+
+add_item notes /usr/share/applications/xfce4-notes.desktop
+add_item obsidian /usr/share/applications/obsidian.desktop
+
+add_item ghostty /usr/share/applications/com.mitchellh.ghostty.desktop
+add_item vscode /usr/share/applications/com.microsoft.VSCode.desktop
+add_item zed /usr/share/applications/dev.zed.Zed.desktop
+add_item dbeaver /usr/share/applications/io.dbeaver.DBeaver.desktop
+add_item virt-manager /usr/share/applications/virt-manager.desktop
+
+add_item spotify /usr/share/applications/spotify.desktop
+add_item downloads "${HOME}/Downloads"
+
+configure_dock() {
+    local name=$1 monitor=$2
+    local schema="net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/${name}/"
+    local launchers="${HOME}/.config/plank/${name}/launchers"
+
+    gsettings set "${schema}" theme 'Transparent'
+    gsettings set "${schema}" position 'bottom'
+    gsettings set "${schema}" alignment 'center'
+    gsettings set "${schema}" items-alignment 'center'
+    gsettings set "${schema}" offset 0
+    gsettings set "${schema}" icon-size 48
+    gsettings set "${schema}" zoom-enabled true
+    gsettings set "${schema}" zoom-percent 160
+    gsettings set "${schema}" hide-mode 'intelligent'
+    gsettings set "${schema}" tooltips-enabled true
+    gsettings set "${schema}" monitor "${monitor}"
+
+    mkdir -p "${launchers}"
+    local dock_items=() entry
+    for entry in "${items[@]}"; do
+        local file=${entry%%:*} target=${entry#*:}
+        printf '[PlankDockItemPreferences]\nLauncher=file://%s\n' "${target}" \
+            > "${launchers}/${file}"
+        dock_items+=("${file}")
+    done
+
+    local quoted=""
+    for file in "${dock_items[@]}"; do
+        quoted+="'${file}',"
+    done
+    gsettings set "${schema}" dock-items "[${quoted%,}]"
+}
+
+# Uma instância por monitor: dock1 no primário, dock2 no primeiro secundário.
+mapfile -t outputs < <(xrandr --query | awk '/ connected/ {print $1}')
+(( ${#outputs[@]} > 0 )) || exit 0
+
+primary=$(xrandr --query | awk '/ primary/ {print $1; exit}')
+[[ -n "${primary}" ]] || primary=${outputs[0]}
+
+ordered=("${primary}")
+for output in "${outputs[@]}"; do
+    [[ "${output}" == "${primary}" ]] || ordered+=("${output}")
+done
+
+index=1
+for output in "${ordered[@]}"; do
+    configure_dock "dock${index}" "${output}"
+    index=$((index + 1))
+done
+{{- end -}}

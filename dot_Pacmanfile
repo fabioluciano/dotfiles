@@ -72,6 +72,11 @@ plank
 tdrop
 vicinae-bin
 
+# DESKTOP — GLOBAL MENU (AppMenu no xfce4-panel, GTK3)
+appmenu-gtk-module
+vala-panel-appmenu-registrar
+vala-panel-appmenu-xfce
+
 # DESKTOP — GPU / VIDEO (NVIDIA RTX 3060, open kernel modules)
 nvidia-open
 nvidia-utils

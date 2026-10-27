@@ -35,6 +35,10 @@
     <property name="DecorationLayout" type="string" value="icon,menu:minimize,maximize,close"/>
     <property name="DialogsUseHeader" type="empty"/>
     <property name="TitlebarMiddleClick" type="empty"/>
+    <!-- Global menu: exporta a barra de menus GTK para o plugin AppMenu do painel. -->
+    <property name="Modules" type="string" value="appmenu-gtk-module"/>
+    <property name="ShellShowsMenubar" type="bool" value="true"/>
+    <property name="ShellShowsAppMenu" type="bool" value="true"/>
   </property>
   <property name="Gdk" type="empty">
     <property name="WindowScalingFactor" type="empty"/>

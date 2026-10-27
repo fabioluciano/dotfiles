@@ -1,0 +1,52 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Mantém o rodízio de wallpapers do Dropbox ativo em todos os monitores
+# conectados. O xfdesktop sorteia as imagens do diretório do wallpaper atual,
+# então basta apontar last-image para ~/Dropbox/wallpaper em cada monitor.
+set -euo pipefail
+
+command -v xfconf-query >/dev/null 2>&1 || exit 0
+command -v xrandr >/dev/null 2>&1 || exit 0
+
+wallpaper_dir="${HOME}/Dropbox/wallpaper"
+
+# Sem o Dropbox montado não há o que configurar.
+[[ -d "${wallpaper_dir}" ]] || exit 0
+
+mapfile -t images < <(
+    find "${wallpaper_dir}" -maxdepth 1 -type f \
+        \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) |
+        sort
+)
+(( ${#images[@]} > 0 )) || exit 0
+
+set_prop() {
+    local prop=$1 type=$2 value=$3
+    if xfconf-query -c xfce4-desktop -p "${prop}" >/dev/null 2>&1; then
+        xfconf-query -c xfce4-desktop -p "${prop}" -s "${value}"
+    else
+        xfconf-query -c xfce4-desktop -p "${prop}" -n -t "${type}" -s "${value}"
+    fi
+}
+
+index=0
+while read -r output; do
+    base="/backdrop/screen0/monitor${output}/workspace0"
+
+    set_prop "${base}/backdrop-cycle-enable" bool true
+    # O enum do xfdesktop é 0=segundos, 1=minutos, 2=horas e 3=só no login.
+    # 3 sorteia uma imagem nova a cada início do xfdesktop (login).
+    set_prop "${base}/backdrop-cycle-period" int 3
+    set_prop "${base}/backdrop-cycle-random-order" bool true
+
+    # Só troca a imagem se o monitor ainda não estiver usando o Dropbox, para
+    # não resetar a escolha atual a cada apply.
+    current=$(xfconf-query -c xfce4-desktop -p "${base}/last-image" 2>/dev/null || true)
+    case "${current}" in
+        "${wallpaper_dir}"/*) ;;
+        *) set_prop "${base}/last-image" string "${images[index % ${#images[@]}]}" ;;
+    esac
+
+    index=$((index + 1))
+done < <(xrandr --query | awk '/ connected/ {print $1}')
+{{- end -}}

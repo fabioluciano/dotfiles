@@ -17,6 +17,11 @@ else
 fi
 
 echo ":: $helper -S --needed (Pacmanfile changed)"
+# vala-panel-appmenu é um pacote AUR dividido que, por padrão, tenta compilar
+# as variantes mate-panel/vala-panel/budgie e puxa essas dependências. Para o
+# Xfce, desabilite as demais variantes e compile apenas o plugin do painel,
+# o registrar e o tradutor (GLib).
+export _build_mate=false _build_xfce=true _build_vala=false _build_budgie=false
 # Keep mise's Go environment from leaking into makepkg builds; the system Go
 # and the toolchain selected by GOROOT must match.
 unset GOROOT GOBIN GOTOOLCHAIN

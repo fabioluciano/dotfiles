@@ -1,0 +1,19 @@
+[PlankTheme]
+# Dock flutuante com cantos arredondados e fundo translúcido, no estilo do
+# dock do macOS (Big Sur em diante).
+TopRoundness=18
+BottomRoundness=18
+LineWidth=1
+OuterStrokeColor=255;;255;;255;;40
+FillStartColor=30;;30;;32;;175
+FillEndColor=30;;30;;32;;175
+InnerStrokeColor=0;;0;;0;;0
+
+[PlankDockTheme]
+HorizPadding=16
+TopPadding=16
+BottomPadding=18
+ItemPadding=14
+IndicatorSize=8
+IconShadowSize=0
+CascadeHide=false
