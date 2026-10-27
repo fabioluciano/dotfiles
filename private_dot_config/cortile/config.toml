@@ -236,7 +236,7 @@ enable = "Mod4-Shift-t"
 disable = "Mod4-Control-t"
 restore = "Mod4-Shift-r"
 reset = "Mod4-BackSpace"
-decoration = "Mod4-Shift-d"
+decoration = "Mod4-Control-d"
 
 # === Layout Selection ===
 # Vim-style: h=left, l=right, k=up, j=down
@@ -267,7 +267,7 @@ slave_decrease = "Mod4-Shift-d"
 
 # === Proportion Control ===
 proportion_increase = "Mod4-l"
-proportion_decrease = "Mod4-h"
+proportion_decrease = "Mod4-Shift-h"
 
 # === Multi-Screen ===
 # Changed to Alt variants to avoid conflict with Compiz put

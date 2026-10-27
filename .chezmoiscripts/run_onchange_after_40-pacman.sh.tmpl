@@ -17,6 +17,9 @@ else
 fi
 
 echo ":: $helper -S --needed (Pacmanfile changed)"
+# Keep mise's Go environment from leaking into makepkg builds; the system Go
+# and the toolchain selected by GOROOT must match.
+unset GOROOT GOBIN GOTOOLCHAIN
 # yay/paru do not accept a package list on stdin; read it into an array.
 mapfile -t packages < <(grep -vE '^\s*(#|$)' "$HOME/.Pacmanfile")
 [[ ${#packages[@]} -gt 0 ]] || exit 0

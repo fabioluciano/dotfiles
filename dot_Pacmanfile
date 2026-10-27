@@ -65,6 +65,23 @@ sesh
 # TERMINAL EMULATOR
 ghostty
 
+# DESKTOP — WINDOW MANAGEMENT & LAUNCHER
+compiz
+cortile
+plank
+tdrop
+vicinae-bin
+
+# DESKTOP — GPU / VIDEO (NVIDIA RTX 3060, open kernel modules)
+nvidia-open
+nvidia-utils
+nvidia-settings
+egl-wayland
+vulkan-icd-loader
+vulkan-tools
+libva-nvidia-driver
+libva-utils
+
 # EDITORS, DATABASES & DOCUMENT TOOLING
 apachedirectorystudio
 asciidoc
@@ -140,7 +157,8 @@ mergiraf
 deezer
 discord
 dropbox
-espanso-wayland
+espanso-x11-bin
+fuse2
 geary
 insomnia-bin
 onlyoffice-bin
@@ -181,9 +199,12 @@ hunspell
 hunspell-en_us
 lens-bin
 libfido2
+linux-headers
 logiops
 lsb-release
+network-manager-applet
 otf-monaspace-nerd
+pacman-contrib
 pacmanfile
 papirus-icon-theme
 pcsclite
@@ -192,7 +213,6 @@ quickemu
 reflector
 sof-firmware
 thunderbird
-tlp
 ttf-cascadia-code-nerd
 maple-mono-nf-cn
 ventoy-bin

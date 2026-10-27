@@ -1,0 +1,13 @@
+{{- if eq .chezmoi.os "linux" -}}
+# ~/.xprofile — ambiente da sessão X11 (gerenciado pelo chezmoi)
+# Espelhado em ~/.config/environment.d/90-nvidia.conf para serviços
+# systemd --user (ex.: apps lançados pelo Vicinae).
+export LIBVA_DRIVER_NAME=nvidia
+export MOZ_DISABLE_RDD_SANDBOX=1
+
+# Garante que unidades de usuário (ex.: vicinae.service) recebam o ambiente
+# gráfico da sessão X11.
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user import-environment DISPLAY XAUTHORITY 2>/dev/null || true
+fi
+{{- end }}

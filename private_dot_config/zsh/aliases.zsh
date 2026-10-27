@@ -61,9 +61,9 @@ tokens() {
     zsh-tokens-sync "$@" && tmux-tokens-sync
 }
 
-
-# Load vault-backed tokens only when starting tmux.
+# Load vault tokens into the shell and tmux server before each tmux command.
 tmux() {
     zsh-load-tokens
+    tmux-tokens-sync
     command tmux "$@"
 }

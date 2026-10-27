@@ -16,12 +16,25 @@ _setup_gpg_ssh_agent() {
 
   command -v gpgconf &>/dev/null || return 0
 
+  _is_socket_alive() {
+    local sock="$1"
+    [[ -n "$sock" && -S "$sock" ]] || return 1
+    if zmodload -F zsh/net/socket b:zsocket 2>/dev/null; then
+      if zsocket "$sock" 2>/dev/null; then
+        exec {REPLY}>&-
+        return 0
+      fi
+      return 1
+    fi
+    return 0
+  }
+
   gpg_sock_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/gpg-ssh-auth-sock"
   candidate=''
   cache_hit=0
   if [[ -r "$gpg_sock_cache" ]]; then
     cached_sock=$(<"$gpg_sock_cache") || cached_sock=''
-    if [[ -n "$cached_sock" && -S "$cached_sock" ]]; then
+    if _is_socket_alive "$cached_sock"; then
       candidate="$cached_sock"
       cache_hit=1
     fi
@@ -35,10 +48,10 @@ _setup_gpg_ssh_agent() {
   [[ -n "$candidate" ]] || return 0
 
   # Launch only when the candidate is not already a usable socket.
-  if [[ ! -S "$candidate" ]]; then
+  if ! _is_socket_alive "$candidate"; then
     gpgconf --launch gpg-agent >/dev/null 2>&1 || true
   fi
-  [[ -S "$candidate" ]] || return 0
+  _is_socket_alive "$candidate" || return 0
 
   export SSH_AUTH_SOCK="$candidate"
 

@@ -1,0 +1,42 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Integração do desktop após a instalação dos pacotes do Pacmanfile.
+# Executado a cada apply; todas as operações são idempotentes.
+set -euo pipefail
+
+warn() { printf ':: warning: %s\n' "$*" >&2; }
+
+# Serviços de sessão. O drop-in de vicinae.service adiciona default.target
+# (o Xfce não ativa graphical-session.target), e o ~/.xprofile importa o
+# ambiente gráfico para o systemd --user.
+if command -v systemctl >/dev/null 2>&1 && [[ -n "${XDG_RUNTIME_DIR:-}" ]]; then
+    systemctl --user daemon-reload || warn "não foi possível recarregar as unidades de usuário"
+    if command -v espanso >/dev/null 2>&1 && systemctl --user cat espanso.service >/dev/null 2>&1; then
+        systemctl --user enable --now espanso.service || warn "não foi possível habilitar espanso.service"
+    fi
+    if command -v vicinae >/dev/null 2>&1 && systemctl --user cat vicinae.service >/dev/null 2>&1; then
+        systemctl --user enable --now vicinae.service || warn "não foi possível habilitar vicinae.service"
+    fi
+fi
+
+# Timers de manutenção do sistema.
+if command -v fstrim >/dev/null 2>&1; then
+    sudo systemctl enable --now fstrim.timer || warn "não foi possível habilitar fstrim.timer"
+fi
+if command -v paccache >/dev/null 2>&1; then
+    sudo systemctl enable --now paccache.timer || warn "não foi possível habilitar paccache.timer"
+fi
+
+# Reconstrói módulos DKMS (VirtualBox) agora que linux-headers está presente.
+if command -v dkms >/dev/null 2>&1; then
+    sudo dkms autoinstall || warn "dkms autoinstall falhou"
+fi
+
+# Remove pacotes substituídos, debug desnecessário ou que conflitam com
+# power-profiles-daemon.
+for pkg in compiz-debug cortile-debug vicinae-bin-debug tlp tlp-rdw; do
+    if pacman -Q "$pkg" >/dev/null 2>&1; then
+        sudo pacman -Rns --noconfirm "$pkg" || warn "não foi possível remover $pkg"
+    fi
+done
+{{- end -}}

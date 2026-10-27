@@ -12,7 +12,6 @@
       <property name="Count" type="empty"/>
       <property name="Client0_Command" type="array">
         <value type="string" value="compiz"/>
-        <value type="string" value="xfwm4"/>
       </property>
       <property name="Client0_Priority" type="empty"/>
       <property name="Client0_PerScreen" type="empty"/>

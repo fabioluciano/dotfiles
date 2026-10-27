@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Cortile
+Comment=Automatic tiling window manager
+Exec=cortile
+OnlyShowIn=XFCE;
+Terminal=false
+StartupNotify=false
+X-GNOME-Autostart-enabled=true

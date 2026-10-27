@@ -101,20 +101,20 @@ bind -r Tab switch-client -l        # prefix + Tab: last session
 # Copy mode (vi-style)
 bind -T copy-mode-vi v send-keys -X begin-selection
 bind -T copy-mode-vi C-v send-keys -X rectangle-toggle
-if-shell 'command -v wl-copy' {
-    bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "wl-copy"
+# Copy mode: prefer the active display server. X11 first (xclip), then
+# Wayland (wl-copy), then macOS (pbcopy).
+if-shell 'test -n "$DISPLAY" && command -v xclip' {
+    bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
 } {
-    if-shell 'command -v xclip' {
-        bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
+    if-shell 'test -n "$WAYLAND_DISPLAY" && command -v wl-copy' {
+        bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "wl-copy"
     } {
-        if-shell 'command -v pbcopy' {
-            bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
-        }
+        bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
     }
 }
 
-# Session management with sesh
-bind-key C-o run-shell "sesh connect"
+# Session management with sesh (built-in picker inside a tmux popup)
+bind-key C-o display-popup -E -w 80% -h 70% "sesh picker -i"
 
 
 #  4. PLUGINS (TPM)
@@ -275,8 +275,12 @@ set -g @powerkit_plugin_bitwarden_keybinding_lock "M-l"
 set -g @powerkit_plugin_fan_selection "active"
 
 #  Plugin: Packages
-# Aggregate updates from Homebrew
+# Aggregate updates from the platform package manager
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") }}
+set -g @powerkit_plugin_packages_backends "yay"
+{{- else }}
 set -g @powerkit_plugin_packages_backends "brew"
+{{- end }}
 
 
 #  6. INITIALIZE TPM (keep this at the very end)

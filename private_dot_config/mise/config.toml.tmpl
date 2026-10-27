@@ -40,6 +40,7 @@ pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:@andymatuschak/note-link-janitor" = { version = "latest", allow_low_downloads = true }
 
 # MCP servers (float at latest)
+"pypi:serena-agent" = "latest"
 "pipx:mcp-server-git" = "latest"
 "npm:@upstash/context7-mcp" = "latest"
 "npm:@playwright/mcp" = "latest"
@@ -177,6 +178,30 @@ nvim --headless '+lua
 ' +qa && echo nvim-ok
 """
 description = "Headless Neovim self-check: verify binaries, plugins, and spec loading"
+
+{{ if eq .chezmoi.os "linux" }}
+[tasks.doctor-nvidia]
+run = """
+set -eu
+command -v nvidia-smi >/dev/null || { echo "nvidia-smi ausente"; exit 1; }
+nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+test "$(cat /sys/module/nvidia_drm/parameters/modeset 2>/dev/null)" = "Y" || { echo "nvidia_drm.modeset != 1"; exit 1; }
+grep -q 'nvidia_drm.modeset=1' /etc/kernel/cmdline 2>/dev/null || echo "aviso: nvidia_drm.modeset=1 ausente em /etc/kernel/cmdline"
+grep -q 'nvidia_drm.fbdev=1' /etc/kernel/cmdline 2>/dev/null || echo "aviso: nvidia_drm.fbdev=1 ausente em /etc/kernel/cmdline"
+if command -v vainfo >/dev/null; then
+  vainfo 2>/dev/null | grep -q NVDEC || { echo "VA-API NVDEC indisponível"; exit 1; }
+else
+  echo "aviso: vainfo ausente (libva-utils)"
+fi
+if command -v vulkaninfo >/dev/null; then
+  vulkaninfo --summary 2>/dev/null | grep -q NVIDIA || { echo "Vulkan NVIDIA indisponível"; exit 1; }
+else
+  echo "aviso: vulkaninfo ausente (vulkan-tools)"
+fi
+echo nvidia-ok
+"""
+description = "Verify NVIDIA driver, KMS, VA-API and Vulkan"
+{{ end }}
 
 [tasks.benchmark-nvim]
 run = "startup-benchmark nvim"

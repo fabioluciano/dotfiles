@@ -1,0 +1,9 @@
+# ~/.config/mpv/mpv.conf — gerenciado pelo chezmoi
+vo=gpu-next
+hwdec=auto-safe
+video-sync=display-resample
+
+{{- if eq .chezmoi.os "linux" }}
+# NVIDIA/X11: Vulkan é o caminho mais direto para o gpu-next.
+gpu-api=vulkan
+{{- end }}

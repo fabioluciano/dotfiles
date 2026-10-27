@@ -139,6 +139,20 @@ TOML, YAML, Lua syntax/style checks and renders selected chezmoi templates
 into a scratch directory. It deliberately skips templates that consult live
 secrets, the Bitwarden item, or runtime state.
 
+## Serena indexing
+
+- OMP's `mcp.json` configures the Serena server launch; it does not select the
+  languages indexed for this repository. Serena global defaults live in
+  `~/.serena/serena_config.yml`; per-repository language servers and workspace
+  folders belong in `.serena/project.yml`.
+- Before `serena project index`, verify `.serena/project.yml` has a non-empty,
+  suitable `language_servers` list. Auto-detection can create an empty list and
+  still report success; confirm per-language counts after indexing.
+- This repository currently indexes `bash`, `lua`, `json`, `toml`, `yaml`, and
+  `markdown`. Serena has no built-in Zsh or template LSP; don't claim `.zsh`,
+  `.tmpl`, or unsupported config formats are covered. Report the coverage gaps.
+
+
 ## Conventions
 
 - Indentation (`.editorconfig`): 2 spaces default; **4 spaces** for shell

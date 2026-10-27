@@ -1,0 +1,40 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Injeta o bloco gerenciado de VA-API nos perfis do Firefox (X11/NVIDIA).
+# O bloco é substituído a cada apply, preservando o restante do user.js.
+set -euo pipefail
+
+firefox_dir="${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"
+[[ -d "$firefox_dir" ]] || exit 0
+
+begin='// BEGIN chezmoi: firefox-vaapi'
+end='// END chezmoi: firefox-vaapi'
+block="$(cat <<'EOF'
+// BEGIN chezmoi: firefox-vaapi
+user_pref("media.ffmpeg.vaapi.enabled", true);
+user_pref("media.hardware-video-decoding.force-enabled", true);
+user_pref("media.rdd-ffmpeg.enabled", true);
+user_pref("gfx.x11-egl.force-enabled", true);
+user_pref("widget.dmabuf.force-enabled", true);
+// END chezmoi: firefox-vaapi
+EOF
+)"
+
+for profile in "$firefox_dir"/*/; do
+    [[ -d "$profile" ]] || continue
+    [[ -f "$profile/prefs.js" || -f "$profile/times.json" ]] || continue
+
+    user_js="${profile}user.js"
+    tmp="$(mktemp "${profile}.user.js.XXXXXX")"
+    if [[ -f "$user_js" ]]; then
+        awk -v begin="$begin" -v end="$end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            !skip { print }
+        ' "$user_js" > "$tmp"
+    fi
+    printf '%s\n' "$block" >> "$tmp"
+    chmod 600 "$tmp"
+    mv "$tmp" "$user_js"
+done
+{{- end -}}
