@@ -94,6 +94,8 @@ run_selene
 run_check git-diff "git diff --check"
 require_check /usr/bin/python3 xfce-xml \
     "/usr/bin/python3 -B .chezmoitemplates/xfce/test_render.py"
+require_check /usr/bin/python3 plank-organization \
+    "/usr/bin/python3 -B .chezmoitemplates/plank/test_organize.py"
 
 render_and_check() {
     local template checker rendered
@@ -111,6 +113,7 @@ if command -v chezmoi >/dev/null 2>&1; then
     render_and_check private_dot_zshenv.tmpl zsh
     render_and_check dot_zshrc.tmpl zsh
     render_and_check .chezmoiscripts/run_after_60-antidote-bundles.sh.tmpl bash
+    render_and_check .chezmoiscripts/run_after_59-plank.sh.tmpl bash
     render_and_check .chezmoiscripts/run_onchange_after_46-zsh-tokens.sh.tmpl bash
     render_and_check .chezmoiscripts/run_onchange_after_47-mise-install.sh.tmpl bash
     if chezmoi execute-template < private_dot_config/mise/config.toml.tmpl > "$render_dir/mise.toml"; then

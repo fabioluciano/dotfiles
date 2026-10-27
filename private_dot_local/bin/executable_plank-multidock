@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Inicia uma instância do Plank por monitor conectado (dock1 no primário,
-# dock2 no secundário). O Plank não replica o dock entre monitores sozinho.
+# Starts only dock1 on the primary monitor. The filename is a legacy entry point.
 set -euo pipefail
 
 command -v plank >/dev/null 2>&1 || exit 0
 command -v xrandr >/dev/null 2>&1 || exit 0
+command -v gsettings >/dev/null 2>&1 || exit 0
 
 mapfile -t outputs < <(xrandr --query | awk '/ connected/ {print $1}')
 (( ${#outputs[@]} > 0 )) || exit 0
@@ -12,10 +12,9 @@ mapfile -t outputs < <(xrandr --query | awk '/ connected/ {print $1}')
 primary=$(xrandr --query | awk '/ primary/ {print $1; exit}')
 [[ -n "${primary}" ]] || primary=${outputs[0]}
 
-ordered=("${primary}")
-for output in "${outputs[@]}"; do
-    [[ "${output}" == "${primary}" ]] || ordered+=("${output}")
-done
+schema="net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/"
+gsettings set "${schema}" monitor "${primary}"
+gsettings set "${schema}" active-display false
 
 is_running() {
     local name=$1
@@ -26,11 +25,6 @@ is_running() {
     pgrep -f "^([^[:space:]]*/)?plank -n ${name}$" >/dev/null 2>&1
 }
 
-index=1
-for output in "${ordered[@]}"; do
-    name="dock${index}"
-    if ! is_running "${name}"; then
-        setsid -f plank -n "${name}" >/dev/null 2>&1 || true
-    fi
-    index=$((index + 1))
-done
+if ! is_running dock1; then
+    setsid -f plank -n dock1 >/dev/null 2>&1
+fi
