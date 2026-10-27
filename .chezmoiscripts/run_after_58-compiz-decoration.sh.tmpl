@@ -1,0 +1,31 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Gera uma variante "Slim" da decoração Metacity do Colloid com a barra de
+# título mais baixa, usada pelo decorador do Compiz (gtk-window-decorator).
+# O tema base vem do pacote colloid-gtk-theme; só a geometria é reduzida.
+set -euo pipefail
+
+base="Colloid-Grey-Dark-Compact"
+src="/usr/share/themes/${base}/metacity-1"
+dst="${HOME}/.local/share/themes/${base}-Slim/metacity-1"
+
+# Sem o tema base instalado não há o que gerar.
+[[ -f "${src}/metacity-theme-3.xml" ]] || exit 0
+
+mkdir -p "${dst}"
+cp -r "${src}/." "${dst}/"
+
+# title_vertical_pad 10->4, title_border 6->3 e button_border 5->2 reduzem a
+# barra de ~41px para ~29px sem mexer nas cores nem nos botões redondos.
+sed -i \
+    -e 's|name="title_vertical_pad" value="10"|name="title_vertical_pad" value="4"|' \
+    -e 's|name="title_border" left="10" right="10" top="6" bottom="6"|name="title_border" left="10" right="10" top="3" bottom="3"|' \
+    -e 's|name="button_border" left="0" right="0" top="5" bottom="5"|name="button_border" left="0" right="0" top="2" bottom="2"|' \
+    "${dst}/metacity-theme-3.xml"
+
+# A fonte da barra de título vem do gsettings (o gtk-window-decorator não lê a
+# configuração do xfwm4). Mantém o mesmo tamanho usado no Xfce.
+if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Sans Bold 9' || true
+fi
+{{- end -}}
