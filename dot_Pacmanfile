@@ -72,6 +72,10 @@ plank
 tdrop
 vicinae-bin
 
+# DESKTOP — LOGIN (LightDM with Slick Greeter)
+lightdm
+lightdm-slick-greeter
+
 # DESKTOP — GLOBAL MENU (AppMenu no xfce4-panel, GTK3)
 appmenu-gtk-module
 vala-panel-appmenu-registrar

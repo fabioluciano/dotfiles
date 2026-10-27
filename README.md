@@ -232,6 +232,65 @@ Entries using `kind:defer` are a deliberate exception: Antidote injects
 pinning that injected dependency. This keeps those plugins on the deferred
 startup path.
 
+## Xfce XML configuration
+
+Xfconf XML remains versioned under `.chezmoitemplates/xfce/`. Edit those XMLs
+to change managed preferences; the corresponding files under
+`private_dot_config/xfce4/xfconf/private_xfce-perchannel-xml/` are rendering
+wrappers. Avoid `chezmoi re-add` for these targets, since capturing the live
+XML is not a substitute for editing the managed defaults.
+
+The templates run `.chezmoitemplates/xfce/render.py` with `/usr/bin/python3`
+(the system Python on Arch, not mise). Rendering only reads the destination;
+it never calls `xfconf-query`, writes files, or restarts the desktop.
+They preserve the current wallpaper and desktop settings window geometry,
+Whisker recent applications, tray item history, and known media players.
+New installations use the versioned XML defaults. Other properties, including
+wallpaper cycling settings, theme, panel layout, shortcuts, and display
+configuration, remain managed and produce a diff when changed.
+
+Property ordering, comments, whitespace, and equivalent double representations
+do not trigger changes: when the merged XML is semantically equivalent, the
+template returns the destination contents unchanged. Array order still matters.
+Malformed destination XML causes rendering to fail rather than overwrite it.
+As with any Xfconf XML edit, applying real preference changes while `xfconfd`
+is running can race with its in-memory state; this does not replace a safe
+session-level procedure for applying desktop configuration.
+
+Run the non-mutating regression tests with:
+
+```sh
+/usr/bin/python3 -B .chezmoitemplates/xfce/test_render.py
+```
+
+## LightDM appearance (Arch Linux)
+
+`lightdm-slick-greeter` uses Colloid Grey Dark Compact, Colloid Dark icons,
+a centered login form, and the current primary monitor wallpaper. The theme
+settings live in `.chezmoitemplates/lightdm/slick-greeter.conf`.
+
+On each apply, `.chezmoiscripts/run_after_62-lightdm-theme.sh.tmpl` snapshots
+the current Xfce wallpaper into a metadata-stripped PNG under
+`/usr/local/share/backgrounds/dotfiles/`. It does not grant the greeter access
+to your home directory or Dropbox. Without a graphical session it keeps the
+previous public copy; without any wallpaper or required packages it skips
+installation. Assets must therefore be prepared from a graphical session at
+least once. A later apply can update the snapshot if the desktop wallpaper
+has changed.
+
+The hook writes `/etc/lightdm/slick-greeter.conf` and the dedicated
+`/etc/lightdm/lightdm.conf.d/90-dotfiles-greeter.conf` drop-in. It only writes
+when contents change, backs up existing files once as `.chezmoi-backup`, and
+requires `sudo -v` before an apply that needs system changes. It never restarts
+LightDM, changes PAM, enables autologin, or changes the desktop's display layout.
+The new appearance is used on the next greeter launch; save your work before
+logging out to test it. `lightdm --show-config` shows the effective selection.
+
+The existing GTK greeter is kept installed. To return to it, first disable the
+LightDM theme hook in the source, then remove its dedicated greeter drop-in
+(or restore its `.chezmoi-backup` if a previous file existed). Do not restart
+the display-manager service from a session you want to keep.
+
 ## Rollback
 
 `chezmoi apply` is idempotent. The source directory is the source of truth; the
