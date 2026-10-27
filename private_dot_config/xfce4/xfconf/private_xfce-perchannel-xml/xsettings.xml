@@ -2,8 +2,8 @@
 
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
-    <property name="ThemeName" type="string" value="Greybird"/>
-    <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+    <property name="ThemeName" type="string" value="Colloid-Grey-Dark-Compact"/>
+    <property name="IconThemeName" type="string" value="Colloid-Dark"/>
     <property name="DoubleClickTime" type="empty"/>
     <property name="DoubleClickDistance" type="empty"/>
     <property name="DndDragThreshold" type="empty"/>
@@ -30,8 +30,8 @@
     <property name="MenuImages" type="empty"/>
     <property name="ButtonImages" type="empty"/>
     <property name="MenuBarAccel" type="empty"/>
-    <property name="CursorThemeName" type="string" value="Bibata-Modern-Ice"/>
-    <property name="CursorThemeSize" type="int" value="16"/>
+    <property name="CursorThemeName" type="string" value="Qogir-white-cursors"/>
+    <property name="CursorThemeSize" type="int" value="22"/>
     <property name="DecorationLayout" type="string" value="icon,menu:minimize,maximize,close"/>
     <property name="DialogsUseHeader" type="empty"/>
     <property name="TitlebarMiddleClick" type="empty"/>

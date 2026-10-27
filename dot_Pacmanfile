@@ -193,6 +193,8 @@ aspell-pt
 bibata-cursor-theme-bin
 ccid
 chrony
+colloid-gtk-theme
+colloid-icon-theme-git
 forticlient-vpn
 gvfs
 hunspell
@@ -209,6 +211,7 @@ pacmanfile
 papirus-icon-theme
 pcsclite
 plocate
+qogir-cursor-theme
 quickemu
 reflector
 sof-firmware

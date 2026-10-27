@@ -23,5 +23,44 @@ unset GOROOT GOBIN GOTOOLCHAIN
 # yay/paru do not accept a package list on stdin; read it into an array.
 mapfile -t packages < <(grep -vE '^\s*(#|$)' "$HOME/.Pacmanfile")
 [[ ${#packages[@]} -gt 0 ]] || exit 0
+
+# colloid-gtk-theme: o install.sh do upstream roda `xfce4-panel -r` durante o
+# build; dentro do fakeroot o painel aborta (glycin/bwrap) e derruba o makepkg.
+# Se a instalação falhar, neutraliza essa chamada no source do cache e
+# recompila com o makepkg antes de instalar o tarball gerado.
+if ! pacman -Q colloid-gtk-theme >/dev/null 2>&1; then
+    if ! $helper -S --needed --noconfirm colloid-gtk-theme; then
+        colloid_gtk_dir="$HOME/.cache/$helper/colloid-gtk-theme"
+        colloid_gtk_install=$(find "$colloid_gtk_dir/src" -maxdepth 2 -name install.sh -print -quit 2>/dev/null || true)
+        if [[ -z "$colloid_gtk_install" ]]; then
+            echo ":: error: colloid-gtk-theme falhou e o source não está em $colloid_gtk_dir" >&2
+            exit 1
+        fi
+        sed -i 's|^\( *\)xfce4-panel -r$|\1:|' "$colloid_gtk_install"
+        (cd "$colloid_gtk_dir" && makepkg -f --noextract --noconfirm)
+        colloid_gtk_pkg=$(find "$colloid_gtk_dir" -maxdepth 1 -name 'colloid-gtk-theme-*.pkg.tar.zst' -print -quit 2>/dev/null || true)
+        if [[ -n "$colloid_gtk_pkg" ]]; then
+            sudo pacman -U --noconfirm "$colloid_gtk_pkg"
+        else
+            echo ":: error: colloid-gtk-theme falhou e nenhum tarball foi gerado" >&2
+            exit 1
+        fi
+    fi
+fi
+
+# colloid-icon-theme-git pode falhar no passo de "tidying" do makepkg depois
+# de gerar o tarball. Nesse caso, instala o pacote válido do cache.
+if ! pacman -Q colloid-icon-theme-git >/dev/null 2>&1; then
+    if ! $helper -S --needed --noconfirm colloid-icon-theme-git; then
+        colloid_pkg=$(find "$HOME/.cache" -type f -name 'colloid-icon-theme-git-*.pkg.tar.zst' -print -quit 2>/dev/null || true)
+        if [[ -n "$colloid_pkg" ]]; then
+            sudo pacman -U --noconfirm "$colloid_pkg"
+        else
+            echo ":: error: colloid-icon-theme-git falhou e não há tarball no cache" >&2
+            exit 1
+        fi
+    fi
+fi
+
 $helper -S --needed --noconfirm "${packages[@]}"
 {{- end -}}
