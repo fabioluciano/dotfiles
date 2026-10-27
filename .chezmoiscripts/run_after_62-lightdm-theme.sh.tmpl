@@ -1,0 +1,89 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Sync the system greeter theme without restarting LightDM or changing PAM.
+set -euo pipefail
+
+command -v lightdm >/dev/null 2>&1 || exit 0
+command -v slick-greeter >/dev/null 2>&1 || exit 0
+command -v flock >/dev/null 2>&1 || exit 0
+command -v magick >/dev/null 2>&1 || exit 0
+[[ -f /usr/share/xgreeters/lightdm-slick-greeter.desktop ]] || exit 0
+[[ -f /usr/share/themes/Colloid-Grey-Dark-Compact/gtk-3.0/gtk.css ]] || exit 0
+[[ -f /usr/share/icons/Colloid-Dark/index.theme ]] || exit 0
+
+cache_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/chezmoi"
+mkdir -p "${cache_dir}"
+exec 9>"${cache_dir}/lightdm-theme.lock"
+flock -n 9 || exit 0
+
+workdir=$(mktemp -d)
+trap 'rm -rf -- "${workdir}"' EXIT
+public_dir=/usr/local/share/backgrounds/dotfiles
+background="${public_dir}/lightdm-background"
+image=""
+
+# Capture only the primary monitor's current wallpaper, never expose HOME.
+if command -v xrandr >/dev/null 2>&1 && command -v xfconf-query >/dev/null 2>&1; then
+    primary=$(xrandr --query 2>/dev/null | awk '/ connected primary/ {print $1; exit}' || true)
+    if [[ -n "${primary}" ]]; then
+        image=$(xfconf-query -c xfce4-desktop \
+            -p "/backdrop/screen0/monitor${primary}/workspace0/last-image" 2>/dev/null || true)
+    fi
+fi
+
+if [[ -n "${image}" && -f "${image}" && -r "${image}" ]]; then
+    # Decode one image and strip metadata rather than publishing the raw file.
+    magick "${image}[0]" -strip "PNG:${workdir}/background"
+elif [[ ! -r "${background}" ]]; then
+    echo "LightDM: no desktop wallpaper available; keeping the existing greeter." >&2
+    exit 0
+fi
+
+cat >"${workdir}/slick-greeter.conf" <<'GREETER'
+{{ include ".chezmoitemplates/lightdm/slick-greeter.conf" }}
+GREETER
+cat >"${workdir}/90-dotfiles-greeter.conf" <<'LIGHTDM'
+# Managed by chezmoi. Remove this drop-in to restore the default greeter.
+[Seat:*]
+greeter-session=lightdm-slick-greeter
+LIGHTDM
+cat >"${workdir}/arch-menu.svg" <<'LOGO'
+{{ include "private_dot_local/private_share/icons/hicolor/scalable/apps/arch-menu.svg" }}
+LOGO
+
+sources=("${workdir}/arch-menu.svg" "${workdir}/slick-greeter.conf" "${workdir}/90-dotfiles-greeter.conf")
+targets=("${public_dir}/arch-menu.svg" /etc/lightdm/slick-greeter.conf /etc/lightdm/lightdm.conf.d/90-dotfiles-greeter.conf)
+# Publish assets first, and activate the greeter only after its config exists.
+if [[ -f "${workdir}/background" ]]; then
+    sources=("${workdir}/background" "${sources[@]}")
+    targets=("${background}" "${targets[@]}")
+fi
+
+changed=()
+for i in "${!sources[@]}"; do
+    cmp -s -- "${sources[i]}" "${targets[i]}" || changed+=("${i}")
+done
+(( ${#changed[@]} > 0 )) || exit 0
+
+# Do not prompt from an unattended apply; authenticate explicitly beforehand.
+if ! command -v sudo >/dev/null 2>&1 || ! sudo -n true; then
+    echo "LightDM: run sudo -v, then repeat chezmoi apply to install the theme." >&2
+    exit 1
+fi
+
+sudo -n install -d -o root -g root -m 0755 "${public_dir}" /etc/lightdm/lightdm.conf.d
+for i in "${changed[@]}"; do
+    target=${targets[i]}
+    if [[ -f "${target}" && ! -e "${target}.chezmoi-backup" ]]; then
+        sudo -n cp -p -- "${target}" "${target}.chezmoi-backup"
+    fi
+    staging=$(sudo -n mktemp "${target}.XXXXXX")
+    if ! sudo -n install -o root -g root -m 0644 -- "${sources[i]}" "${staging}" \
+        || ! sudo -n mv -f -- "${staging}" "${target}"; then
+        sudo -n rm -f -- "${staging}"
+        exit 1
+    fi
+done
+
+echo "LightDM: Slick Greeter theme installed; no service was restarted."
+{{- end -}}

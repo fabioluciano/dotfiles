@@ -1,0 +1,2 @@
+{{- $xml := includeTemplate "xfce/xfwm4.xml" . -}}
+{{- output "/usr/bin/python3" "-c" (include ".chezmoitemplates/xfce/render.py") $xml (joinPath .chezmoi.destDir ".config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml") -}}

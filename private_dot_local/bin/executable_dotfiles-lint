@@ -92,6 +92,8 @@ run_selene() {
 
 run_selene
 run_check git-diff "git diff --check"
+require_check /usr/bin/python3 xfce-xml \
+    "/usr/bin/python3 -B .chezmoitemplates/xfce/test_render.py"
 
 render_and_check() {
     local template checker rendered
