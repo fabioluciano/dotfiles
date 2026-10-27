@@ -1,13 +1,10 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=0.9.4
 Type=Application
+Version=1.0
 Name=Plank
-Comment=plank
+Comment=Dock for Xfce
 Exec=plank
 OnlyShowIn=XFCE;
-RunHook=0
-StartupNotify=false
 Terminal=false
-Hidden=false
-
+StartupNotify=false
+X-GNOME-Autostart-enabled=true

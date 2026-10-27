@@ -6,6 +6,7 @@ README.md
 AGENTS.md
 LICENSE
 docs/
+relatorio-auditoria-desktop-workflow-2026-10-26.md
 
 # Version control
 .git/
@@ -33,13 +34,17 @@ docs/
 {{- if ne .chezmoi.os "linux" }}
 # Ignore Linux-specific files when not on Linux
 .XCompose
+.xprofile
 .config/autostart
 .config/compiz-1
 .config/cortile
+.config/environment.d
 .config/fontconfig
 .config/vicinae
 .config/xfce4
 .config/yay
+.config/pacman
+.config/systemd
 .Pacmanfile
 logid.cfg
 {{- end }}

@@ -63,6 +63,7 @@ chezmoi update          # pull latest from the repo and apply
 mise run lint           # strict, non-mutating static checks (exits non-zero on failure)
 mise run lint-report    # same checks, does not block
 mise run doctor-chezmoi # chezmoi doctor + dry-run apply
+mise run doctor-nvidia  # NVIDIA driver, KMS, VA-API and Vulkan (Arch)
 mise run benchmark-nvim # measure isolated Neovim cold/warm startup, median and p95
 mise run benchmark-zsh  # same for zsh, including zprof output in scratch
 mise run update-safe    # update host packages only (topgrade)
@@ -118,6 +119,57 @@ local index.
 Optional but expected: a **YubiKey** for GPG/SSH commit signing. The
 `run_before_*` scripts derive the public key and `allowed_signers`; signing
 degrades gracefully if absent.
+
+## NVIDIA / GPU (Arch)
+
+The Arch desktop uses an NVIDIA RTX 3060 with the open kernel modules
+(`nvidia-open`), KMS and fbdev enabled. The driver stack is declared in
+`dot_Pacmanfile`; the boot-time pieces are system-level and intentionally
+**not** written by chezmoi:
+
+- `/etc/kernel/cmdline` must contain
+  `nvidia_drm.modeset=1 nvidia_drm.fbdev=1` (systemd-boot UKI).
+- `/etc/mkinitcpio.conf` must include the NVIDIA modules in `MODULES`, e.g.
+  `MODULES=(nvidia nvidia-modeset nvidia_uvm nvidia_drm)`, followed by
+  `sudo mkinitcpio -P`.
+- Reboot after changing either file.
+
+Verify the stack with:
+
+```sh
+nvidia-smi
+cat /sys/module/nvidia_drm/parameters/modeset   # Y
+vainfo                                          # NVDEC direct backend
+vulkaninfo --summary                            # NVIDIA device
+xrandr --listproviders                          # NVIDIA-0 + modesetting
+mise run doctor-nvidia
+```
+
+User-level pieces managed here:
+
+- `~/.xprofile` exports `LIBVA_DRIVER_NAME=nvidia` and
+  `MOZ_DISABLE_RDD_SANDBOX=1` for the Xfce session.
+- `~/.config/environment.d/90-nvidia.conf` exports the same values to
+  `systemd --user` services (e.g. apps launched by Vicinae).
+- `~/.config/mpv/mpv.conf` uses `vo=gpu-next`, `hwdec=auto-safe` and
+  `gpu-api=vulkan`.
+- `run_after_56-firefox-vaapi.sh.tmpl` injects the Firefox VA-API prefs into
+  each profile's `user.js`.
+- Compiz disables X11 sync on NVIDIA (`x11_sync_blacklist_vendor`), pins the
+  composite refresh rate to 165 Hz and enables independent output painting and
+  fullscreen unredirect.
+
+No fan curve, overclock or power-limit changes are applied; the card runs at
+its stock 170 W limit. The AMD Raphael iGPU is present but the monitors are
+connected to the NVIDIA card, so no PRIME/offload is configured. `nvidia-open`
+is the non-DKMS package and is tied to the `linux` kernel; if you switch to
+`linux-lts` or `linux-zen`, install `nvidia-open-dkms` (or the matching
+package) instead.
+
+With `nvidia-open`, video memory is preserved across suspend automatically;
+the `nvidia-suspend`/`nvidia-resume` services are not required and remain
+disabled. `nvidia-persistenced` and `nvidia-powerd` are also unnecessary on
+this desktop.
 
 ## Troubleshooting
 
@@ -251,6 +303,7 @@ Validation is static and non-mutating:
   - `mise run lint-report` or `dotfiles-lint --report` — all checks, never blocks.
   - `mise run lint` or `dotfiles-lint --strict` — same checks, exits non-zero on failure.
   - `chezmoi doctor`, `chezmoi diff`, `chezmoi status`.
+  - `mise run doctor-nvidia` — NVIDIA driver, KMS, VA-API and Vulkan (Arch).
   - `chezmoi execute-template < file.tmpl` — render a template to stdout for inspection
     (do not use on templates that read live secrets/Bitwarden/YubiKey).
   - `zsh -n`, `bash -n`, `shellcheck`, `taplo check`, `yamllint`, `luac -p`, `stylua --check`.
