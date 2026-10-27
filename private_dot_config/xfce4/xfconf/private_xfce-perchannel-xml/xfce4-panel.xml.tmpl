@@ -11,7 +11,7 @@
       <property name="length" type="double" value="100"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="icon-size" type="uint" value="0"/>
-      <property name="size" type="uint" value="26"/>
+      <property name="size" type="uint" value="30"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="21"/>
         <value type="int" value="28"/>
@@ -23,14 +23,21 @@
       </property>
       <property name="output-name" type="string" value="Primary"/>
       <property name="enter-opacity" type="uint" value="100"/>
-      <property name="background-style" type="uint" value="0"/>
+      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0.2"/>
+      </property>
     </property>
     <property name="panel-2" type="empty">
       <property name="position" type="string" value="p=6;x=0;y=0"/>
       <property name="length" type="double" value="100"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="icon-size" type="uint" value="0"/>
-      <property name="size" type="uint" value="26"/>
+      <property name="size" type="uint" value="30"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="22"/>
         <value type="int" value="29"/>
@@ -41,7 +48,14 @@
       </property>
       <property name="output-name" type="string" value="DP-0"/>
       <property name="enter-opacity" type="uint" value="100"/>
-      <property name="background-style" type="uint" value="0"/>
+      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0.2"/>
+      </property>
     </property>
   </property>
   <property name="plugins" type="empty">
@@ -109,6 +123,7 @@
       <property name="known-players" type="string" value="Chromium;firefox;spotify;vlc"/>
     </property>
     <property name="plugin-21" type="string" value="whiskermenu">
+      <property name="menu-opacity" type="int" value="90"/>
       <property name="show-button-title" type="bool" value="false"/>
       <property name="button-icon" type="string" value="arch-menu"/>
       <property name="menu-width" type="int" value="498"/>
@@ -130,6 +145,7 @@
       </property>
     </property>
     <property name="plugin-22" type="string" value="whiskermenu">
+      <property name="menu-opacity" type="int" value="90"/>
       <property name="show-button-title" type="bool" value="false"/>
       <property name="button-icon" type="string" value="arch-menu"/>
       <property name="menu-width" type="int" value="498"/>
