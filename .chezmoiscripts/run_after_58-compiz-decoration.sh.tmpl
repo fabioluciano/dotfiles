@@ -23,9 +23,45 @@ sed -i \
     -e 's|name="button_border" left="0" right="0" top="5" bottom="5"|name="button_border" left="0" right="0" top="2" bottom="2"|' \
     "${dst}/metacity-theme-3.xml"
 
+# Botões no estilo do macOS: círculos coloridos (fechar vermelho, minimizar
+# amarelo, maximizar verde) e glifos escuros no hover, no lugar dos círculos
+# cinza herdados do tema.
+# No tema, C_button_min_* pinta o botão de minimizar e C_button_max_* o de
+# maximizar — por isso o amarelo vai em min e o verde em max.
+for spec in \
+    'C_button_close_hover_bg:#ff5f57' \
+    'C_button_close_active_bg:#e0443e' \
+    'C_button_min_hover_bg:#febc2e' \
+    'C_button_min_active_bg:#dea123' \
+    'C_button_max_hover_bg:#28c840' \
+    'C_button_max_active_bg:#1aab29' \
+    'C_button_icon:#1a1a1a'; do
+    name=${spec%%:*}
+    color=${spec#*:}
+    sed -i "s|<constant name=\"${name}\"[^/]*/>|<constant name=\"${name}\" value=\"${color}\"/>|" \
+        "${dst}/metacity-theme-3.xml"
+done
+
+# Janelas sem foco mantêm os círculos coloridos (um pouco esmaecidos), como no
+# macOS — o tema base os pinta de cinza com alpha 0.25.
+replace_unfocused() {
+    local name=$1 color=$2
+    sed -i "/<draw_ops name=\"${name}\">/,/<\/draw_ops>/c\\
+<draw_ops name=\"${name}\">\\
+  <image filename=\"assets/button.svg\" colorize=\"${color}\" x=\"(width - object_width) / 2\" y=\"(height - object_height) / 2\" alpha=\"0.6\" width=\"object_width\" height=\"object_height\"/>\\
+</draw_ops>" "${dst}/metacity-theme-3.xml"
+}
+
+replace_unfocused close_unfocused '#ff5f57'
+replace_unfocused minimize_unfocused '#febc2e'
+replace_unfocused maximize_unfocused '#28c840'
+replace_unfocused unmaximize_unfocused '#28c840'
+
 # A fonte da barra de título vem do gsettings (o gtk-window-decorator não lê a
 # configuração do xfwm4). Mantém o mesmo tamanho usado no Xfce.
 if command -v gsettings >/dev/null 2>&1; then
     gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Sans Bold 9' || true
+    # Botões à esquerda, na ordem do macOS (fechar, minimizar, maximizar).
+    gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:' || true
 fi
 {{- end -}}

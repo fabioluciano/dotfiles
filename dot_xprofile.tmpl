@@ -5,6 +5,9 @@
 export LIBVA_DRIVER_NAME=nvidia
 export MOZ_DISABLE_RDD_SANDBOX=1
 
+# Disable NVIDIA OpenGL VSync for the X11 session.
+export __GL_SYNC_TO_VBLANK=0
+
 # Garante que unidades de usuário (ex.: vicinae.service) recebam o ambiente
 # gráfico da sessão X11.
 if command -v systemctl >/dev/null 2>&1; then

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Inicia uma instância do Plank por monitor conectado (dock1 no primário,
+# dock2 no secundário). O Plank não replica o dock entre monitores sozinho.
+set -euo pipefail
+
+command -v plank >/dev/null 2>&1 || exit 0
+command -v xrandr >/dev/null 2>&1 || exit 0
+
+mapfile -t outputs < <(xrandr --query | awk '/ connected/ {print $1}')
+(( ${#outputs[@]} > 0 )) || exit 0
+
+primary=$(xrandr --query | awk '/ primary/ {print $1; exit}')
+[[ -n "${primary}" ]] || primary=${outputs[0]}
+
+ordered=("${primary}")
+for output in "${outputs[@]}"; do
+    [[ "${output}" == "${primary}" ]] || ordered+=("${output}")
+done
+
+is_running() {
+    local name=$1
+    # Instância iniciada sem -n (autostart antigo) também conta como dock1.
+    if [[ "${name}" == "dock1" ]] && pgrep -f '^([^[:space:]]*/)?plank$' >/dev/null 2>&1; then
+        return 0
+    fi
+    pgrep -f "^([^[:space:]]*/)?plank -n ${name}$" >/dev/null 2>&1
+}
+
+index=1
+for output in "${ordered[@]}"; do
+    name="dock${index}"
+    if ! is_running "${name}"; then
+        setsid -f plank -n "${name}" >/dev/null 2>&1 || true
+    fi
+    index=$((index + 1))
+done

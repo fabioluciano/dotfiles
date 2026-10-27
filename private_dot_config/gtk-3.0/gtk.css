@@ -1,0 +1,10 @@
+/* Barra superior do Xfce transparente: o painel é composto pelo Compiz sobre o
+   wallpaper, sem fundo próprio. O tema GTK (Colloid) ainda estiliza os ícones,
+   o relógio e os menus. */
+.xfce4-panel,
+.xfce4-panel.horizontal {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+}
