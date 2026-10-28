@@ -67,5 +67,31 @@ if ! pacman -Q colloid-icon-theme-git >/dev/null 2>&1; then
     fi
 fi
 
+# libfprint-cs9711-rebase-git: o upstream referencia opencv4 no sigfm/meson.build,
+# mas o Arch Linux atualizou para opencv 5 (opencv5.pc). Se a instalação falhar,
+# ajusta para opencv5 no source do cache e recompila.
+if ! pacman -Q libfprint-cs9711-rebase-git >/dev/null 2>&1; then
+    if ! $helper -S --needed --noconfirm libfprint-cs9711-rebase-git; then
+        cs9711_dir="$HOME/.cache/$helper/libfprint-cs9711-rebase-git"
+        if [[ -d "$cs9711_dir" ]]; then
+            (
+                cd "$cs9711_dir"
+                makepkg -o --noconfirm 2>/dev/null || true
+                sigfm_meson=$(find "$cs9711_dir/src" -path '*/sigfm/meson.build' -print -quit 2>/dev/null || true)
+                if [[ -n "$sigfm_meson" ]]; then
+                    sed -i "s/dependency('opencv4'/dependency('opencv5'/" "$sigfm_meson"
+                    makepkg -e -f --noconfirm
+                    pkg=$(find "$cs9711_dir" -maxdepth 1 -name 'libfprint-cs9711-rebase-git-*.pkg.tar.zst' ! -name '*-debug-*' -print -quit 2>/dev/null || true)
+                    if [[ -n "$pkg" ]]; then
+                        sudo pacman -Rdd --noconfirm libfprint 2>/dev/null || true
+                        sudo pacman -U --noconfirm "$pkg"
+                    fi
+                fi
+            )
+        fi
+    fi
+fi
+
+
 $helper -S --needed --noconfirm "${packages[@]}"
 {{- end -}}

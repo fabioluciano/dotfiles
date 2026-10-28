@@ -210,7 +210,7 @@ hunspell
 hunspell-en_us
 lens-bin
 fprintd
-libfprint-cs9711-git
+libfprint-cs9711-rebase-git
 libfido2
 linux-headers
 logiops
@@ -235,3 +235,38 @@ virtualbox-ext-oracle
 virtualbox-guest-iso
 xdg-user-dirs
 yubikey-manager
+
+# BREWFILE ALTERNATIVES — OFFICIAL REPOSITORIES
+copyq
+ddcutil
+endeavour
+flameshot
+gnome-calendar
+handbrake
+impression
+mitmproxy
+newsboat
+peazip
+redshift
+ttf-liberation
+ttf-nerd-fonts-symbols
+
+# BREWFILE ALTERNATIVES — AUR
+bruno-bin
+caffeine-ng
+devtoys-bin
+drawio-desktop-bin
+flipclock
+github-desktop-bin
+google-cloud-cli
+indicator-keylock
+joplin-desktop
+nerd-dictation-git
+ngrok
+rexi
+rssguard-git
+rustdesk-bin
+screenkey-git
+warpd
+whisper.cpp-git
+yubico-authenticator-bin

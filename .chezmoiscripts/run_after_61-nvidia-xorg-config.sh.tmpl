@@ -1,0 +1,22 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
+#!/usr/bin/env bash
+# Mantém as opções de composição NVIDIA usadas pelo Compiz em Xorg.
+set -euo pipefail
+
+config=$(mktemp)
+trap 'rm -f "$config"' EXIT
+cat >"$config" <<'EOF'
+Section "Device"
+    Identifier "NVIDIA GPU"
+    Driver "nvidia"
+    Option "TripleBuffer" "True"
+    Option "ForceCompositionPipeline" "True"
+    Option "ForceFullCompositionPipeline" "True"
+EndSection
+EOF
+
+target=/etc/X11/xorg.conf.d/20-nvidia-compiz.conf
+if ! cmp -s "$config" "$target"; then
+    sudo install -D -o root -g root -m 0644 "$config" "$target"
+fi
+{{- end -}}

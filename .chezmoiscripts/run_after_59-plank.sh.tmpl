@@ -32,6 +32,23 @@ add_item() {
     items+=("${name}.dockitem:${target}")
 }
 
+alternatives=()
+add_alternative() {
+    local name=$1 target=$2
+    [[ -e "${target}" ]] || return 0
+    alternatives+=("${name}.dockitem:${target}")
+}
+
+# Direct graphical counterparts to apps pinned by the macOS Dock.
+add_alternative whatsdesk /usr/share/applications/whatsdesk.desktop
+add_alternative calendar /usr/share/applications/org.gnome.Calendar.desktop
+add_alternative endeavour /usr/share/applications/org.gnome.Todo.desktop
+add_alternative joplin /usr/share/applications/joplin-desktop.desktop
+add_alternative logseq /usr/share/applications/logseq.desktop
+add_alternative bruno /usr/share/applications/bruno.desktop
+add_alternative podman-desktop /usr/share/applications/io.podman_desktop.PodmanDesktop.desktop
+add_alternative rssguard /usr/share/applications/io.github.martinrotter.rssguard.desktop
+
 add_item files /usr/share/applications/thunar.desktop
 add_item apps /usr/share/applications/vicinae.desktop
 add_item settings /usr/share/applications/xfce-settings-manager.desktop
@@ -66,7 +83,7 @@ configure_dock() {
         gsettings set "${schema}" alignment 'center'
         gsettings set "${schema}" items-alignment 'center'
         gsettings set "${schema}" offset 0
-        gsettings set "${schema}" icon-size 48
+        gsettings set "${schema}" icon-size 35
         gsettings set "${schema}" zoom-enabled true
         gsettings set "${schema}" zoom-percent 160
         gsettings set "${schema}" hide-mode 'intelligent'
@@ -81,7 +98,7 @@ configure_dock() {
     mkdir -p "${launchers}"
     local current dock_items
     current=$(gsettings get "${schema}" dock-items)
-    dock_items=$(/usr/bin/python3 - "${launchers}" "${current}" "${items[@]}" <<'PYTHON'
+    dock_items=$(/usr/bin/python3 - "${launchers}" "${current}" "${items[@]}" -- "${alternatives[@]}" <<'PYTHON'
 {{ include ".chezmoitemplates/plank/organize.py" }}
 PYTHON
     )
