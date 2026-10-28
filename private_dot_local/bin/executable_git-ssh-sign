@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Git SSH signing: YubiKey first, native macOS Touch ID if unavailable.
+set -euo pipefail
+
+args=("$@")
+operation=''
+key=''
+key_index=0
+for ((i = 0; i < ${#args[@]}; i++)); do
+    case "${args[i]}" in
+        -Y) operation="${args[i + 1]:-}" ;;
+        -f) key="${args[i + 1]:-}"; key_index=$((i + 1)) ;;
+    esac
+done
+
+# Preserve verification and explicitly configured alternative signing keys.
+if [[ "$operation" != sign || "$key" != "$HOME/.ssh/yubikey.pub" ]]; then
+    exec /usr/bin/ssh-keygen "$@"
+fi
+
+umask 077
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+# Git versions use either stdin or a temporary file; retry the same bytes.
+input_index=$((${#args[@]} - 1))
+input="${args[input_index]}"
+if [[ "$input" == - ]]; then
+    cat > "$scratch/payload"
+else
+    cat -- "$input" > "$scratch/payload"
+fi
+args[input_index]=-
+(
+    socket=$(gpgconf --list-dirs agent-ssh-socket 2>/dev/null) || socket=''
+    if [[ -s "$key" && -S "$socket" ]] &&
+        gpg-connect-agent 'scd serialno' /bye >/dev/null 2>&1 &&
+        SSH_AUTH_SOCK="$socket" /usr/bin/ssh-keygen "${args[@]}" < "$scratch/payload" > "$scratch/signature"; then
+        exit 0
+    fi
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        [[ -s "$HOME/.ssh/touchid.pub" ]] || {
+            printf '%s\n' 'YubiKey indisponivel e chave Touch ID ausente; execute chezmoi apply.' >&2
+            exit 1
+        }
+        args[key_index]="$HOME/.ssh/touchid.pub"
+        # A scoped Apple agent handles biometrics without replacing the GPG agent.
+        exec /usr/bin/ssh-agent /bin/bash -c '
+            set -euo pipefail
+            SSH_ASKPASS=/usr/bin/true SSH_ASKPASS_REQUIRE=force \
+                /usr/bin/ssh-add -q -K -S /usr/lib/ssh-keychain.dylib
+            exec /usr/bin/ssh-keygen "$@"
+        ' git-touchid "${args[@]}" < "$scratch/payload" > "$scratch/signature"
+    else
+        linux_key="$HOME/.ssh/linux_fingerprint"
+        [[ -s "${linux_key}.pub" ]] || {
+            printf '%s\n' 'YubiKey indisponivel e chave biometrica Linux ausente; execute chezmoi apply.' >&2
+            exit 1
+        }
+        if command -v fprintd-verify >/dev/null 2>&1; then
+            printf '%s\n' 'YubiKey indisponivel. Toque no sensor de digital para assinar o commit...' >&2
+            fprintd-verify >/dev/null 2>&1 || {
+                printf '%s\n' 'Verificacao da digital falhou.' >&2
+                exit 1
+            }
+        fi
+        args[key_index]="$linux_key"
+        exec /usr/bin/ssh-keygen "${args[@]}" < "$scratch/payload" > "$scratch/signature"
+    fi
+)
+if [[ "$input" == - ]]; then
+    cat "$scratch/signature"
+else
+    mv -f "$scratch/signature" "$input.sig"
+fi

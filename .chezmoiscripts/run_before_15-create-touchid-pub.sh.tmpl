@@ -1,0 +1,43 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Reuses this Mac's biometric identity; never exports private key material.
+set -euo pipefail
+
+label=git-touchid
+identities=$(/usr/sbin/sc_auth list-ctk-identities)
+count=$(printf '%s\n' "$identities" | awk -v label="$label" '$4 == label {n++} END {print n+0}')
+if (( count > 1 )); then
+    printf '%s\n' 'Ha mais de uma identidade git-touchid; resolva a duplicidade antes de continuar.' >&2
+    exit 1
+fi
+if [[ "$count" == 0 ]]; then
+    printf '%s\n' 'Criando chave git-touchid no Secure Enclave; aprove com Touch ID.' >&2
+    /usr/sbin/sc_auth create-ctk-identity -l "$label" -k p-256-ne -t bio
+    identities=$(/usr/sbin/sc_auth list-ctk-identities)
+fi
+hash=$(printf '%s\n' "$identities" | awk -v label="$label" '$1 == "p-256-ne" && $3 == "bio" && $4 == label {print $2}')
+if [[ ! "$hash" =~ ^[[:xdigit:]]{40}$ ]]; then
+    printf '%s\n' 'Identidade git-touchid ausente, duplicada ou sem protecao biometrica nao exportavel.' >&2
+    exit 1
+fi
+
+key=$(KEYCHAIN_CERTIFICATES="$hash" /usr/bin/ssh-agent /bin/bash -c '
+    set -euo pipefail
+    SSH_ASKPASS=/usr/bin/true SSH_ASKPASS_REQUIRE=force \
+        /usr/bin/ssh-add -q -K -S /usr/lib/ssh-keychain.dylib
+    /usr/bin/ssh-add -L
+')
+if [[ "$key" != sk-ecdsa-sha2-nistp256@openssh.com\ * || "$key" == *$'\n'* ]]; then
+    printf '%s\n' 'O provedor nativo nao retornou uma unica chave SSH para git-touchid.' >&2
+    exit 1
+fi
+key="${key% *} $label"
+public_key="$HOME/.ssh/touchid.pub"
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+if [[ ! -f "$public_key" ]] || [[ "$(<"$public_key")" != "$key" ]]; then
+    printf '%s\n' "$key" > "$public_key"
+    chmod 644 "$public_key"
+    printf 'OK: %s atualizado. Cadastre esta chave publica como signing key no GitHub.\n' "$public_key"
+fi
+{{- end }}

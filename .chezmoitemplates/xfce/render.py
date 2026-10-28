@@ -71,13 +71,32 @@ def render(desired, current=None):
         if dynamic(channel, path):
             parent.remove(child)
     target_props = {path: child for path, _, child in properties(target)}
+    live_props = {path: child for path, _, child in properties(live)}
     for path, _, child in properties(live):
         if dynamic(channel, path) and not any(
             dynamic(channel, path[:end]) for end in range(1, len(path))
         ):
-            parent = target if len(path) == 1 else target_props.get(path[:-1])
-            if parent is not None:
-                parent.append(deepcopy(child))
+            if len(path) == 1:
+                parent = target
+            else:
+                parent = target
+                for end in range(1, len(path)):
+                    ancestor_path = path[:end]
+                    ancestor = target_props.get(ancestor_path)
+                    if ancestor is None:
+                        source = live_props[ancestor_path]
+                        ancestor = ET.Element(
+                            "property",
+                            {
+                                key: source.attrib[key]
+                                for key in ("name", "type")
+                                if key in source.attrib
+                            },
+                        )
+                        parent.append(ancestor)
+                        target_props[ancestor_path] = ancestor
+                    parent = ancestor
+            parent.append(deepcopy(child))
     if semantic(target) == semantic(live):
         # Keep the exact destination bytes: no formatting-only diff or rewrite.
         return current

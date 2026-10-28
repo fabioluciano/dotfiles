@@ -20,6 +20,7 @@
 .config/mimocode/mimocode.jsonc
 .config/nvim/lua/plugins/ai.lua
 .config/nvim/lua/plugins/opencode.lua
+.config/nvim/lua/plugins/user.lua
 .config/omp/.active_provider
 .config/opencode/.active_provider
 .config/opencode/oh-my-openagent.json

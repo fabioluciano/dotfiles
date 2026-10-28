@@ -4,24 +4,27 @@
 set -euo pipefail
 
 ALLOWED_SIGNERS="$HOME/.ssh/allowed_signers"
-YUBIKEY_PUB="$HOME/.ssh/yubikey.pub"
+PUBLIC_KEYS=("$HOME/.ssh/yubikey.pub"{{ if eq .chezmoi.os "darwin" }} "$HOME/.ssh/touchid.pub"{{ else if eq .chezmoi.os "linux" }} "$HOME/.ssh/linux_fingerprint.pub"{{ end }})
 SIGNER_EMAIL="{{ .email }}"
 
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
-if [[ ! -s "$YUBIKEY_PUB" ]]; then
-  echo "AVISO: $YUBIKEY_PUB nao encontrado/vazio." >&2
-  echo "       O script run_before_10 precisa gerar a chave primeiro." >&2
+signer_lines=''
+for public_key in "${PUBLIC_KEYS[@]}"; do
+    [[ -s "$public_key" ]] || continue
+    signer_lines+="$SIGNER_EMAIL $(cat "$public_key")"$'\n'
+done
+if [[ -z "$signer_lines" ]]; then
+    echo "AVISO: nenhuma chave publica disponivel para $ALLOWED_SIGNERS." >&2
+    exit 0
+fi
+signer_lines="${signer_lines%$'\n'}"
+
+if [[ -f "$ALLOWED_SIGNERS" ]] && [[ "$(cat "$ALLOWED_SIGNERS")" == "$signer_lines" ]]; then
   exit 0
 fi
 
-signer_line="$SIGNER_EMAIL $(cat "$YUBIKEY_PUB")"
-
-if [[ -f "$ALLOWED_SIGNERS" ]] && [[ "$(cat "$ALLOWED_SIGNERS")" == "$signer_line" ]]; then
-  exit 0
-fi
-
-printf '%s\n' "$signer_line" > "$ALLOWED_SIGNERS"
+printf '%s\n' "$signer_lines" > "$ALLOWED_SIGNERS"
 chmod 644 "$ALLOWED_SIGNERS"
 echo "OK: $ALLOWED_SIGNERS atualizado."

@@ -45,6 +45,42 @@ class RenderTests(unittest.TestCase):
         live = ET.tostring(tree, encoding="unicode")
         self.assertEqual(render(desired, live), live)
 
+
+    def test_new_monitor_preserves_only_dynamic_wallpaper(self):
+        desired = xml(
+            "xfce4-desktop",
+            '<property name="backdrop" type="empty">'
+            '<property name="screen0" type="empty">'
+            '<property name="monitorDP-0" type="empty">'
+            '<property name="workspace0" type="empty">'
+            '<property name="last-image" type="string" value="/wallpapers/default.png"/>'
+            "</property></property></property></property>",
+        )
+        live = xml(
+            "xfce4-desktop",
+            '<property name="backdrop" type="empty">'
+            '<property name="screen0" type="empty">'
+            '<property name="monitorDP-0" type="empty">'
+            '<property name="workspace0" type="empty">'
+            '<property name="last-image" type="string" value="/wallpapers/default.png"/>'
+            "</property></property>"
+            '<property name="monitorHDMI-0" type="empty">'
+            '<property name="workspace0" type="empty">'
+            '<property name="last-image" type="string" value="/wallpapers/custom.png"/>'
+            '<property name="unmanaged-peer" type="string" value="must-not-copy"/>'
+            "</property></property></property></property>",
+        )
+        result = ET.fromstring(render(desired, live))
+        self.assertEqual(
+            result.find(
+                "./property[@name='backdrop']/property[@name='screen0']/"
+                "property[@name='monitorHDMI-0']/property[@name='workspace0']/"
+                "property[@name='last-image']"
+            ).get("value"),
+            "/wallpapers/custom.png",
+        )
+        self.assertIsNone(result.find(".//property[@name='unmanaged-peer']"))
+
     def test_runtime_fields_can_be_added_or_absent(self):
         desired = xml(
             "xfce4-panel",

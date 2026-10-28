@@ -194,7 +194,7 @@ elif name == "pgrep":
 elif name == "gsettings" and sys.argv[1] == "get":
     print("['firefox.dockitem']")
 """
-        for name in ("xrandr", "gsettings", "pgrep", "setsid"):
+        for name in ("xrandr", "gsettings", "pgrep", "setsid", "plank"):
             path = fakebin / name
             path.write_text(stub)
             path.chmod(0o755)
@@ -226,15 +226,16 @@ elif name == "gsettings" and sys.argv[1] == "get":
         )
         source = ROOT / ".chezmoiscripts/run_after_59-plank.sh.tmpl"
         rendered = subprocess.run(
-            ["chezmoi", "execute-template"],
+            [
+                "chezmoi", "execute-template", "--override-data",
+                '{"chezmoi":{"os":"linux","osRelease":{"id":"arch"}}}',
+            ],
             input=source.read_text(),
             capture_output=True,
             text=True,
             check=True,
             cwd=ROOT,
         ).stdout
-        if not rendered.strip():
-            self.skipTest("Plank hook is disabled on this platform")
         separator_lib = self.directory / "separator.so"
         separator_lib.touch()
         rendered = rendered.replace(

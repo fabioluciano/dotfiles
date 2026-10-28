@@ -224,7 +224,6 @@ brew "switchaudio-osx"
 
 # DESKTOP APPS — UTILITIES
 cask "captin"
-cask "tolaria"
 cask "opensuperwhisper"
 
 # DESKTOP APPS — DEV & OPS
@@ -264,12 +263,10 @@ cask "gimp"
 cask "google-chrome"
 cask "inkscape"
 cask "macpacker"
-cask "keka"
 cask "vlc"
 
 # DESKTOP APPS — SYSTEM, DEVICE & VIRTUALIZATION
 cask "amethyst"
-cask "betterdisplay"
 cask "fliqlo"
 cask "macusb"
 cask "flux-app"
@@ -288,7 +285,6 @@ cask "font-symbols-only-nerd-font"
 # DESKTOP APPS — WORK MACHINE ONLY
 {{- if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
 cask "onlyoffice"
-cask "microsoft-office"
 cask "microsoft-teams"
 cask "microsoft-auto-update"
 cask "slack"

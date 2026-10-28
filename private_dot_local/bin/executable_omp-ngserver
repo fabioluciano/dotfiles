@@ -3,7 +3,7 @@
 set -euo pipefail
 
 server_root=$(mise where npm:@angular/language-server)
-probe_root="$server_root/node_modules/.mise/node_modules"
+probe_root="$server_root/lib/node_modules/@angular/language-server/node_modules"
 exec ngserver \
     --tsProbeLocations "$probe_root" \
     --ngProbeLocations "$probe_root" \

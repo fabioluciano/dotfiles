@@ -9,7 +9,7 @@ set -euo pipefail
 # Touch ID for sudo via /etc/pam.d/sudo_local (mecanismo oficial no
 # Sonoma+; sobrevive a updates do macOS, ao contrario de editar sudo direto).
 if [[ -f /usr/lib/pam/pam_tid.so ]]; then
-    if ! grep -q "pam_tid.so" /etc/pam.d/sudo_local 2>/dev/null; then
+    if ! grep -Eq '^[[:space:]]*auth[[:space:]]+sufficient[[:space:]]+([^[:space:]]*/)?pam_tid\.so([[:space:]]|$)' /etc/pam.d/sudo_local 2>/dev/null; then
         echo "auth       sufficient     pam_tid.so" | sudo tee -a /etc/pam.d/sudo_local >/dev/null
         echo "Touch ID configured for sudo"
     fi

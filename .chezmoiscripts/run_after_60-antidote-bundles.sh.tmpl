@@ -79,7 +79,7 @@ if [[ ${1:-} != --antidote-lock-held ]]; then
         lock_token="$$.$RANDOM.$(date +%s)"
         lock_now=$(date +%s)
         lock_acquired=false
-        for lock_attempt in 1 2; do
+        for ((lock_attempt = 1; lock_attempt <= 2; lock_attempt++)); do
             if mkdir "$lockdir" 2>/dev/null; then
                 if printf '%s\t%s\t%s\n' "$$" "$lock_token" "$lock_now" > "$owner_file"; then
                     lock_acquired=true
@@ -105,7 +105,7 @@ if [[ ${1:-} != --antidote-lock-held ]]; then
             local owner_pid owner_token owner_created
             [[ -r $owner_file ]] || return 0
             IFS=$'\t' read -r owner_pid owner_token owner_created < "$owner_file" || return 0
-            if [[ $owner_pid == $$ && $owner_token == "$lock_token" ]]; then
+            if [[ $owner_pid == "$$" && $owner_token == "$lock_token" ]]; then
                 rm -f -- "$owner_file"
                 rmdir "$lockdir" 2>/dev/null || :
             fi

@@ -213,6 +213,7 @@
 
 [gpg "ssh"]
   allowedSignersFile = ~/.ssh/allowed_signers
+  program = {{ .chezmoi.homeDir }}/.local/bin/git-ssh-sign
 
 [credential]
   helper = manager

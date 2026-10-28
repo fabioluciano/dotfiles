@@ -22,8 +22,8 @@ chezmoi init --apply https://github.com/fabioluciano/dot.git
 - A Bitwarden vault unlocked via the `bw` CLI (`bw login && bw unlock`) — used
   to populate tokens/API keys in `~/.zshenv`. The expected item is named
   `dotfiles-tokens`.
-- A YubiKey for GPG/SSH commit signing (the `run_before_*` scripts derive the
-  public key and `allowed_signers`; signing degrades gracefully if absent).
+- A YubiKey for GPG/SSH commit signing, or native Touch ID on a supported Mac.
+  See [Git commit signing](#git-commit-signing) for setup and recovery.
 - On Arch, `yay` or `paru` must be installed before `chezmoi apply`. The
   Pacmanfile contains AUR packages such as `zsh-antidote`; the sync script
   fails clearly instead of trying to pass them to plain `pacman`.
@@ -116,9 +116,41 @@ chosen helper). The Arch `command-not-found` plugin uses `pkgfile`; run
 `sudo pkgfile -u` after the first installation and periodically to refresh its
 local index.
 
-Optional but expected: a **YubiKey** for GPG/SSH commit signing. The
-`run_before_*` scripts derive the public key and `allowed_signers`; signing
-degrades gracefully if absent.
+## Git commit signing
+
+Commits and tags require SSH signatures. `gpg.ssh.program` uses
+`~/.local/bin/git-ssh-sign`: it tries the YubiKey through `gpg-agent` first.
+If the YubiKey is unavailable, it falls back to biometrics:
+- On macOS: native Touch ID via Secure Enclave (`ssh-keychain.dylib`).
+- On Linux (Arch): the CS9711 USB fingerprint reader via `fprintd-verify`
+  authorizing `~/.ssh/linux_fingerprint`.
+Without either backend, signing fails; it never creates an unsigned commit.
+
+`chezmoi apply` provisions the Mac's `git-touchid` CryptoTokenKit identity
+with `sc_auth create-ctk-identity -k p-256-ne -t bio`. Existing identities
+are reused, not recreated; a missing public file is recovered from the native
+provider. The first creation requires interactive biometric approval.
+`~/.ssh/touchid.pub` is only the public handle; private material stays
+non-exportable in the Secure Enclave. Both public keys populate
+`~/.ssh/allowed_signers`. Each fallback uses a short-lived Apple SSH agent;
+it does not replace `SSH_AUTH_SOCK`, require Secretive, or need manual
+agent loading after reboot.
+
+After erasing the Mac or moving to another Mac, run `chezmoi apply` and
+approve creation of a **new** identity. Secure Enclave keys cannot be backed
+up or restored from this repository. Register `~/.ssh/touchid.pub` as an
+SSH **signing key** in GitHub Settings → SSH and GPG keys so GitHub can mark
+its commits Verified; local signature verification does not register it.
+SSH authentication for push/pull is unchanged.
+
+Regression checks (no real hardware prompts):
+
+```sh
+python3 .chezmoitemplates/git/test_ssh_sign.py
+```
+
+Native setup reference:
+[Setting up SSH keys on macOS with Touch ID](https://nmattia.com/posts/2026-10-19-setting-up-ssh-keys-touch-id/).
 
 ## NVIDIA / GPU (Arch)
 
@@ -381,17 +413,23 @@ uninstall that package explicitly with its package manager.
 
 ## Validation and health checks
 
-This is configuration, not an application, so there is no build/test suite.
-Validation is static and non-mutating:
+This is configuration, not an application, so there is no application build.
+Validation combines static checks with isolated regression tests:
 
 - Safe (read-only):
   - `mise run lint-report` or `dotfiles-lint --report` — all checks, never blocks.
-  - `mise run lint` or `dotfiles-lint --strict` — same checks, exits non-zero on failure.
+  - `mise run lint` or `dotfiles-lint --strict` — checks every shell source separately,
+    renders shell templates before checking them, and runs the isolated regression suites;
+    syntax errors, render errors, and failed tests exit non-zero.
   - `chezmoi doctor`, `chezmoi diff`, `chezmoi status`.
   - `mise run doctor-nvidia` — NVIDIA driver, KMS, VA-API and Vulkan (Arch).
   - `chezmoi execute-template < file.tmpl` — render a template to stdout for inspection
     (do not use on templates that read live secrets/Bitwarden/YubiKey).
   - `zsh -n`, `bash -n`, `shellcheck`, `taplo check`, `yamllint`, `luac -p`, `stylua --check`.
+  - `python3 -B -m unittest discover -s .chezmoitemplates/git` — signing, token safety,
+    bootstrap failure handling, and lint coverage without hardware prompts or live services.
+  - `python3 -B .chezmoitemplates/xfce/test_render.py` and
+    `python3 -B .chezmoitemplates/plank/test_organize.py` — desktop state preservation and isolated startup.
 - Mutating (requires intent):
   - `chezmoi --dry-run apply` — safe preview, but review which hooks would run.
   - `chezmoi apply` — installs packages, syncs tokens, runs Antidote, runs `mise install`.

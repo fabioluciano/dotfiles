@@ -14,7 +14,8 @@ GPG_KEY_ID="{{ .email }}"
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
-export GPG_TTY="$(tty 2>/dev/null || true)"
+GPG_TTY="$(tty 2>/dev/null || true)"
+export GPG_TTY
 
 if ! command -v gpg >/dev/null 2>&1; then
   echo "AVISO: gpg nao instalado; nao foi possivel gerar $YUBIKEY_PUB." >&2
@@ -55,7 +56,8 @@ fi
 
 if [[ -z "$key" ]] && command -v gpgconf >/dev/null 2>&1; then
   # 3) Fallback: pegar a chave do smartcard direto do ssh-agent do gpg-agent.
-  export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket 2>/dev/null || true)"
+  SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket 2>/dev/null || true)"
+  export SSH_AUTH_SOCK
   command -v gpg-connect-agent >/dev/null 2>&1 \
     && gpg-connect-agent "scd serialno" "learn --force" /bye >/dev/null 2>&1 || true
   key="$(ssh-add -L 2>/dev/null | awk '/cardno:|openpgp|YubiKey/ {print; exit}' || true)"
