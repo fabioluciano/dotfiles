@@ -85,6 +85,57 @@ class OrganizeTests(unittest.TestCase):
         )
         self.assertFalse((self.directory / "new.dockitem").exists())
 
+    def test_configured_additions_join_a_populated_dock(self):
+        existing = write_item(self.directory, "firefox", "file:///apps/firefox.desktop")
+        addition = "joplin.dockitem:/usr/share/applications/joplin-desktop.desktop"
+        order = organize(self.directory, repr([existing]), additions=[addition])
+        self.assertIn(existing, order)
+        self.assertIn("joplin.dockitem", order)
+        self.assertEqual(
+            launcher(self.directory / "joplin.dockitem"),
+            "file:///usr/share/applications/joplin-desktop.desktop",
+        )
+
+    def test_mac_dock_counterparts_follow_dock_sections(self):
+        apps = (
+            ("browser", "firefox.desktop"),
+            ("mail", "org.mozilla.Thunderbird.desktop"),
+            ("whatsdesk", "whatsdesk.desktop"),
+            ("telegram", "org.telegram.desktop.desktop"),
+            ("discord", "discord.desktop"),
+            ("calendar", "org.gnome.Calendar.desktop"),
+            ("endeavour", "org.gnome.Todo.desktop"),
+            ("notes", "xfce4-notes.desktop"),
+            ("obsidian", "obsidian.desktop"),
+            ("joplin", "joplin-desktop.desktop"),
+            ("logseq", "logseq.desktop"),
+            ("ghostty", "com.mitchellh.ghostty.desktop"),
+            ("vscode", "com.microsoft.VSCode.desktop"),
+            ("zed", "dev.zed.Zed.desktop"),
+            ("dbeaver", "io.dbeaver.DBeaver.desktop"),
+            ("bruno", "bruno.desktop"),
+            ("parallels", "virt-manager.desktop"),
+            ("podman", "io.podman_desktop.PodmanDesktop.desktop"),
+            ("spotify", "spotify.desktop"),
+            ("netnewswire", "io.github.martinrotter.rssguard.desktop"),
+        )
+        names = [
+            write_item(self.directory, name, f"file:///apps/{app}")
+            for name, app in apps
+        ]
+        order = organize(self.directory, repr(list(reversed(names))))
+        self.assertEqual(
+            [
+                name
+                for name in order
+                if launcher(self.directory / name) != SEPARATOR
+            ],
+            names,
+        )
+        self.assertEqual(
+            sum(launcher(self.directory / name) == SEPARATOR for name in order), 5
+        )
+
     def test_unknown_app_is_kept_before_folders(self):
         folder = write_item(self.directory, "folder", "file:///home/test/Downloads")
         unknown = write_item(self.directory, "unknown", "file:///apps/new.desktop")

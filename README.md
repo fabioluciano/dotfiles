@@ -187,6 +187,12 @@ User-level pieces managed here:
   `gpu-api=vulkan`.
 - `run_after_56-firefox-vaapi.sh.tmpl` injects the Firefox VA-API prefs into
   each profile's `user.js`.
+- `.chezmoiscripts/run_after_61-nvidia-xorg-config.sh.tmpl` installs
+  `/etc/X11/xorg.conf.d/20-nvidia-compiz.conf` only when its exact content
+  differs. It enables `TripleBuffer`, `ForceCompositionPipeline`, and
+  `ForceFullCompositionPipeline`; the latter includes the former's pipeline
+  behavior and also applies `ViewPortOut` scaling. `TripleBuffer` can reduce
+  vblank wait stalls for synced OpenGL apps, at a small latency cost.
 - Compiz disables X11 sync on NVIDIA (`x11_sync_blacklist_vendor`), pins the
   composite refresh rate to 165 Hz and enables independent output painting and
   fullscreen unredirect.
@@ -270,15 +276,17 @@ Plank Reloaded runs a single dock (`dock1`) on the primary X11 monitor.
 The legacy `plank-multidock` startup entry point now starts only that dock;
 secondary dock data is retained but is not launched automatically.
 
-The Plank hook groups existing pinned launchers into system/files, browsers,
-communication, notes, development, media, other applications, and folders/trash.
-Native separator docklets divide nonempty groups using empty spaces, not lines
-(`DockySeparatorPreferences/Style=2`, with no custom icon). This style is
-enforced for managed `dotfiles-separator-*` items, including existing ones.
-Existing launcher filenames
-and preferences are preserved; default applications are seeded only for an
-empty dock. The grouping implementation lives in
-`.chezmoitemplates/plank/organize.py` and uses the system Python.
+The Plank hook follows the macOS Dock's system, browser, communication,
+productivity, notes, development, and media order; other apps and files/trash
+follow. It adds installed graphical counterparts, including WhatsDesk, GNOME
+Calendar, Endeavour, Joplin (Logseq when installed), Bruno, Podman Desktop, and
+RSS Guard. Native separator docklets divide nonempty groups using empty spaces,
+not lines
+(`DockySeparatorPreferences/Style=2`, with no custom icon). This style is enforced
+for managed `dotfiles-separator-*` items, including existing ones. Existing
+launcher filenames and preferences are preserved; baseline applications are
+seeded only for an empty dock. The grouping implementation lives in
+system Python.
 File/docklet anchoring and active-display tracking are disabled so category
 ordering is respected and the dock stays on the primary monitor.
 

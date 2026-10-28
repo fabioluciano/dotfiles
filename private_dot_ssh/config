@@ -13,5 +13,6 @@ ControlPersist 600
 
 Host github.com
 IdentityFile ~/.ssh/yubikey.pub
+IdentityFile ~/.ssh/linux_fingerprint
 # Multiplex por mais tempo: evita re-touch da YubiKey em pushes em sequencia
 ControlPersist 4h

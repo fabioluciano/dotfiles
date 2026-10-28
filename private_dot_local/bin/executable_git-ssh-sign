@@ -60,7 +60,7 @@ args[input_index]=-
         }
         if command -v fprintd-verify >/dev/null 2>&1; then
             printf '%s\n' 'YubiKey indisponivel. Toque no sensor de digital para assinar o commit...' >&2
-            fprintd-verify >/dev/null 2>&1 || {
+            fprintd-verify >&2 || {
                 printf '%s\n' 'Verificacao da digital falhou.' >&2
                 exit 1
             }

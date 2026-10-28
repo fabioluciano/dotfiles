@@ -1,0 +1,10 @@
+{
+  "sound": true,
+  "notification": true,
+  "suppressWhenFocused": true,
+  "minDuration": 10,
+  "deferCompleteUntilChildrenIdle": true,
+  "linux": {
+    "grouping": true
+  }
+}

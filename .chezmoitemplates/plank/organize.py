@@ -22,11 +22,27 @@ CATEGORIES = (
         "communication",
         (
             "org.mozilla.Thunderbird.desktop",
+            "whatsdesk.desktop",
             "org.telegram.desktop.desktop",
             "discord.desktop",
         ),
     ),
-    ("notes", ("xfce4-notes.desktop", "obsidian.desktop")),
+    (
+        "productivity",
+        (
+            "org.gnome.Calendar.desktop",
+            "org.gnome.Todo.desktop",
+            "xfce4-notes.desktop",
+            "obsidian.desktop",
+        ),
+    ),
+    (
+        "notes",
+        (
+            "joplin-desktop.desktop",
+            "logseq.desktop",
+        ),
+    ),
     (
         "development",
         (
@@ -34,10 +50,19 @@ CATEGORIES = (
             "com.microsoft.VSCode.desktop",
             "dev.zed.Zed.desktop",
             "io.dbeaver.DBeaver.desktop",
+            "bruno.desktop",
             "virt-manager.desktop",
+            "io.podman_desktop.PodmanDesktop.desktop",
         ),
     ),
-    ("media", ("spotify.desktop", "vlc.desktop")),
+    (
+        "media",
+        (
+            "spotify.desktop",
+            "io.github.martinrotter.rssguard.desktop",
+            "vlc.desktop",
+        ),
+    ),
     ("other", ()),
     ("files", ()),
 )
@@ -88,7 +113,7 @@ def use_space_style(path):
     path.write_text(stream.getvalue(), encoding="utf-8")
 
 
-def organize(directory, ordering, defaults=()):
+def organize(directory, ordering, defaults=(), additions=()):
     order = ast.literal_eval(ordering.removeprefix("@as "))
     if not isinstance(order, list) or not all(
         isinstance(name, str) and Path(name).name == name and name.endswith(".dockitem")
@@ -99,7 +124,7 @@ def organize(directory, ordering, defaults=()):
     existing = {
         path.name: launcher(path) for path in sorted(directory.glob("*.dockitem"))
     }
-    # Only bootstrap an empty dock; never overwrite or re-add user launchers.
+    # Only bootstrap the baseline dock when empty; additions opt into existing docks.
     if not existing and not order:
         for entry in defaults:
             name, _, target = entry.partition(":")
@@ -108,6 +133,16 @@ def organize(directory, ordering, defaults=()):
                 f"[PlankDockItemPreferences]\nLauncher={uri}\n"
             )
             existing[name] = uri
+    existing_uris = set(existing.values())
+    for entry in additions:
+        name, _, target = entry.partition(":")
+        uri = Path(target).as_uri()
+        if name not in existing and uri not in existing_uris:
+            (directory / name).write_text(
+                f"[PlankDockItemPreferences]\nLauncher={uri}\n"
+            )
+            existing[name] = uri
+            existing_uris.add(uri)
     names = list(dict.fromkeys([*order, *existing]))
     groups = {group: [] for group, _ in CATEGORIES}
     separators = []
@@ -154,4 +189,14 @@ if __name__ == "__main__":
                 use_space_style(path)
                 print(f"SPACE: {path.name}")
     else:
-        print(repr(organize(Path(sys.argv[1]), sys.argv[2], sys.argv[3:])))
+        boundary = sys.argv.index("--", 3) if "--" in sys.argv[3:] else len(sys.argv)
+        print(
+            repr(
+                organize(
+                    Path(sys.argv[1]),
+                    sys.argv[2],
+                    sys.argv[3:boundary],
+                    sys.argv[boundary + 1 :],
+                )
+            )
+        )

@@ -7,5 +7,5 @@
 node_modules
 .slim/deepwork/
 .cortexkit
-.beads
+.beads*
 reasonix.toml
