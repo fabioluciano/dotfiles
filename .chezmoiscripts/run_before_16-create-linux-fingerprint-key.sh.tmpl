@@ -1,0 +1,16 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Gera ou reutiliza a chave SSH local do Linux para fallback biometrico (CS9711 / fprintd).
+set -euo pipefail
+
+key_path="$HOME/.ssh/linux_fingerprint"
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+if [[ ! -f "$key_path" ]]; then
+    ssh-keygen -q -t ed25519 -N "" -f "$key_path" -C "linux-cs9711"
+    chmod 600 "$key_path"
+    chmod 644 "${key_path}.pub"
+    printf 'OK: %s.pub gerada. Cadastre esta chave publica como signing key no GitHub.\n' "$key_path"
+fi
+{{- end -}}

@@ -32,12 +32,64 @@ require_check() {
 
 cd "$root" || exit 1
 
-require_check bash bash-syntax \
-    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f \\( -name '*.sh' -o -name '*.bash' \\) -exec bash -n {} +"
-require_check zsh zsh-syntax \
-    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f -name '*.zsh' -exec zsh -n {} +"
-require_check shellcheck shellcheck \
-    "find . -path './.git' -prune -o -path './node_modules' -prune -o -type f \\( -name '*.sh' -o -name '*.bash' \\) -exec shellcheck --severity=warning {} +"
+shell_names=()
+shell_paths=()
+while IFS= read -r -d '' source_file; do
+    [[ -f $source_file ]] || continue
+    extension=${source_file##*.}
+    [[ $extension == tmpl ]] && continue
+    IFS= read -r first_line < "$source_file" || :
+    shell=
+    case $extension in
+        zsh) shell=zsh ;;
+        sh|bash) shell=bash ;;
+        *) if [[ -x $source_file || ${source_file##*/} == executable_* ]] && [[ $first_line == '#!'* ]]; then
+               case $first_line in
+                   *zsh*) shell=zsh ;;
+                   *bash*) shell=bash ;;
+               esac
+           fi ;;
+    esac
+    [[ -n $shell ]] || continue
+    case $first_line in
+        '#!'*zsh*) shell=zsh ;;
+        '#!'*bash*) shell=bash ;;
+    esac
+    shell_names+=("$shell")
+    shell_paths+=("$source_file")
+done < <(git ls-files --cached --others --exclude-standard -z 2>/dev/null)
+
+if command -v git >/dev/null 2>&1; then
+    if command -v bash >/dev/null 2>&1; then
+        for ((i = 0; i < ${#shell_paths[@]}; i++)); do
+            [[ ${shell_names[i]} == bash ]] || continue
+            source_file=${shell_paths[i]}
+            if bash -n "$source_file" >/dev/null 2>&1; then pass "bash-syntax:$source_file"; else fail "bash-syntax:$source_file"; fi
+        done
+    else
+        skip bash-syntax 'bash ausente'
+    fi
+    if command -v zsh >/dev/null 2>&1; then
+        for ((i = 0; i < ${#shell_paths[@]}; i++)); do
+            [[ ${shell_names[i]} == zsh ]] || continue
+            source_file=${shell_paths[i]}
+            if zsh -n "$source_file" >/dev/null 2>&1; then pass "zsh-syntax:$source_file"; else fail "zsh-syntax:$source_file"; fi
+        done
+    else
+        skip zsh-syntax 'zsh ausente'
+    fi
+    if command -v shellcheck >/dev/null 2>&1; then
+        for ((i = 0; i < ${#shell_paths[@]}; i++)); do
+            [[ ${shell_names[i]} == bash ]] || continue
+            source_file=${shell_paths[i]}
+            if shellcheck --severity=warning "$source_file" >/dev/null 2>&1; then pass "shellcheck:$source_file"; else fail "shellcheck:$source_file"; fi
+        done
+    else
+        skip shellcheck 'shellcheck ausente'
+    fi
+else
+    skip shell-syntax 'git ausente; nao e possivel enumerar arquivos sem incluir caches ignorados'
+fi
 
 run_taplo() {
     local label=$1
@@ -96,26 +148,63 @@ require_check /usr/bin/python3 xfce-xml \
     "/usr/bin/python3 -B .chezmoitemplates/xfce/test_render.py"
 require_check /usr/bin/python3 plank-organization \
     "/usr/bin/python3 -B .chezmoitemplates/plank/test_organize.py"
+require_check /usr/bin/python3 security-bootstrap-regressions \
+    "/usr/bin/python3 -B -m unittest discover -s .chezmoitemplates/git"
 
-render_and_check() {
-    local template checker rendered
+render_shell_template() {
+    local template rendered shell first_line
     template=$1
-    checker=$2
     rendered="$render_dir/${template//\//_}"
     if ! chezmoi execute-template < "$template" > "$rendered" 2>/dev/null; then
-        skip "template:$template" "nao renderizavel neste ambiente"
+        fail "template:$template"
         return
     fi
-    if "$checker" -n "$rendered"; then pass "template:$template"; else fail "template:$template"; fi
+    if [[ ! -s $rendered ]]; then
+        skip "template:$template" 'render vazio neste ambiente'
+        return
+    fi
+    IFS= read -r first_line < "$rendered" || :
+    case $template in
+        *.zsh.tmpl|private_dot_zshenv.tmpl|dot_zshrc.tmpl) shell=zsh ;;
+        *) shell=bash ;;
+    esac
+    case $first_line in
+        '#!'*zsh*) shell=zsh ;;
+        '#!'*bash*) shell=bash ;;
+    esac
+    if ! command -v "$shell" >/dev/null 2>&1; then
+        skip "template:$template" "$shell ausente"
+        return
+    fi
+    if "$shell" -n "$rendered" >/dev/null 2>&1; then
+        pass "template:$template"
+    else
+        fail "template:$template"
+        return
+    fi
+    if [[ $shell == bash ]] && command -v shellcheck >/dev/null 2>&1; then
+        if shellcheck --severity=warning "$rendered" >/dev/null 2>&1; then
+            pass "shellcheck:template:$template"
+        else
+            fail "shellcheck:template:$template"
+        fi
+    fi
 }
 
 if command -v chezmoi >/dev/null 2>&1; then
-    render_and_check private_dot_zshenv.tmpl zsh
-    render_and_check dot_zshrc.tmpl zsh
-    render_and_check .chezmoiscripts/run_after_60-antidote-bundles.sh.tmpl bash
-    render_and_check .chezmoiscripts/run_after_59-plank.sh.tmpl bash
-    render_and_check .chezmoiscripts/run_onchange_after_46-zsh-tokens.sh.tmpl bash
-    render_and_check .chezmoiscripts/run_onchange_after_47-mise-install.sh.tmpl bash
+    shell_templates=()
+    while IFS= read -r -d '' template; do
+        case $template in
+            *.sh.tmpl|*.bash.tmpl|*.zsh.tmpl|private_dot_zshenv.tmpl|dot_zshrc.tmpl)
+                shell_templates+=("$template")
+                ;;
+        esac
+    done < <(git ls-files --cached --others --exclude-standard -z 2>/dev/null)
+    if (( ${#shell_templates[@]} )); then
+        for template in "${shell_templates[@]}"; do render_shell_template "$template"; done
+    else
+        skip shell-templates 'nenhum template shell encontrado'
+    fi
     if chezmoi execute-template < private_dot_config/mise/config.toml.tmpl > "$render_dir/mise.toml"; then
         run_taplo template:mise "$render_dir/mise.toml"
     else

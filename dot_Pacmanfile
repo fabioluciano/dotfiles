@@ -209,6 +209,8 @@ gvfs
 hunspell
 hunspell-en_us
 lens-bin
+fprintd
+libfprint-cs9711-git
 libfido2
 linux-headers
 logiops

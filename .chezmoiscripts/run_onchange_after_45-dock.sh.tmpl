@@ -6,78 +6,68 @@ set -euo pipefail
 [[ "$(uname -s)" == "Darwin" ]] || exit 0
 command -v dockutil >/dev/null 2>&1 || exit 0
 
-# Clear all current Dock items
-dockutil --remove all --no-restart
-
-# ── Sistema ──────────────────────────────────────────────────────────────────
-# Finder is always pinned by macOS — no need to add it manually
-dockutil --add /System/Applications/Apps.app --no-restart
-dockutil --add /System/Applications/System\ Settings.app --no-restart
-dockutil --add /System/Applications/App\ Store.app --no-restart
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Browsers ─────────────────────────────────────────────────────────────────
-dockutil --add /Applications/Safari.app --no-restart
-dockutil --add /Applications/Firefox.app --no-restart
-dockutil --add /Applications/Google\ Chrome.app --no-restart
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Comunicação ──────────────────────────────────────────────────────────────
-dockutil --add /System/Applications/Mail.app --no-restart
+# Finder is always pinned by macOS — no need to add it manually.
+dock_items=(
+    /System/Applications/Apps.app
+    /System/Applications/System\ Settings.app
+    /System/Applications/App\ Store.app
+    ''
+    /Applications/Safari.app
+    /Applications/Firefox.app
+    /Applications/Google\ Chrome.app
+    ''
+    /System/Applications/Mail.app
 {{ if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
-dockutil --add /Applications/WhatsApp.app --no-restart
-dockutil --add /Applications/Telegram.app --no-restart
-dockutil --add /Applications/Discord.app --no-restart
+    /Applications/WhatsApp.app
+    /Applications/Telegram.app
+    /Applications/Discord.app
 {{ end }}
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Produtividade ─────────────────────────────────────────────────────────────
-dockutil --add /System/Applications/Calendar.app --no-restart
-dockutil --add /System/Applications/Reminders.app --no-restart
-dockutil --add /System/Applications/Notes.app --no-restart
-dockutil --add /Applications/Obsidian.app --no-restart
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Notas e ditado ───────────────────────────────────────────────────────────────────────
-dockutil --add /Applications/Tolaria.app --no-restart
-dockutil --add /Applications/OpenSuperWhisper.app --no-restart
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Dev ───────────────────────────────────────────────────────────────────────
-dockutil --add /Applications/Ghostty.app --no-restart
-dockutil --add /Applications/Visual\ Studio\ Code.app --no-restart
-dockutil --add /Applications/Zed.app --no-restart
-dockutil --add /Applications/DBeaver.app --no-restart
-dockutil --add /Applications/Bruno.app --no-restart
+    ''
+    /System/Applications/Calendar.app
+    /System/Applications/Reminders.app
+    /System/Applications/Notes.app
+    /Applications/Obsidian.app
+    ''
+    /Applications/OpenSuperWhisper.app
+    ''
+    /Applications/Ghostty.app
+    /Applications/Visual\ Studio\ Code.app
+    /Applications/Zed.app
+    /Applications/DBeaver.app
+    /Applications/Bruno.app
 {{ if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
-dockutil --add /Applications/Parallels\ Desktop.app --no-restart
+    /Applications/Parallels\ Desktop.app
 {{ end }}
-dockutil --add /Applications/Davit.app --no-restart
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Trabalho ─────────────────────────────────────────────────────────────────
+    /Applications/Davit.app
+    ''
 {{ if eq (includeTemplate "is-work-machine.tmpl" .) "true" }}
-dockutil --add /Applications/Microsoft\ Outlook.app --no-restart
-dockutil --add /Applications/Microsoft\ Teams.app --no-restart
-dockutil --add /Applications/ONLYOFFICE.app --no-restart
+    /Applications/Microsoft\ Teams.app
+    /Applications/ONLYOFFICE.app
 {{ end }}
-
-dockutil --add '' --type small-spacer --section apps --no-restart
-
-# ── Mídia ─────────────────────────────────────────────────────────────────────
-dockutil --add /Applications/Spotify.app --no-restart
+    ''
+    /Applications/Spotify.app
 {{ if ne (includeTemplate "is-work-machine.tmpl" .) "true" }}
-dockutil --add /Applications/NetNewsWire.app --no-restart
+    /Applications/NetNewsWire.app
 {{ end }}
+)
 
-# ── Diretórios ────────────────────────────────────────────────────────────────
+# Leave the current Dock intact and fail so chezmoi retries if an app is missing.
+for app in "${dock_items[@]}"; do
+    [[ -z "$app" ]] && continue
+    if [[ ! -e "$app" ]]; then
+        echo "Dock unchanged: missing app bundle $app" >&2
+        exit 1
+    fi
+done
+
+dockutil --remove all --no-restart
+for app in "${dock_items[@]}"; do
+    if [[ -z "$app" ]]; then
+        dockutil --add '' --type small-spacer --section apps --no-restart
+    else
+        dockutil --add "$app" --no-restart
+    fi
+done
+
 dockutil --add ~/Downloads --view fan --display folder --sort dateadded --no-restart
-
-# Restart Dock once at the end
 killall Dock

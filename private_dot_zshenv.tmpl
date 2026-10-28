@@ -69,8 +69,8 @@ _zsh-derive-token-aliases() {
   [[ -n ${QWENCLOUD_API_TOKEN:-} ]] && export ALIBABA_TOKEN_PLAN_API_KEY=$QWENCLOUD_API_TOKEN
   [[ -n ${MIMO_API_KEY:-} ]] && export XIAOMI_TOKEN_PLAN_SGP_API_KEY=$MIMO_API_KEY
   [[ -n ${NAVYAI_API_KEY:-} ]] && export NAVY_API_KEY=$NAVYAI_API_KEY
-  [[ -n ${GEMINI_API_KEY:-} ]] && export GOOGLE_API_KEY=$GEMINI_API_KEY
-  [[ -n ${GOOGLE_API_KEY:-} ]] && export GEMINI_API_KEY=$GOOGLE_API_KEY
+  [[ -n ${GEMINI_API_KEY:-} && -z ${GOOGLE_API_KEY:-} ]] && export GOOGLE_API_KEY=$GEMINI_API_KEY
+  [[ -n ${GOOGLE_API_KEY:-} && -z ${GEMINI_API_KEY:-} ]] && export GEMINI_API_KEY=$GOOGLE_API_KEY
   [[ -n ${OPENCODE_API_KEY:-} ]] && export OPENCODE_GO_API_KEY=$OPENCODE_API_KEY
   [[ -n ${OPENCODE_API_KEY:-} ]] && export OPENCODE_ZEN_API_KEY=$OPENCODE_API_KEY
 }

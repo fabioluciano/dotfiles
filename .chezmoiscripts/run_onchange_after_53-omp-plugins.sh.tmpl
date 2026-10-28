@@ -14,38 +14,46 @@ set -euo pipefail
 command -v omp >/dev/null 2>&1 || exit 0
 [[ -f "$HOME/.OmpMarketplaces" || -f "$HOME/.OmpPlugins" ]] || exit 0
 
+failed=0
 if [[ -f "$HOME/.OmpMarketplaces" ]]; then
     echo ":: omp plugin marketplace (OmpMarketplaces changed)"
     while IFS= read -r marketplace; do
         [[ -z "$marketplace" ]] && continue
-        marketplace_output=$(omp plugin marketplace add "$marketplace" 2>&1) || true
-        if [[ "$marketplace_output" =~ "already exists" ]]; then
-            echo "  $marketplace: already exists"
+        marketplace_output=$(omp plugin marketplace add "$marketplace" 2>&1) && marketplace_exit=0 || marketplace_exit=$?
+        if [[ $marketplace_exit -ne 0 ]]; then
+            if [[ "$marketplace_output" =~ "already exists" ]]; then
+                echo "  $marketplace: already exists"
+            else
+                echo "  $marketplace: FAILED (exit $marketplace_exit)" >&2
+                echo "$marketplace_output" >&2
+                failed=1
+            fi
         else
             echo "  $marketplace: ok"
         fi
     done < <(grep -vE '^\s*(#|$)' "$HOME/.OmpMarketplaces")
 fi
 
-[[ -f "$HOME/.OmpPlugins" ]] || exit 0
-
-echo ":: omp plugin install (OmpPlugins changed)"
-failed=0
-while IFS= read -r plugin; do
-    [[ -z "$plugin" ]] && continue
-    install_output=$(omp plugin install "$plugin" 2>&1) && install_exit=0 || install_exit=$?
-    if [[ $install_exit -ne 0 ]]; then
-        if [[ "$install_output" =~ "already installed" ]]; then
-            echo "  $plugin: already installed"
+if [[ -f "$HOME/.OmpPlugins" ]]; then
+    echo ":: omp plugin install (OmpPlugins changed)"
+    while IFS= read -r plugin; do
+        [[ -z "$plugin" ]] && continue
+        install_output=$(omp plugin install "$plugin" 2>&1) && install_exit=0 || install_exit=$?
+        if [[ $install_exit -ne 0 ]]; then
+            if [[ "$install_output" =~ "already installed" ]]; then
+                echo "  $plugin: already installed"
+            else
+                echo "  $plugin: FAILED (exit $install_exit)" >&2
+                echo "$install_output" >&2
+                failed=1
+            fi
         else
-            echo "  $plugin: FAILED (exit $install_exit)" >&2
-            echo "$install_output" >&2
-            failed=1
+            echo "  $plugin: ok"
         fi
-    else
-        echo "  $plugin: ok"
-    fi
-done < <(grep -vE '^\s*(#|$)' "$HOME/.OmpPlugins")
+    done < <(grep -vE '^\s*(#|$)' "$HOME/.OmpPlugins")
+fi
+
 if [[ $failed -ne 0 ]]; then
-    echo ":: omp plugin install completed with errors" >&2
+    echo ":: omp plugin reconciliation completed with errors" >&2
+    exit 1
 fi

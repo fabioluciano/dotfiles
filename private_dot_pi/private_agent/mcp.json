@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "serena": {
-      "command": "/Users/fabioluciano/.local/bin/serena",
+      "command": "serena",
       "args": [
         "start-mcp-server",
         "--context",
