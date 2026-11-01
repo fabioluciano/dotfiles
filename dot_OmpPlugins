@@ -15,3 +15,6 @@ github:obra/superpowers
 
 # Magic Context — memória e contexto contínuo entre sessões
 @cortexkit/pi-magic-context@latest
+
+# Caveman — modo conciso de comunicação para OMP
+caveman@latest

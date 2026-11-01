@@ -11,7 +11,7 @@ computer:
   maxHeight: 2400
 modelRoles:
   # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
-  default: opencode-go/deepseek-v4.1-flash
+  default: openai-codex/gpt-6.1-terra
   task: anthropic/claude-sonnet-5-5:auto
   slow: anthropic/claude-sonnet-5-5:auto
   plan: anthropic/claude-sonnet-5-5:auto
@@ -327,7 +327,10 @@ skills:
   registryUrl: https://skills.omp.sh
 defaultThinkingLevel: auto
 statusLine:
-  preset: default
+  preset: custom
+  leftSegments: [vim, model, mode, path, git, pr, status]
+  rightSegments: [session_name, token_total, cost, context_pct]
+  showHookStatus: false
   separator: slash
   contextLine: percentage
   sessionAccent: true
@@ -347,7 +350,8 @@ contextPromotion:
   enabled: true
 autolearn:
   enabled: true
-  autoContinue: true
+  # Evita captura AutoLearn que o Magic Context não reconhece no Responses API.
+  autoContinue: false
 edit:
   mode: hashline
   streamingAbort: true
