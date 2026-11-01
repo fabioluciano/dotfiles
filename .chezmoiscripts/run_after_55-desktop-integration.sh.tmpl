@@ -34,9 +34,21 @@ fi
 
 # Remove pacotes substituídos, debug desnecessário ou que conflitam com
 # power-profiles-daemon.
-for pkg in compiz-debug cortile-debug vicinae-bin-debug tlp tlp-rdw; do
+for pkg in compiz compiz-debug cortile-debug vicinae-bin-debug tlp tlp-rdw; do
     if pacman -Q "$pkg" >/dev/null 2>&1; then
         sudo pacman -Rns --noconfirm "$pkg" || warn "não foi possível remover $pkg"
     fi
 done
+
+# Mantém a exclusão do Chrome sem remover outras entradas configuradas pelo usuário.
+if command -v gsettings >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1 &&
+    gsettings list-schemas 2>/dev/null | grep -qx "org.appmenu.gtk-module"; then
+    blacklist=$(gsettings get org.appmenu.gtk-module blacklist) || blacklist=
+    merged_blacklist=$(python3 -c 'import ast, sys; entries = ast.literal_eval(sys.argv[1]); entries.extend(name for name in ("google-chrome", "chrome", "chromium") if name not in entries); print(repr(entries))' "$blacklist") ||
+        { warn "não foi possível ler a blacklist do appmenu-gtk-module"; merged_blacklist=; }
+    if [[ -n "$merged_blacklist" ]]; then
+        gsettings set org.appmenu.gtk-module blacklist "$merged_blacklist" ||
+            warn "não foi possível atualizar a blacklist do appmenu-gtk-module"
+    fi
+fi
 {{- end -}}

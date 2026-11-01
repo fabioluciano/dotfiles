@@ -39,15 +39,19 @@ pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:@fission-ai/openspec" = "latest"
 "npm:@andymatuschak/note-link-janitor" = { version = "latest", allow_low_downloads = true }
 opencode = "latest"
+claude = "latest"
 
 # MCP servers (float at latest)
-"pypi:serena-agent" = "latest"
-"pipx:mcp-server-git" = "latest"
+# Python-based servers pin the interpreter: a venv symlinks bin/python to the
+# python install path, so a python minor bump (3.14 -> 3.15) leaves the venv
+# pointing at an interpreter that cannot see its lib/python3.14 site-packages.
+"pypi:serena-agent" = { version = "latest", python = "3.14" }
+"pipx:mcp-server-git" = { version = "latest", python = "3.14" }
 "npm:@upstash/context7-mcp" = "latest"
 "npm:@playwright/mcp" = "latest"
 "npm:@modelcontextprotocol/server-sequential-thinking" = "latest"
 "npm:kubernetes-mcp-server" = "latest"
-"pipx:headroom-ai" = { version = "latest", extras = "mcp" }
+"pipx:headroom-ai" = { version = "latest", extras = "mcp", python = "3.14" }
 "go:github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server" = "latest" # Terraform — no auth tokens needed
 "aqua:github/github-mcp-server" = "latest" # GitHub MCP server
 
@@ -73,7 +77,7 @@ lua-language-server = "latest"
 
 stylua = "latest"
 "aqua:Kampfkarren/selene" = "latest"
-"pipx:debugpy" = "latest"
+"pipx:debugpy" = { version = "latest", python = "3.14" }
 gofumpt = "latest"
 "go:golang.org/x/tools/cmd/goimports" = "latest"
 golangci-lint = "latest"

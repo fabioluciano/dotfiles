@@ -1,6 +1,6 @@
 {{- if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "arch") -}}
 #!/usr/bin/env bash
-# Mantém as opções de composição NVIDIA usadas pelo Compiz em Xorg.
+# Mantém as opções de composição NVIDIA usadas pelo compositor em Xorg.
 set -euo pipefail
 
 config=$(mktemp)
@@ -15,7 +15,9 @@ Section "Device"
 EndSection
 EOF
 
-target=/etc/X11/xorg.conf.d/20-nvidia-compiz.conf
+target=/etc/X11/xorg.conf.d/20-nvidia-composition.conf
+legacy=/etc/X11/xorg.conf.d/20-nvidia-compiz.conf
+[[ -e "$legacy" ]] && sudo rm -f "$legacy"
 if ! cmp -s "$config" "$target"; then
     sudo install -D -o root -g root -m 0644 "$config" "$target"
 fi

@@ -66,9 +66,9 @@ sesh
 ghostty
 
 # DESKTOP — WINDOW MANAGEMENT & LAUNCHER
-compiz
 cortile
-plank-reloaded
+plank
+picom
 tdrop
 vicinae-bin
 

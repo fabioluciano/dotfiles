@@ -90,10 +90,6 @@ configure_dock() {
         gsettings set "${schema}" tooltips-enabled true
     fi
     gsettings set "${schema}" monitor "${monitor}"
-    gsettings set "${schema}" active-display false
-    # Keep category separators and files in their explicitly configured positions.
-    gsettings set "${schema}" anchor-docklets false
-    gsettings set "${schema}" anchor-files false
 
     mkdir -p "${launchers}"
     local current dock_items

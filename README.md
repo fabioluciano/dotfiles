@@ -188,14 +188,11 @@ User-level pieces managed here:
 - `run_after_56-firefox-vaapi.sh.tmpl` injects the Firefox VA-API prefs into
   each profile's `user.js`.
 - `.chezmoiscripts/run_after_61-nvidia-xorg-config.sh.tmpl` installs
-  `/etc/X11/xorg.conf.d/20-nvidia-compiz.conf` only when its exact content
+  `/etc/X11/xorg.conf.d/20-nvidia-composition.conf` only when its exact content
   differs. It enables `TripleBuffer`, `ForceCompositionPipeline`, and
   `ForceFullCompositionPipeline`; the latter includes the former's pipeline
   behavior and also applies `ViewPortOut` scaling. `TripleBuffer` can reduce
   vblank wait stalls for synced OpenGL apps, at a small latency cost.
-- Compiz disables X11 sync on NVIDIA (`x11_sync_blacklist_vendor`), pins the
-  composite refresh rate to 165 Hz and enables independent output painting and
-  fullscreen unredirect.
 
 No fan curve, overclock or power-limit changes are applied; the card runs at
 its stock 170 W limit. The AMD Raphael iGPU is present but the monitors are

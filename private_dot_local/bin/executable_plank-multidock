@@ -14,7 +14,6 @@ primary=$(xrandr --query | awk '/ primary/ {print $1; exit}')
 
 schema="net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/"
 gsettings set "${schema}" monitor "${primary}"
-gsettings set "${schema}" active-display false
 
 is_running() {
     local name=$1

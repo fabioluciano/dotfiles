@@ -13,7 +13,6 @@
 .config/Maka/workspaces/default/credentials.json
 .config/Maka/workspaces/default/mcp.json
 .config/Maka/workspaces/default/settings.json
-.config/cortexkit/magic-context.jsonc
 .config/crush/.active_provider
 .config/crush/crush.json
 .config/mcp/mcp.json
@@ -56,3 +55,4 @@ Library/Application Support/Maka/workspaces/default/mcp.json
 Library/Application Support/Maka/workspaces/default/settings.json
 .omp/agent/models.yml
 reasonix.toml
+.config/compiz-1

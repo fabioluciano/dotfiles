@@ -12,3 +12,6 @@ ponytail@ponytail
 # Superpowers (obra) — skills + runtime bootstrap para agentes de código;
 # pacote pi (`pi.extensions` + `pi.skills`), instalado via spec git.
 github:obra/superpowers
+
+# Magic Context — memória e contexto contínuo entre sessões
+@cortexkit/pi-magic-context@latest

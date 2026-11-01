@@ -31,10 +31,7 @@
       "timeout": 8000
     },
     "kubernetes": {
-      "command": "kubernetes-mcp-server",
-      "args": [
-        "--read-only"
-      ],
+      "command": "kubernetes-mcp-readonly",
       "timeout": 15000
     },
     "terraform": {
@@ -46,7 +43,7 @@
       "timeout": 15000
     },
     "github": {
-      "command": "/Users/fabioluciano/.local/share/mise/installs/aqua-github-github-mcp-server/latest/github-mcp-server",
+      "command": "github-mcp-server",
       "args": [
         "stdio"
       ],

@@ -1,0 +1,18 @@
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+[tui]
+screen_reader_detection_done = true
+
+[tui.model_availability_nux]
+"gpt-6.1-sol" = 4
+
+[projects."/home/fabioluciano/.local/share/chezmoi"]
+trust_level = "trusted"
+
+[projects."/tmp/icloud-linux"]
+trust_level = "trusted"
+
+[projects."/home/fabioluciano/Developer/tessera"]
+trust_level = "trusted"

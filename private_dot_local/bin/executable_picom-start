@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Inicia o picom de forma idempotente: não faz nada se já estiver rodando.
+set -euo pipefail
+
+command -v picom >/dev/null 2>&1 || exit 0
+pgrep -x picom >/dev/null && exit 0
+
+exec picom --config "${XDG_CONFIG_HOME:-$HOME/.config}/picom/picom.conf"

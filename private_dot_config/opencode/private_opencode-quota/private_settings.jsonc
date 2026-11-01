@@ -1,0 +1,14 @@
+// OpenCode Quota settings: only the ones you changed. A missing key uses its default.
+// Every setting and its default: https://github.com/slkiser/opencode-quota/blob/main/docs/readme/configuration.md
+// Edit it by hand or ask your agent; OpenCode Quota keeps your comments when it saves.
+{
+  "version": 6,
+  "toast": {
+    "show": false
+  },
+  "providers": {
+    "checking": {
+      "waitForQuotaReset": false
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Read-only policy for kubernetes-mcp-server.
+# `read_only = true` exposes only tools annotated with readOnlyHint=true.
+# Keep this file minimal: unknown keys abort startup.
+read_only = true

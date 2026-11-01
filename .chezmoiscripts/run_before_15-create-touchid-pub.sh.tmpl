@@ -40,4 +40,4 @@ if [[ ! -f "$public_key" ]] || [[ "$(<"$public_key")" != "$key" ]]; then
     chmod 644 "$public_key"
     printf 'OK: %s atualizado. Cadastre esta chave publica como signing key no GitHub.\n' "$public_key"
 fi
-{{- end }}
+{{- end -}}

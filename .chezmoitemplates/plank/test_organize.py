@@ -309,9 +309,6 @@ elif name == "gsettings" and sys.argv[1] == "get":
             {cmd[3] for cmd in sets},
             {
                 "monitor",
-                "active-display",
-                "anchor-files",
-                "anchor-docklets",
                 "dock-items",
             },
         )

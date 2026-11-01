@@ -1,0 +1,13 @@
+#!/bin/sh
+# Run kubernetes-mcp-server with the read-only policy declared in config.toml.
+# Keeps MCP client configs (OpenCode, OMP) free of absolute paths.
+set -eu
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/kubernetes-mcp-server/config.toml"
+
+if [ ! -f "$config" ]; then
+	echo "kubernetes-mcp-readonly: missing config file: $config" >&2
+	exit 1
+fi
+
+exec kubernetes-mcp-server --config "$config"

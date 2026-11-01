@@ -36,10 +36,10 @@ relatorio-auditoria-desktop-workflow-2026-10-26.md
 .XCompose
 .xprofile
 .config/autostart
-.config/compiz-1
 .config/cortile
 .config/environment.d
 .config/fontconfig
+.config/picom
 .config/vicinae
 .config/xfce4
 .config/yay
