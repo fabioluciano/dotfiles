@@ -13,7 +13,7 @@
   },
   "historian": {
     "opencode": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash"
     },
     "omp": {
       "model": {
@@ -21,16 +21,16 @@
         "thinking_level": "low"
       },
       "fallback_models": [
-        "nvidia/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
         "minimax-code/MiniMax-M3.1-Flash",
-        "opencode-go/gpt-6-luna"
+        "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+        "google-antigravity/gemini-3.8-flash"
       ]
     }
   },
   "dreamer": {
     "maxSteps": 12,
     "opencode": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash"
     },
     "omp": {
       "model": {
@@ -38,9 +38,9 @@
         "thinking_level": "low"
       },
       "fallback_models": [
-        "nvidia/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
         "minimax-code/MiniMax-M3.1-Flash",
-        "opencode-go/gpt-6-luna"
+        "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+        "google-antigravity/gemini-3.8-flash"
       ]
     }
   }

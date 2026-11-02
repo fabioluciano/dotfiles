@@ -10,8 +10,7 @@
   //     and keep a strong model at the end of the chain as the last resort.
   "disabled_agents": [],
   "backgroundJobs": {
-    "concurrency": {
-    }
+    "concurrency": {}
   },
   "fallback": {
     "enabled": true,
@@ -25,89 +24,82 @@
       "model": [
         "google/antigravity-claude-sonnet-4-6",
         "openai/gpt-6.1-terra",
-        "openai-codex/gpt-6.1-terra",
         "anthropic/claude-sonnet-5-5",
-        "opencode-go/deepseek-v4-pro",
-        "opencode-go/minimax-m3",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "skills": ["*"]
+      "skills": [
+        "*"
+      ]
     },
     "oracle": {
       "model": [
         "google/antigravity-claude-sonnet-4-6",
         "openai/gpt-6.1-terra",
-        "openai-codex/gpt-6.1-terra",
         "anthropic/claude-sonnet-5-5",
-        "opencode-go/deepseek-v4-pro",
-        "opencode-go/minimax-m3",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     },
     "council": {
       "model": [
         "google/antigravity-claude-sonnet-4-6",
         "openai/gpt-6.1-terra",
-        "openai-codex/gpt-6.1-terra",
         "anthropic/claude-sonnet-5-5",
-        "opencode-go/deepseek-v4-pro",
-        "opencode-go/minimax-m3",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     },
     "designer": {
       "model": [
         "google/antigravity-claude-sonnet-4-6",
         "openai/gpt-6.1-terra",
-        "openai-codex/gpt-6.1-terra",
         "anthropic/claude-sonnet-5-5",
-        "opencode-go/deepseek-v4-pro",
-        "opencode-go/minimax-m3",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     },
     "explorer": {
       "model": [
         "anthropic/claude-haiku-5-5",
         "openai/gpt-6-luna",
-        "openai-codex/gpt-6-luna",
-        "opencode-go/minimax-m3.1-flash",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high",
-        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     },
     "fixer": {
       "model": [
         "anthropic/claude-haiku-5-5",
         "openai/gpt-6-luna",
-        "openai-codex/gpt-6-luna",
-        "opencode-go/minimax-m3.1-flash",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high",
-        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     },
     "observer": {
       "model": [
         "anthropic/claude-haiku-5-5",
         "openai/gpt-6-luna",
-        "openai-codex/gpt-6-luna",
-        "opencode-go/minimax-m3.1-flash",
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high",
-        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
+        "google/antigravity-gemini-3.8-flash-high"
       ],
-      "mcps": ["*"]
+      "mcps": [
+        "*"
+      ]
     }
   }
 }

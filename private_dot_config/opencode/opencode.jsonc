@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/deepseek-v4.1-flash",
+  "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
   "agents": {
     "plan": {
       "model": "google/antigravity-claude-sonnet-4-6"
@@ -476,8 +476,6 @@
     "openai": {},
     // Detected minimax-coding-plan authentication; opencode-quota added this global provider declaration.
     "minimax-coding-plan": {},
-    // Detected opencode-go authentication; opencode-quota added this global provider declaration.
-    "opencode-go": {},
     // Detected opencode authentication; opencode-quota added this global provider declaration.
     "opencode": {}
   }

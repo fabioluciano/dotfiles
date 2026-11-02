@@ -11,17 +11,19 @@ computer:
   maxHeight: 2400
 modelRoles:
   # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
-  default: openai-codex/gpt-6.1-terra
+  #     OpenCode Go/Zen desabilitados: Go com cota mensal esgotada e
+  #     Zen sem conta autenticada.
+  default: minimax-code/MiniMax-M3
   task: anthropic/claude-sonnet-5-5:auto
-  slow: anthropic/claude-sonnet-5-5:auto
+  slow: anthropic/claude-opus-5-5:auto
   plan: anthropic/claude-sonnet-5-5:auto
-  advisor: anthropic/claude-sonnet-5-5:auto
+  advisor: xiaomi-token-plan-sgp/mimo-v2.6-pro:auto
   judge: anthropic/claude-sonnet-5-5:auto
   # --- Trabalho leve: a camada barata primeiro (cadeia C).
-  smol: opencode-go/gpt-6-luna:low
-  tiny: opencode-go/gpt-6-luna:low
-  memory: opencode-go/gpt-6-luna:auto
-  commit: opencode-go/gpt-6-luna:low
+  smol: openai-codex/gpt-6-luna:low
+  tiny: openai-codex/gpt-6-luna:low
+  memory: openai-codex/gpt-6-luna:auto
+  commit: openai-codex/gpt-6-luna:low
   vision: google-antigravity/gemini-3.8-flash:low
   image: google-antigravity/gemini-3.1-flash-image
   web: web/parallel
@@ -32,113 +34,93 @@ retry:
   usageReservePct: 0
   usageReservePolicy: auto
   # Desligado: com a cadeia de fallback configurada, esperar o reset da cota
-  # travaria a sessao (o opencode-go esta com reset em ~16 dias).
+  # travaria a sessao (o reset semanal do Anthropic pode demorar dias).
   waitForUsageReset: false
   fallbackChains:
     # --- Cadeia R (raciocinio): os mais fortes primeiro, a escada desce ate a
-    #     camada gratuita. Nenhum papel aqui aceita sobreposicao de preco.
+    #     camada barata. Nenhum papel aqui aceita sobreposicao de preco.
     default:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
       - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
+      - "openai-codex/gpt-6.1-terra:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
+      - "anthropic/claude-sonnet-5-5:auto"
       - "google-antigravity/gemini-3.8-flash:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
     task:
       - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
       - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
       - "google-antigravity/gemini-3.8-flash:high"
+      - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
     slow:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
+      - "anthropic/claude-opus-5-5:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
       - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
       - "google-antigravity/gemini-3.8-flash:high"
+      - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
     plan:
       - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
       - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
       - "google-antigravity/gemini-3.8-flash:high"
+      - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
     advisor:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
+      # Advisor: Mimo Pro como principal, Haiku e Luna como fallbacks, fechando
+      # com Gemini Flash e MiniMax Flash. Sem Sonnet nem Opus (cota Anthropic).
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
+      - "anthropic/claude-haiku-5-5:auto"
+      - "openai-codex/gpt-6-luna:auto"
+      - "minimax-code/MiniMax-M3.1-Flash:auto"
+      - "google-antigravity/gemini-3.8-flash:high"
     judge:
       - "anthropic/claude-sonnet-5-5:auto"
-      - "anthropic/claude-sonnet-4-6:auto"
+      - "google-antigravity/claude-sonnet-4-6:auto"
       - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "opencode-go/deepseek-v4-pro:auto"
       - "google-antigravity/gemini-3.8-flash:high"
+      - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "opencode-zen/gpt-6-luna:auto"
-    # --- Cadeia C (trabalho leve): a camada gratuita primeiro, com os fortes
+    # --- Cadeia C (trabalho leve): a camada barata primeiro, com os fortes
     #     no fim como ultimo recurso.
     smol:
-      - "opencode-go/gpt-6-luna:auto"
-      - "opencode-go/deepseek-v4.1-flash:auto"
-      - "opencode-go/claude-haiku-5-5:auto"
       - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "anthropic/claude-haiku-5-5:auto"
     tiny:
-      - "opencode-go/gpt-6-luna:auto"
-      - "opencode-go/deepseek-v4.1-flash:auto"
-      - "opencode-go/claude-haiku-5-5:auto"
       - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "anthropic/claude-haiku-5-5:auto"
     memory:
-      - "opencode-go/gpt-6-luna:auto"
-      - "opencode-go/deepseek-v4.1-flash:auto"
-      - "opencode-go/claude-haiku-5-5:auto"
       - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "anthropic/claude-haiku-5-5:auto"
     commit:
-      - "opencode-go/gpt-6-luna:auto"
-      - "opencode-go/deepseek-v4.1-flash:auto"
-      - "opencode-go/claude-haiku-5-5:auto"
       - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:auto"
+      - "anthropic/claude-haiku-5-5:auto"
     # --- Visao: todos os itens aceitam input de imagem (verificado no catalogo).
     vision:
-      - "opencode-go/gpt-6-luna:auto"
       - "google-antigravity/gemini-3.8-flash:auto"
-      - "opencode-go/claude-haiku-5-5:auto"
-      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "openai-codex/gpt-6-luna:auto"
+      - "anthropic/claude-haiku-5-5:auto"
     image:
       - "google-antigravity/gemini-3.1-flash-image"
       - "google-antigravity/gemini-3-pro-image"
       - "openai-codex/gpt-image-2"
     web:
+      - "web/parallel"
       - "web/duckduckgo"
       - "web/exa"
       - "web/firecrawl"
@@ -179,6 +161,9 @@ disabledProviders:
   - llama.cpp
   - local
   - minimax
+  - opencode
+  - opencode-go
+  - opencode-zen
   - zai
 tools:
   approvalMode: write
@@ -379,7 +364,8 @@ secrets:
 dev:
   autoqaConsent: granted
 codexResets:
-  autoRedeem: "yes"
+  # Desligado: o OMP nao gasta automaticamente resets de cota salvos do Codex.
+  autoRedeem: "no"
 providers:
   maxInFlightRequests:
     xiaomi-token-plan-sgp: 2
