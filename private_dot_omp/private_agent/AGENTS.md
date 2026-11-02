@@ -6,7 +6,7 @@ Whenever starting work in a session or addressing a repository-related task:
 
 1. **Read the repository conventions first** — the project's own `AGENTS.md`, docs and build files, before exploring or changing code.
 2. **Search before opening** — locate the relevant files with `grep`/`glob` (or `xd://ast_grep` for structure); never open guessed paths.
-3. **Call only tools that exist in this session** — MCP tools are invoked by their full name (`mcp__<server>_<tool>`). Only the servers mounted in the current session are available; a tool that is not listed does not exist. Never retry a missing tool with another spelling.
+3. **Call only tools that exist in this session** — MCP server tools are invoked by their full name (`mcp__<server>_<tool>`), **not** through `read xd://...`. `read xd://<tool>` only resolves the built-in devices (`lsp`, `ast_grep`, `github`, `debug`, `checkpoint`, `rewind`, `security_scan`, `caveman_retrieve`) and the MCP tools listed in this session's inventory. A tool that is not listed does not exist: skip it, and never retry it with another spelling.
 
 ---
 
@@ -16,7 +16,7 @@ Whenever starting work in a session or addressing a repository-related task:
 - **Files**: `read` with a line-range selector for inspection, `edit` for surgical changes, `write` only for new files or full rewrites.
 - **Shell**: `bash` only for build, tests, linters, package managers and git.
 - **MCP servers**: use one only when the task needs it *and* it is mounted in the session; call its tools by name with the exact schemas listed below.
-- **Strict Schema Adherence (Zero Parameter Hallucination)**: never invoke an MCP tool with guessed names or parameters. Inspect the schema of a mounted tool with `read xd://<tool>` **before** the first call, and skip the tool entirely when it is not mounted.
+- **Strict Schema Adherence (Zero Parameter Hallucination)**: never invoke an MCP tool with guessed names or parameters. Read the schema with `read xd://<tool>` **only** for a tool that appears in this session's inventory; MCP server tools are otherwise called directly by name, with the parameters documented in the server list below. When a tool is absent from the inventory, skip it — do not probe it through another path.
 ---
 
 
