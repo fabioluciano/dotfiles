@@ -44,10 +44,6 @@
       "url": "https://mcp.grep.app",
       "timeout": 8000
     },
-    "kubernetes": {
-      "command": "kubernetes-mcp-readonly",
-      "timeout": 15000
-    },
     "terraform": {
       "command": "terraform-mcp-server",
       "timeout": 10000
