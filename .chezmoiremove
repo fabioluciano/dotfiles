@@ -16,7 +16,6 @@
 .config/crush/.active_provider
 .config/crush/crush.json
 .config/mcp/mcp.json
-.config/mimocode/mimocode.jsonc
 .config/nvim/lua/plugins/ai.lua
 .config/nvim/lua/plugins/opencode.lua
 .config/nvim/lua/plugins/user.lua

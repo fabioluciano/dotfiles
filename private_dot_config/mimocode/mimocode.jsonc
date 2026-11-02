@@ -1,0 +1,49 @@
+{
+  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "mcp": {
+    "rea": {
+      "type": "local",
+      "command": ["mise", "exec", "node@26.12.1", "--", "npx", "--yes", "rea-agents@6.8.0", "mcp"]
+    },
+    "serena": {
+      "type": "local",
+      "command": ["serena", "start-mcp-server", "--context", "ide", "--project-from-cwd", "--open-web-dashboard", "false"]
+    },
+    "context7": {
+      "type": "local",
+      "command": ["context7-mcp"]
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["mcp-server-sequential-thinking"]
+    },
+    "git": {
+      "type": "local",
+      "command": ["mcp-server-git"]
+    },
+    "gh_grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    },
+    "terraform": {
+      "type": "local",
+      "command": ["terraform-mcp-server"]
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["playwright-mcp"]
+    },
+    "github": {
+      "type": "local",
+      "command": ["github-mcp-server", "stdio"]
+    },
+    "headroom": {
+      "enabled": false
+    }
+  },
+  "plugin": [
+    "@dietrichgebert/ponytail",
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "caveman-opencode-plugin"
+  ]
+}

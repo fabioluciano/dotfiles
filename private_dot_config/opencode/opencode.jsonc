@@ -459,6 +459,7 @@
     "oh-my-opencode-slim@latest",
     "@mohak34/opencode-notifier@latest",
     "superpowers@git+https://github.com/obra/superpowers.git",
+    "billion-context",
     "@cortexkit/opencode-magic-context@latest",
     "opencode-claude-auth@latest"
   ],

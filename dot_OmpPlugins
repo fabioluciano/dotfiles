@@ -13,9 +13,6 @@ ponytail@ponytail
 # pacote pi (`pi.extensions` + `pi.skills`), instalado via spec git.
 github:obra/superpowers
 
-# Magic Context — memória e contexto contínuo entre sessões
-@cortexkit/pi-magic-context@latest
-
 # Caveman oficial (JuliusBrussee/caveman) — extensão nativa do Pi; no OMP ela
 # carrega, mas fica em "direct mode" porque o runtime local (caveman-proxy /
 # caveman-mcp) não existe e o OMP não é alvo do `cave wrap`.

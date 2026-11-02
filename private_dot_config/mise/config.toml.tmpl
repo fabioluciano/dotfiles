@@ -40,6 +40,9 @@ pipx = "latest"             # note: `uv tool` / `uvx` already cover this
 "npm:@andymatuschak/note-link-janitor" = { version = "latest", allow_low_downloads = true }
 opencode = "latest"
 claude = "latest"
+# compressão de contexto (bili) — launcher `bili omp` e plugin nativo do opencode
+# pinado: o resolve de "latest" para este pacote estoura o timeout do mise npm
+"npm:billion-context" = "0.1.212"
 
 # MCP servers (float at latest)
 # Python-based servers pin the interpreter: a venv symlinks bin/python to the
@@ -98,6 +101,7 @@ helm-ls = "latest"
 "pipx:cmake-language-server" = "latest"
 "pipx:cmakelint" = "latest"
 "npm:tree-sitter-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
+"npm:@mimo-ai/cli" = "0.1.16"
 
 [settings]
 # Enable version files for better compatibility
