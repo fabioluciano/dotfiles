@@ -13,7 +13,7 @@ modelRoles:
   # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
   #     OpenCode Go/Zen desabilitados: Go com cota mensal esgotada e
   #     Zen sem conta autenticada.
-  default: minimax-code/MiniMax-M3
+  default: google-antigravity/gemini-3.8-flash
   task: anthropic/claude-sonnet-5-5:auto
   slow: anthropic/claude-opus-5-5:auto
   plan: anthropic/claude-sonnet-5-5:auto
@@ -76,7 +76,7 @@ retry:
       - "anthropic/claude-haiku-5-5:auto"
       - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-4.8-flash:high"
+      - "google-antigravity/gemini-3.8-flash:high"
       - "deepseek/deepseek-v4-flash:auto"
     judge:
       - "anthropic/claude-sonnet-5-5:auto"
@@ -86,7 +86,6 @@ retry:
       - "google-antigravity/gemini-3.8-flash:high"
       - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "deepseek/deepseek-v4-flash:auto"
     smol:
       - "openai-codex/gpt-6-luna:auto"
       - "deepseek/deepseek-v4-flash:auto"
@@ -289,8 +288,16 @@ task:
   prewalk: true
   enableEffort: true
   structured: true
+  # Desligado: cada "quanto falta?" em subagent custa um request extra; com 8
+  # concorrentes isso soma. A preview das ferramentas continua visivel.
+  completionProbe: false
   isolation:
     enabled: true
+worktree:
+  # Inicio e fim: toda sessao nova nasce em worktree isolado e ele e removido
+  # ao sair (limpos saem direto; com mudancas nao commitadas o OMP pergunta).
+  onStart: create
+  onExit: remove
 memory:
   backend: mnemopi
 mnemopi:
@@ -365,11 +372,20 @@ dev:
 codexResets:
   # Desligado: o OMP nao gasta automaticamente resets de cota salvos do Codex.
   autoRedeem: "no"
+claudeResets:
+  # Desligado: resgate automatico queima reset salvo so porque a janela de 5h
+  # acabou. Resgatar manualmente quando o mensal/semanal estiver baixo.
+  autoRedeem: "no"
 providers:
+  # So o billion-context mantem o prompt-cache aquecido; sem warming duplicado.
+  cacheWarming: "off"
   maxInFlightRequests:
     xiaomi-token-plan-sgp: 2
   openai-codex:
     codeMode: auto
+    # Desligado: nao participar do Daybreak Blue (a OpenAI pode usar conteudo
+    # das sessoes elegiveis).
+    daybreak: false
 prewalk:
   enabled: true
 checkpoint:
