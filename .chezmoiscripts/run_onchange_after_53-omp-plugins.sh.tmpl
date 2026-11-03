@@ -57,9 +57,3 @@ if [[ $failed -ne 0 ]]; then
     echo ":: omp plugin reconciliation completed with errors" >&2
     exit 1
 fi
-
-# billion-context: idempotente, resolve o caminho correto da versao instalada
-if command -v bili >/dev/null 2>&1; then
-    echo ":: bili plugin install omp"
-    bili plugin install omp 2>&1
-fi
