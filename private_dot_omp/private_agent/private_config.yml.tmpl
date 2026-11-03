@@ -11,7 +11,7 @@ computer:
   maxHeight: 2400
 modelRoles:
   # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
-  #     OpenCode Go/Zen desabilitados: Go com cota mensal esgotada e
+  #     OpenCode Go/Zen fora das roles: Go com cota mensal esgotada e
   #     Zen sem conta autenticada.
   default: google-antigravity/gemini-3.8-flash
   task: anthropic/claude-sonnet-5-5:auto
@@ -175,8 +175,6 @@ disabledProviders:
   - llama.cpp
   - minimax
   - opencode
-  - opencode-go
-  - opencode-zen
   - zai
 tools:
   approvalMode: write
