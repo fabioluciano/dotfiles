@@ -377,8 +377,8 @@ claudeResets:
   # acabou. Resgatar manualmente quando o mensal/semanal estiver baixo.
   autoRedeem: "no"
 providers:
-  # So o billion-context mantem o prompt-cache aquecido; sem warming duplicado.
-  cacheWarming: "off"
+  # Aquecimento de prompt-cache no provider: auto respeita TTL e custo de cada um.
+  cacheWarming: "auto"
   maxInFlightRequests:
     xiaomi-token-plan-sgp: 2
   openai-codex:
@@ -390,7 +390,3 @@ prewalk:
   enabled: true
 checkpoint:
   enabled: true
-# shortcut: caminho versionado do billion-context, atualize via bili plugin install omp
-# se o mise bumpar a versao; upgrade: resolver dinamicamente no template
-extensions:
-  - {{ .chezmoi.homeDir }}/.local/share/mise/installs/npm-billion-context/0.1.212/lib/node_modules/billion-context/dist/agent/omp-native.js
