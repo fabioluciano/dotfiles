@@ -55,3 +55,4 @@ Library/Application Support/Maka/workspaces/default/settings.json
 .omp/agent/models.yml
 reasonix.toml
 .config/compiz-1
+.config/cortexkit

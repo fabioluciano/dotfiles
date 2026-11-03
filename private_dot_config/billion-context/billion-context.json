@@ -1,0 +1,33 @@
+{
+  "compress": {
+    "preserveRecentMessages": 5,
+    "preserveRecentTokens": 8000,
+    "absorb": {
+      "enabled": true,
+      "contextThresholdPct": "50%"
+    }
+  },
+  "cacheKeepalive": {
+    "enabled": true
+  },
+  "subagentSplit": true,
+  "billing": {
+    "prices": {
+      "MiniMax-M3": { "input": 0.3, "output": 1.2, "cacheRead": 0.06, "cacheWrite": 0 },
+      "MiniMax-M3.1-Flash": { "input": 0.15, "output": 0.6, "cacheRead": 0.015, "cacheWrite": 0 },
+      "claude-sonnet-5-5": { "input": 2, "output": 10, "cacheRead": 0.1, "cacheWrite": 2.5 },
+      "claude-opus-5-5": { "input": 4, "output": 20, "cacheRead": 0.2, "cacheWrite": 5 },
+      "claude-haiku-5-5": { "input": 0.1, "output": 0.5, "cacheRead": 0.01, "cacheWrite": 0.125 },
+      "claude-sonnet-4-6": { "input": 3, "output": 15, "cacheRead": 0.3, "cacheWrite": 3.75 },
+      "mimo-v2.6-pro": { "input": 0.435, "output": 0.87, "cacheRead": 0.0036, "cacheWrite": 0 },
+      "mimo-v2.6-flash": { "input": 0.14, "output": 0.28, "cacheRead": 0.0028, "cacheWrite": 0 },
+      "gpt-6-luna": { "input": 0.1, "output": 0.5, "cacheRead": 0.01, "cacheWrite": 0 },
+      "gpt-6.1-terra": { "input": 1, "output": 5, "cacheRead": 0.05, "cacheWrite": 0 },
+      "gpt-image-2": { "input": 5, "output": 30, "cacheRead": 1.25, "cacheWrite": 0 },
+      "gemini-3.8-flash": { "input": 0.75, "output": 3.75, "cacheRead": 0.075, "cacheWrite": 0 },
+      "gemini-3.1-flash-image": { "input": 0.5, "output": 60, "cacheRead": 0, "cacheWrite": 0 },
+      "gemini-3-pro-image": { "input": 2, "output": 120, "cacheRead": 0, "cacheWrite": 0 },
+      "deepseek-v4-flash": { "input": 0.3, "output": 1.2, "cacheRead": 0.006, "cacheWrite": 0 }
+    }
+  }
+}
