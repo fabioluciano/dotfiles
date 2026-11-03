@@ -29,7 +29,7 @@
         <value type="double" value="0"/>
         <value type="double" value="0"/>
         <value type="double" value="0"/>
-        <value type="double" value="0.2"/>
+        <value type="double" value="0.20000000000000001"/>
       </property>
     </property>
     <property name="panel-2" type="empty">
@@ -54,7 +54,7 @@
         <value type="double" value="0"/>
         <value type="double" value="0"/>
         <value type="double" value="0"/>
-        <value type="double" value="0.2"/>
+        <value type="double" value="0.20000000000000001"/>
       </property>
     </property>
   </property>
@@ -66,6 +66,21 @@
     <property name="plugin-6" type="string" value="systray">
       <property name="square-icons" type="bool" value="true"/>
       <property name="known-legacy-items" type="array">
+        <value type="string" value="caffeine-indicator"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (93%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (92%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (91%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (90%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (86%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (84%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (100%)"/>
+        <value type="string" value="caffeine"/>
+        <value type="string" value="wi-fi network connection “blackhole” active"/>
+        <value type="string" value="notes"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (96%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (95%)"/>
+        <value type="string" value="wi-fi network connection “blackhole” active: blackhole (89%)"/>
+        <value type="string" value="dropbox"/>
         <value type="string" value="wi-fi network connection “blackhole” active: blackhole (77%)"/>
         <value type="string" value="wi-fi network connection “blackhole” active: blackhole (83%)"/>
         <value type="string" value="wi-fi network connection “blackhole” active: blackhole (81%)"/>
@@ -81,6 +96,34 @@
         <value type="string" value="no network connection"/>
       </property>
       <property name="known-items" type="array">
+        <value type="string" value="dropbox-client-3593027"/>
+        <value type="string" value="dropbox-client-13564"/>
+        <value type="string" value="dropbox-client-13310"/>
+        <value type="string" value="dropbox-client-13341"/>
+        <value type="string" value="dropbox-client-13405"/>
+        <value type="string" value="dropbox-client-12852"/>
+        <value type="string" value="caffeine-cup-empty"/>
+        <value type="string" value="dropbox-client-1940869"/>
+        <value type="string" value="dropbox-client-12195"/>
+        <value type="string" value="RSS Guard"/>
+        <value type="string" value="tessera"/>
+        <value type="string" value="indicator-keylock"/>
+        <value type="string" value="dropbox-client-9081"/>
+        <value type="string" value="dropbox-client-8883"/>
+        <value type="string" value="whatsdesk_status_icon_1"/>
+        <value type="string" value="dropbox-client-80155"/>
+        <value type="string" value="dropbox-client-8876"/>
+        <value type="string" value="dropbox-client-6363"/>
+        <value type="string" value="dropbox-client-6557"/>
+        <value type="string" value="dropbox-client-6659"/>
+        <value type="string" value="caffeine"/>
+        <value type="string" value="CopyQ_copyq"/>
+        <value type="string" value="flameshot"/>
+        <value type="string" value="Screenkey"/>
+        <value type="string" value="whatsie"/>
+        <value type="string" value="dropbox-client-5917"/>
+        <value type="string" value="dropbox-client-6617"/>
+        <value type="string" value="dropbox-client-372888"/>
         <value type="string" value="dropbox-client-5906"/>
         <value type="string" value="dropbox-client-5773"/>
         <value type="string" value="dropbox-client-5956"/>
@@ -131,16 +174,20 @@
       <property name="recent" type="array">
         <value type="string" value="vicinae.desktop"/>
         <value type="string" value="com.mitchellh.ghostty.desktop"/>
-        <value type="string" value="firefox.desktop"/>
+        <value type="string" value="xfce4-terminal-emulator.desktop"/>
+        <value type="string" value="nvidia-settings.desktop"/>
+        <value type="string" value="google-chrome.desktop"/>
+        <value type="string" value="one.alynx.FlipClock.desktop"/>
+        <value type="string" value="xfce4-screenshooter.desktop"/>
         <value type="string" value="spotify.desktop"/>
+        <value type="string" value="firefox.desktop"/>
         <value type="string" value="ccsm.desktop"/>
-        <value type="string" value="obsidian.desktop"/>
       </property>
     </property>
     <property name="plugin-28" type="string" value="appmenu">
       <property name="plugins" type="empty">
         <property name="plugin-28" type="empty">
-          <property name="expand" type="bool" value="false"/>
+          <property name="expand" type="bool" value="true"/>
         </property>
       </property>
     </property>
@@ -150,6 +197,9 @@
       <property name="button-icon" type="string" value="arch-menu"/>
       <property name="menu-width" type="int" value="498"/>
       <property name="default-category" type="int" value="1"/>
+      <property name="recent" type="array">
+        <value type="string" value="ccsm.desktop"/>
+      </property>
     </property>
     <property name="plugin-23" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
@@ -174,7 +224,7 @@
     <property name="plugin-29" type="string" value="appmenu">
       <property name="plugins" type="empty">
         <property name="plugin-29" type="empty">
-          <property name="expand" type="bool" value="false"/>
+          <property name="expand" type="bool" value="true"/>
         </property>
       </property>
     </property>
