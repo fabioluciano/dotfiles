@@ -132,8 +132,20 @@ retry:
       - "web/firecrawl"
 compaction:
   # thresholdPercent não definido → OMP usa modo automático: max(16384, 15% da janela).
+  # Tetos fixos por modelo: "f<digitos>" dispara no ponto exato, sem o escalamento
+  # de 85% que o modo automatico aplica a bases de janela. Proporcionais ao custo
+  # de input — os modelos de 1M de janela nao podem esperar os 85% (~850k).
+  modelThresholds:
+    "anthropic/claude-opus-5-5": "f250000"      # 1M janela, US$ 4,00/M — o mais caro
+    "anthropic/claude-sonnet-5-5": "f300000"    # 1M janela, US$ 2,00/M
+    "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, US$ 0,75/M
+    "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, US$ 0,435/M
+    # openai-codex/gpt-6-luna (272k) fica no default: a politica usual ja
+    # compacta perto de 231k, e o teto so se aplica a janelas maiores.
   idleEnabled: true
-  idleThresholdTokens: 200000
+  # No topo da banda de trabalho: a compactacao ociosa a 200k descartaria
+  # contexto que o teto do modelo ainda permitiria usar.
+  idleThresholdTokens: 400000
   # Experimental: notas persistentes e histórico pesquisável entre janelas.
   experimentalContextManagement: true
   handoffSaveToDisk: true
