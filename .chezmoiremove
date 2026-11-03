@@ -3,6 +3,8 @@
 # private_dot_pi/private_agent/. Os demais arquivos desta lista continuam aposentados.
 .PiPackages
 .Zerobrewfile
+.caveman
+.caveman-cloud
 .cc-safety-net/policy.json
 .codewhale/.active_provider
 .codewhale/config.toml

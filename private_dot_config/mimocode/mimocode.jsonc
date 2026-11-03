@@ -43,7 +43,6 @@
   },
   "plugin": [
     "@dietrichgebert/ponytail",
-    "superpowers@git+https://github.com/obra/superpowers.git",
-    "caveman-opencode-plugin"
+    "superpowers@git+https://github.com/obra/superpowers.git"
   ]
 }

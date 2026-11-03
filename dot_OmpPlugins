@@ -12,13 +12,3 @@ ponytail@ponytail
 # Superpowers (obra) — skills + runtime bootstrap para agentes de código;
 # pacote pi (`pi.extensions` + `pi.skills`), instalado via spec git.
 github:obra/superpowers
-
-# Caveman oficial (JuliusBrussee/caveman) — extensão nativa do Pi; no OMP ela
-# carrega, mas fica em "direct mode" porque o runtime local (caveman-proxy /
-# caveman-mcp) não existe e o OMP não é alvo do `cave wrap`.
-@caveman-ai/pi@latest
-
-# Caveman modo-conciso que funciona no OMP: `pi.extensions` apontando para
-# arquivo e skill `caveman` (injeta "CAVEMAN MODE" no system prompt).
-# O pacote npm "caveman" sem escopo é motor de template JS e não serve.
-pi-caveman@latest

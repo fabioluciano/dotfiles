@@ -6,7 +6,7 @@ Whenever starting work in a session or addressing a repository-related task:
 
 1. **Read the repository conventions first** — the project's own `AGENTS.md`, docs and build files, before exploring or changing code.
 2. **Search before opening** — locate the relevant files with `grep`/`glob` (or `xd://ast_grep` for structure); never open guessed paths.
-3. **Call only tools that exist in this session** — MCP server tools are invoked by their full name (`mcp__<server>_<tool>`), **not** through `read xd://...`. `read xd://<tool>` only resolves the built-in devices (`lsp`, `ast_grep`, `github`, `debug`, `checkpoint`, `rewind`, `security_scan`, `caveman_retrieve`) and the MCP tools listed in this session's inventory. A tool that is not listed does not exist: skip it, and never retry it with another spelling.
+3. **Call only tools that exist in this session** — MCP server tools are invoked by their full name (`mcp__<server>_<tool>`), **not** through `read xd://...`. `read xd://<tool>` only resolves the built-in devices (`lsp`, `ast_grep`, `github`, `debug`, `checkpoint`, `rewind`, `security_scan`) and the MCP tools listed in this session's inventory. A tool that is not listed does not exist: skip it, and never retry it with another spelling.
 
 ---
 
