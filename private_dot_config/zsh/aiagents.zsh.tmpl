@@ -1,13 +1,7 @@
 # OMP: carrega os tokens do cofre e define defaults antes de iniciar o agente.
-# Via `bili omp` quando disponivel: proxy de compressao de contexto (ACP),
-# cobrindo tambem o trafego Anthropic/Cowork que o modo nativo nao alcanca.
 export PONYTAIL_DEFAULT_MODE=ultra
 
 omp() {
     zsh-load-tokens
-    if (( $+commands[bili] )); then
-        command bili omp -- "$@"
-    else
-        command omp "$@"
-    fi
+    command omp "$@"
 }
