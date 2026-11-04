@@ -102,13 +102,17 @@ retry:
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
-    # --- Cadeia C (leve): Codex luna -> ag gemini-3.8-flash -> Anthropic ->
-    #     MiniMax -> Xiaomi. Sem gpt-oss: ele gasta o balde "Claude & GPT" do AG.
+    # --- Cadeia C (leve): Codex luna -> Anthropic haiku -> ag gemini-3.8-flash ->
+    #     MiniMax -> Anthropic sonnet -> Xiaomi. Sem gpt-oss: ele gasta o balde
+    #     "Claude & GPT" do AG. O haiku tem janela de 100k e e pulado sem request
+    #     quando o contexto vivo nao cabe (subagentes ja nascem com ~87k); o
+    #     sonnet (1M) segura esse caso para o mimo ficar como ultimo recurso.
     smol:
       - "openai-codex/gpt-6-luna:low"
       - "anthropic/claude-haiku-5-5:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "anthropic/claude-sonnet-5-5:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     tiny:
       - "openai-codex/gpt-6-luna:low"
