@@ -132,25 +132,6 @@
         ".markdown"
       ]
     },
-    "yaml-language-server": {
-      "command": [
-        "yaml-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".yaml",
-        ".yml"
-      ]
-    },
-    "dockerfile-language-server": {
-      "command": [
-        "docker-langserver",
-        "--stdio"
-      ],
-      "extensions": [
-        ".dockerfile"
-      ]
-    },
     "helm-ls": {
       "command": [
         "helm_ls",
@@ -177,15 +158,6 @@
         ".svelte"
       ]
     },
-    "vue-language-server": {
-      "command": [
-        "vue-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".vue"
-      ]
-    },
     "angular-language-server": {
       "command": [
         "omp-ngserver",
@@ -197,23 +169,9 @@
         ".html"
       ]
     },
-    "zls": {
-      "command": [
-        "zls"
-      ],
-      "extensions": [
-        ".zig",
-        ".zon"
-      ]
-    },
-    "tinymist": {
-      "command": [
-        "tinymist",
-        "lsp"
-      ],
-      "extensions": [
-        ".typ"
-      ]
+    // basedpyright no lugar do built-in "pyright" (o shim pyright do basedpyright duplicaria diagnósticos).
+    "pyright": {
+      "disabled": true
     },
     "basedpyright": {
       "command": [
@@ -223,15 +181,6 @@
       "extensions": [
         ".py",
         ".pyi"
-      ]
-    },
-    "jdtls": {
-      "command": [
-        "jdtls"
-      ],
-      "extensions": [
-        ".java",
-        ".groovy"
       ]
     },
     "taplo": {
@@ -244,17 +193,6 @@
         ".toml"
       ]
     },
-    "sql-language-server": {
-      "command": [
-        "sql-language-server",
-        "up",
-        "--method",
-        "stdio"
-      ],
-      "extensions": [
-        ".sql"
-      ]
-    },
     "cmake-language-server": {
       "command": [
         "cmake-language-server"
@@ -262,15 +200,6 @@
       "extensions": [
         "CMakeLists.txt",
         ".cmake"
-      ]
-    },
-    "mdx-language-server": {
-      "command": [
-        "mdx-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".mdx"
       ]
     },
     "docker-compose-langserver": {
@@ -283,16 +212,6 @@
         "docker-compose.yaml",
         "compose.yml",
         "compose.yaml"
-      ]
-    },
-    "terraform-ls": {
-      "command": [
-        "terraform-ls",
-        "serve"
-      ],
-      "extensions": [
-        ".tf",
-        ".tfvars"
       ]
     },
     "vscode-css-language-server": {
@@ -324,119 +243,6 @@
       "extensions": [
         ".json",
         ".jsonc"
-      ]
-    },
-    "vscode-eslint-language-server": {
-      "command": [
-        "vscode-eslint-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".mjs",
-        ".cjs"
-      ]
-    },
-    "biome": {
-      "command": [
-        "biome",
-        "lsp-proxy"
-      ],
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".mjs",
-        ".cjs",
-        ".json",
-        ".jsonc",
-        ".css",
-        ".scss"
-      ]
-    },
-    "oxlint": {
-      "command": [
-        "oxlint",
-        "--lsp"
-      ],
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".mjs",
-        ".cjs"
-      ]
-    },
-    "gopls": {
-      "command": [
-        "gopls"
-      ],
-      "extensions": [
-        ".go"
-      ]
-    },
-    "rust-analyzer": {
-      "command": [
-        "rust-analyzer"
-      ],
-      "extensions": [
-        ".rs"
-      ]
-    },
-    "lua-language-server": {
-      "command": [
-        "lua-language-server"
-      ],
-      "extensions": [
-        ".lua"
-      ]
-    },
-    "bash-language-server": {
-      "command": [
-        "bash-language-server",
-        "start"
-      ],
-      "extensions": [
-        ".sh",
-        ".bash",
-        ".zsh"
-      ]
-    },
-    "typescript-language-server": {
-      "command": [
-        "typescript-language-server",
-        "--stdio"
-      ],
-      "extensions": [
-        ".ts",
-        ".tsx",
-        ".js",
-        ".jsx",
-        ".mjs",
-        ".cjs"
-      ]
-    },
-    "elixir-ls": {
-      "command": [
-        "elixir-ls"
-      ],
-      "extensions": [
-        ".ex",
-        ".exs"
-      ]
-    },
-    "intelephense": {
-      "command": [
-        "intelephense",
-        "--stdio"
-      ],
-      "extensions": [
-        ".php"
       ]
     },
     "ruff": {
