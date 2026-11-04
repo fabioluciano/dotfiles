@@ -114,6 +114,7 @@ beads
 cmake
 devtools
 git-cliff
+jdtls
 just
 python-pip
 python-setuptools
