@@ -10,23 +10,24 @@ computer:
   display: active
   maxHeight: 2400
 modelRoles:
-  # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
-  #     OpenCode Go/Zen fora das roles: Go com cota mensal esgotada e
-  #     Zen sem conta autenticada.
+  # --- Raciocinio (cadeia R): queima primeiro a cota pequena do Antigravity
+  #     (claude sonnet/opus), depois Codex, depois Anthropic, MiniMax e Xiaomi.
+  #     OpenCode, NVIDIA e DeepSeek ficam fora das roles por decisao do usuario.
   #     Esforco explicito por role (nada de :auto): o custo de saida do raciocinio
   #     e proporcional ao esforco, e o auto deixa o modelo decidir sozinho.
-  default: openai-codex/gpt-6.1-terra:medium
-  task: anthropic/claude-sonnet-5-5:medium
-  slow: anthropic/claude-opus-5-5:high
-  plan: anthropic/claude-sonnet-5-5:high
-  advisor: xiaomi-token-plan-sgp/mimo-v2.6-pro:medium
-  judge: anthropic/claude-sonnet-5-5:medium
-  # --- Trabalho leve: a camada barata primeiro (cadeia C).
+  default: google-antigravity/claude-sonnet-5-5:medium
+  task: google-antigravity/claude-sonnet-5-5:medium
+  slow: google-antigravity/claude-opus-5-5:high
+  plan: google-antigravity/claude-sonnet-5-5:high
+  advisor: openai-codex/gpt-6-luna:medium
+  judge: google-antigravity/claude-sonnet-5-5:medium
+  # --- Trabalho leve (cadeia C): Codex luna primeiro, depois gemini-3.8-flash,
+  #     Anthropic, MiniMax e Xiaomi. Primario = primeiro item da cadeia.
   smol: openai-codex/gpt-6-luna:low
   tiny: openai-codex/gpt-6-luna:low
   memory: openai-codex/gpt-6-luna:low
   commit: openai-codex/gpt-6-luna:low
-  vision: google-antigravity/gemini-3.8-flash:low
+  vision: openai-codex/gpt-6-luna:low
   image: google-antigravity/gemini-3.1-flash-image
   web: web/parallel
 advisor:
@@ -38,71 +39,73 @@ retry:
   # Desligado: com a cadeia de fallback configurada, esperar o reset da cota
   # travaria a sessao (o reset semanal do Anthropic pode demorar dias).
   waitForUsageReset: false
+  # Limita as tentativas no mesmo modelo: com cota esgotada, o OMP alterna
+  # entre contas do mesmo provider (ag/claude-*-5-5 so existe em 2 contas) e
+  # so anda na cadeia quando acaba o maxRetries. 3 ~= 1 min em vez de ~3 min.
+  maxRetries: 3
+  rateLimitWalksChain: true
   fallbackChains:
-    # --- Cadeia R (raciocinio): os mais fortes primeiro, a escada desce ate a
-    #     camada barata. Nenhum papel aqui aceita sobreposicao de preco.
-    #     Esforco: modelos caros em medium/high; os baratos (mimo, MiniMax,
-    #     DeepSeek) em high, onde raciocinar custa pouco. ag/claude-* aceitam ate
-    #     high; deepseek-v4-flash so aceita low/high/max (sem medium).
-    #     ATENCAO: nao ha credencial do deepseek no OMP; as entradas dele so
-    #     respondem se a chave existir por outro caminho.
+    # --- Cadeia R (raciocinio): Antigravity claude -> Codex -> ag gemini-4-argon
+    #     (so 2 contas, acaba antes) -> Anthropic -> ag gemini-3.8-flash ->
+    #     MiniMax -> Xiaomi. Um modelo por cota em cada
+    #     role: no AG, sonnet/opus/gpt-oss dividem o balde "Claude & GPT" de cada
+    #     conta (5-5 so em 2 contas, 4-6 em outras 3, por isso os dois entram);
+    #     na Anthropic, sonnet e opus dividem o 5h/7d. ag/claude-* aceitam ate high.
     default:
-      - "openai-codex/gpt-6.1-terra:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-4-6:medium"
+      - "openai-codex/gpt-6.1-terra:medium"
+      - "google-antigravity/gemini-4-argon:medium"
       - "anthropic/claude-sonnet-5-5:medium"
-      - "deepseek/deepseek-v4-flash:high"
-      - "google-antigravity/gpt-oss-120b:medium"
-      - "minimax-code/MiniMax-M3:high"
       - "google-antigravity/gemini-3.8-flash:medium"
+      - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     task:
-      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-4-6:medium"
       - "openai-codex/gpt-6.1-terra:medium"
-      - "deepseek/deepseek-v4-flash:high"
-      - "google-antigravity/gpt-oss-120b:medium"
+      - "google-antigravity/gemini-4-argon:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     slow:
-      - "anthropic/claude-opus-5-5:high"
       - "google-antigravity/claude-opus-5-5:high"
-      - "google-antigravity/claude-sonnet-5-5:high"
+      - "google-antigravity/claude-opus-4-6:high"
       - "openai-codex/gpt-6.1-terra:high"
-      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gemini-4-argon:high"
+      - "anthropic/claude-opus-5-5:high"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     plan:
-      - "anthropic/claude-sonnet-5-5:high"
       - "google-antigravity/claude-sonnet-5-5:high"
+      - "google-antigravity/claude-sonnet-4-6:high"
       - "openai-codex/gpt-6.1-terra:high"
-      - "deepseek/deepseek-v4-flash:high"
-      - "google-antigravity/gpt-oss-120b:high"
+      - "google-antigravity/gemini-4-argon:high"
+      - "anthropic/claude-sonnet-5-5:high"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     advisor:
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
-      - "anthropic/claude-haiku-5-5:medium"
-      - "google-antigravity/gpt-oss-120b:medium"
       - "openai-codex/gpt-6-luna:medium"
-      - "minimax-code/MiniMax-M3.1-Flash:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
-      - "deepseek/deepseek-v4-flash:high"
+      - "anthropic/claude-haiku-5-5:medium"
+      - "minimax-code/MiniMax-M3.1-Flash:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
     judge:
-      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-4-6:medium"
       - "openai-codex/gpt-6.1-terra:medium"
-      - "google-antigravity/gpt-oss-120b:medium"
-      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gemini-4-argon:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
+    # --- Cadeia C (leve): Codex luna -> ag gemini-3.8-flash -> Anthropic ->
+    #     MiniMax -> Xiaomi. Sem gpt-oss: ele gasta o balde "Claude & GPT" do AG.
     smol:
       - "openai-codex/gpt-6-luna:low"
-      - "deepseek/deepseek-v4-flash:low"
-      - "google-antigravity/gpt-oss-120b:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "anthropic/claude-haiku-5-5:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
@@ -110,34 +113,28 @@ retry:
     tiny:
       - "openai-codex/gpt-6-luna:low"
       - "google-antigravity/gemini-3.8-flash:low"
-      - "google-antigravity/gpt-oss-120b:low"
       - "anthropic/claude-haiku-5-5:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
-      - "deepseek/deepseek-v4-flash:low"
     memory:
-      - "google-antigravity/gemini-3.8-flash:low"
       - "openai-codex/gpt-6-luna:low"
-      - "google-antigravity/gpt-oss-120b:low"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
-      - "anthropic/claude-haiku-5-5:low"
-      - "deepseek/deepseek-v4-flash:low"
     commit:
-      - "google-antigravity/gemini-3.8-flash:low"
       - "openai-codex/gpt-6-luna:low"
-      - "google-antigravity/gpt-oss-120b:low"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
-      - "anthropic/claude-haiku-5-5:low"
-      - "deepseek/deepseek-v4-flash:low"
     # --- Visao: todos os itens aceitam input de imagem (verificado no catalogo).
     vision:
+      - "openai-codex/gpt-6-luna:low"
       - "google-antigravity/gemini-3.8-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
-      - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
     image:
       - "google-antigravity/gemini-3.1-flash-image"
       - "google-antigravity/gemini-3-pro-image"
@@ -186,6 +183,8 @@ symbolPreset: nerd
 github:
   enabled: true
 disabledProviders:
+  - opencode-go
+  - opencode-zen
   - commandcode
   - alibaba-token-plan
   - gitlab-duo
