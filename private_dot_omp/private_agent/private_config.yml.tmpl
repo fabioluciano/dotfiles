@@ -13,16 +13,18 @@ modelRoles:
   # --- Raciocinio: os modelos mais fortes primeiro (cadeia R).
   #     OpenCode Go/Zen fora das roles: Go com cota mensal esgotada e
   #     Zen sem conta autenticada.
-  default: google-antigravity/gemini-3.8-flash
-  task: anthropic/claude-sonnet-5-5:auto
-  slow: anthropic/claude-opus-5-5:auto
-  plan: anthropic/claude-sonnet-5-5:auto
-  advisor: xiaomi-token-plan-sgp/mimo-v2.6-pro:auto
-  judge: anthropic/claude-sonnet-5-5:auto
+  #     Esforco explicito por role (nada de :auto): o custo de saida do raciocinio
+  #     e proporcional ao esforco, e o auto deixa o modelo decidir sozinho.
+  default: openai-codex/gpt-6.1-terra:medium
+  task: anthropic/claude-sonnet-5-5:medium
+  slow: anthropic/claude-opus-5-5:high
+  plan: anthropic/claude-sonnet-5-5:high
+  advisor: xiaomi-token-plan-sgp/mimo-v2.6-pro:medium
+  judge: anthropic/claude-sonnet-5-5:medium
   # --- Trabalho leve: a camada barata primeiro (cadeia C).
   smol: openai-codex/gpt-6-luna:low
   tiny: openai-codex/gpt-6-luna:low
-  memory: openai-codex/gpt-6-luna:auto
+  memory: openai-codex/gpt-6-luna:low
   commit: openai-codex/gpt-6-luna:low
   vision: google-antigravity/gemini-3.8-flash:low
   image: google-antigravity/gemini-3.1-flash-image
@@ -39,88 +41,103 @@ retry:
   fallbackChains:
     # --- Cadeia R (raciocinio): os mais fortes primeiro, a escada desce ate a
     #     camada barata. Nenhum papel aqui aceita sobreposicao de preco.
+    #     Esforco: modelos caros em medium/high; os baratos (mimo, MiniMax,
+    #     DeepSeek) em high, onde raciocinar custa pouco. ag/claude-* aceitam ate
+    #     high; deepseek-v4-flash so aceita low/high/max (sem medium).
+    #     ATENCAO: nao ha credencial do deepseek no OMP; as entradas dele so
+    #     respondem se a chave existir por outro caminho.
     default:
-      - "minimax-code/MiniMax-M3:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "google-antigravity/claude-sonnet-4-6:auto"
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "deepseek/deepseek-v-5-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "openai-codex/gpt-6.1-terra:medium"
+      - "google-antigravity/claude-sonnet-5-5:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gpt-oss-120b:medium"
+      - "minimax-code/MiniMax-M3:high"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     task:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "google-antigravity/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "deepseek/deepseek-v4-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-5-5:medium"
+      - "openai-codex/gpt-6.1-terra:medium"
+      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gpt-oss-120b:medium"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     slow:
-      - "anthropic/claude-opus-5-5:auto"
-      - "google-antigravity/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "deepseek/deepseek-v4-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "anthropic/claude-opus-5-5:high"
+      - "google-antigravity/claude-opus-5-5:high"
+      - "google-antigravity/claude-sonnet-5-5:high"
+      - "openai-codex/gpt-6.1-terra:high"
+      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     plan:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "google-antigravity/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "deepseek/deepseek-v4-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "anthropic/claude-sonnet-5-5:high"
+      - "google-antigravity/claude-sonnet-5-5:high"
+      - "openai-codex/gpt-6.1-terra:high"
+      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gpt-oss-120b:high"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     advisor:
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-      - "anthropic/claude-haiku-5-5:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "deepseek/deepseek-v4-flash:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
+      - "anthropic/claude-haiku-5-5:medium"
+      - "google-antigravity/gpt-oss-120b:medium"
+      - "openai-codex/gpt-6-luna:medium"
+      - "minimax-code/MiniMax-M3.1-Flash:medium"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "deepseek/deepseek-v4-flash:high"
     judge:
-      - "anthropic/claude-sonnet-5-5:auto"
-      - "google-antigravity/claude-sonnet-4-6:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "deepseek/deepseek-v4-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:high"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-5-5:medium"
+      - "openai-codex/gpt-6.1-terra:medium"
+      - "google-antigravity/gpt-oss-120b:medium"
+      - "deepseek/deepseek-v4-flash:high"
+      - "google-antigravity/gemini-3.8-flash:medium"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     smol:
-      - "openai-codex/gpt-6-luna:auto"
-      - "deepseek/deepseek-v4-flash:auto"
-      - "google-antigravity/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "openai-codex/gpt-6-luna:low"
+      - "deepseek/deepseek-v4-flash:low"
+      - "google-antigravity/gpt-oss-120b:low"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     tiny:
-      - "openai-codex/gpt-6-luna:auto"
-      - "google-antigravity/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-      - "deepseek/deepseek-v4-flash:auto"
+      - "openai-codex/gpt-6-luna:low"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "google-antigravity/gpt-oss-120b:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+      - "deepseek/deepseek-v4-flash:low"
     memory:
-      - "google-antigravity/gemini-3.8-flash:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
-      - "deepseek/deepseek-v4-flash:auto"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "openai-codex/gpt-6-luna:low"
+      - "google-antigravity/gpt-oss-120b:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "deepseek/deepseek-v4-flash:low"
     commit:
-      - "google-antigravity/gemini-3.8-flash:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "openai-codex/gpt-6-luna:low"
+      - "google-antigravity/gpt-oss-120b:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "deepseek/deepseek-v4-flash:low"
     # --- Visao: todos os itens aceitam input de imagem (verificado no catalogo).
-      - "deepseek/deepseek-v4-flash:auto"
     vision:
-      - "google-antigravity/gemini-3.8-flash:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "google-antigravity/gemini-3.8-flash:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+      - "openai-codex/gpt-6-luna:low"
+      - "anthropic/claude-haiku-5-5:low"
     image:
       - "google-antigravity/gemini-3.1-flash-image"
       - "google-antigravity/gemini-3-pro-image"
@@ -138,6 +155,7 @@ compaction:
   modelThresholds:
     "anthropic/claude-opus-5-5": "f250000"      # 1M janela, US$ 4,00/M — o mais caro
     "anthropic/claude-sonnet-5-5": "f300000"    # 1M janela, US$ 2,00/M
+    "openai-codex/gpt-6.1-terra": "f300000"     # 500k janela, US$ 1,00/M
     "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, US$ 0,75/M
     "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, US$ 0,435/M
     # openai-codex/gpt-6-luna (272k) fica no default: a politica usual ja
