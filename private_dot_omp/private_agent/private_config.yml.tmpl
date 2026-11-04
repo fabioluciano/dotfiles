@@ -325,7 +325,10 @@ providers:
     # Desligado: nao participar do Daybreak Blue (a OpenAI pode usar conteudo
     # das sessoes elegiveis).
     daybreak: false
+# Desligado: o hand-off do prewalk para @smol tirava subagentes de um modelo
+# saudavel (ex.: anthropic sonnet) e os jogava na cadeia smol, que com o Codex
+# esgotado descia ate o mimo mesmo com Anthropic/Antigravity ainda com cota.
 prewalk:
-  enabled: true
+  enabled: false
 checkpoint:
   enabled: true
