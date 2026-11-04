@@ -145,18 +145,24 @@ retry:
       - "web/exa"
       - "web/firecrawl"
 compaction:
-  # thresholdPercent não definido → OMP usa modo automático: max(16384, 15% da janela).
-  # Tetos fixos por modelo: "f<digitos>" dispara no ponto exato, sem o escalamento
-  # de 85% que o modo automatico aplica a bases de janela. Proporcionais ao custo
-  # de input — os modelos de 1M de janela nao podem esperar os 85% (~850k).
+  # thresholdPercent não definido → modo automático: compacta na janela menos a
+  # reserva (max(16384, 15% da janela)), ~850k numa janela de 1M.
+  # Tetos fixos por modelo: "f<digitos>" dispara no ponto exato. Nas assinaturas
+  # cada request reenvia o contexto inteiro e gasta cota proporcional a ele, por
+  # isso os modelos de 1M nao podem esperar os ~850k. Mesmo modelo = mesmo teto
+  # em qualquer provider.
   modelThresholds:
-    "anthropic/claude-opus-5-5": "f250000"      # 1M janela, US$ 4,00/M — o mais caro
-    "anthropic/claude-sonnet-5-5": "f300000"    # 1M janela, US$ 2,00/M
-    "openai-codex/gpt-6.1-terra": "f300000"     # 500k janela, US$ 1,00/M
-    "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, US$ 0,75/M
-    "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, US$ 0,435/M
-    # openai-codex/gpt-6-luna (272k) fica no default: a politica usual ja
-    # compacta perto de 231k, e o teto so se aplica a janelas maiores.
+    "anthropic/claude-opus-5-5": "f250000"            # 1M janela
+    "google-antigravity/claude-opus-5-5": "f250000"   # 1M janela
+    "anthropic/claude-sonnet-5-5": "f300000"          # 1M janela
+    "google-antigravity/claude-sonnet-5-5": "f300000" # 1M janela
+    "openai-codex/gpt-6.1-terra": "f300000"           # 500k janela
+    "google-antigravity/gemini-4-argon": "f300000"    # 1M janela
+    "minimax-code/MiniMax-M3": "f300000"              # 512k janela
+    "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, modelo leve
+    "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, modelo leve
+    # Ficam no automatico: ag claude-*-4-6 (250k, ~212k) e codex gpt-6-luna
+    # (272k, ~231k) ja compactam abaixo dos tetos acima.
   idleEnabled: true
   # No topo da banda de trabalho: a compactacao ociosa a 200k descartaria
   # contexto que o teto do modelo ainda permitiria usar.
@@ -213,100 +219,6 @@ lsp:
   diagnosticsOnWrite: true
   formatOnWrite: true
   diagnosticsDeduplicate: true
-  servers:
-    marksman:
-      command: ["marksman", "server"]
-      extensions: [".md", ".markdown"]
-    yaml-language-server:
-      command: ["yaml-language-server", "--stdio"]
-      extensions: [".yaml", ".yml"]
-    dockerfile-language-server:
-      command: ["docker-langserver", "--stdio"]
-      extensions: [".dockerfile"]
-    helm-ls:
-      command: ["helm_ls", "serve"]
-      extensions: [".yaml", ".yml"]
-    tailwindcss-language-server:
-      command: ["tailwindcss-language-server", "--stdio"]
-      extensions: [".html", ".css", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"]
-    vue-language-server:
-      command: ["vue-language-server", "--stdio"]
-      extensions: [".vue"]
-    angular-language-server:
-      command: ["omp-ngserver", "--stdio"]
-      extensions: [".ts", ".tsx", ".html"]
-    zls:
-      command: ["zls"]
-      extensions: [".zig", ".zon"]
-    tinymist:
-      command: ["tinymist", "lsp"]
-      extensions: [".typ"]
-    basedpyright:
-      command: ["basedpyright-langserver", "--stdio"]
-      extensions: [".py", ".pyi"]
-    jdtls:
-      command: ["jdtls"]
-      extensions: [".java", ".groovy"]
-    taplo:
-      command: ["taplo", "lsp", "stdio"]
-      extensions: [".toml"]
-    sql-language-server:
-      command: ["sql-language-server", "up", "--method", "stdio"]
-      extensions: [".sql"]
-    cmake-language-server:
-      command: ["cmake-language-server"]
-      extensions: ["CMakeLists.txt", ".cmake"]
-    mdx-language-server:
-      command: ["mdx-language-server", "--stdio"]
-      extensions: [".mdx"]
-    docker-compose-langserver:
-      command: ["docker-compose-langserver", "--stdio"]
-      extensions: ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"]
-    terraform-ls:
-      command: ["terraform-ls", "serve"]
-      extensions: [".tf", ".tfvars"]
-    vscode-css-language-server:
-      command: ["vscode-css-language-server", "--stdio"]
-      extensions: [".css", ".scss", ".less"]
-    vscode-html-language-server:
-      command: ["vscode-html-language-server", "--stdio"]
-      extensions: [".html", ".htm"]
-    vscode-json-language-server:
-      command: ["vscode-json-language-server", "--stdio"]
-      extensions: [".json", ".jsonc"]
-    vscode-eslint-language-server:
-      command: ["vscode-eslint-language-server", "--stdio"]
-      extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
-    biome:
-      command: ["biome", "lsp-proxy"]
-      extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".json", ".jsonc", ".css", ".scss"]
-    oxlint:
-      command: ["oxlint", "--lsp"]
-      extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
-    gopls:
-      command: ["gopls"]
-      extensions: [".go"]
-    rust-analyzer:
-      command: ["rust-analyzer"]
-      extensions: [".rs"]
-    lua-language-server:
-      command: ["lua-language-server"]
-      extensions: [".lua"]
-    bash-language-server:
-      command: ["bash-language-server", "start"]
-      extensions: [".sh", ".bash", ".zsh"]
-    typescript-language-server:
-      command: ["typescript-language-server", "--stdio"]
-      extensions: [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]
-    elixir-ls:
-      command: ["elixir-ls"]
-      extensions: [".ex", ".exs"]
-    intelephense:
-      command: ["intelephense", "--stdio"]
-      extensions: [".php"]
-    ruff:
-      command: ["ruff", "server"]
-      extensions: [".py", ".pyi"]
 task:
   maxConcurrency: 8
   maxRecursionDepth: 1
@@ -404,12 +316,12 @@ claudeResets:
   # acabou. Resgatar manualmente quando o mensal/semanal estiver baixo.
   autoRedeem: "no"
 providers:
-  # Aquecimento de prompt-cache no provider: auto respeita TTL e custo de cada um.
-  cacheWarming: "auto"
+  # Reenvia o ultimo request (1 token de saida) pouco antes do cache expirar,
+  # so quando compensa o custo. Valores validos: off | streaming | idle.
+  cacheWarming: idle
   maxInFlightRequests:
     xiaomi-token-plan-sgp: 2
   openai-codex:
-    codeMode: auto
     # Desligado: nao participar do Daybreak Blue (a OpenAI pode usar conteudo
     # das sessoes elegiveis).
     daybreak: false

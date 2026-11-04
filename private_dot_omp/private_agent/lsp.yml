@@ -1,0 +1,51 @@
+# Servidores LSP do OMP que nao vem embutidos (omp://lsp-config.md).
+# Os demais (yamlls, bashls, biome, eslint, gopls, rust-analyzer, ruff,
+# basedpyright, lua-language-server, marksman, terraformls...) sao built-in e
+# detectados sozinhos pelo binario + rootMarkers; nao repita-os aqui.
+# rootMarkers ["."] = vale em qualquer diretorio.
+# Ficam de fora: sql-language-server 1.7.1 quebra no Node 26
+# (ERR_PACKAGE_PATH_NOT_EXPORTED) e mdx-language-server exige o tsserverlibrary
+# do TypeScript <= 6, que o typescript 7 (nativo) do mise nao tem mais.
+servers:
+  taplo:
+    command: taplo
+    args: ["lsp", "stdio"]
+    fileTypes: [".toml"]
+    rootMarkers: ["."]
+  tinymist:
+    command: tinymist
+    args: ["lsp"]
+    fileTypes: [".typ"]
+    rootMarkers: ["."]
+  cmake-language-server:
+    command: cmake-language-server
+    fileTypes: ["CMakeLists.txt", ".cmake"]
+    rootMarkers: ["CMakeLists.txt"]
+  docker-compose-langserver:
+    command: docker-compose-langserver
+    args: ["--stdio"]
+    fileTypes:
+      [
+        "docker-compose.yml",
+        "docker-compose.yaml",
+        "compose.yml",
+        "compose.yaml",
+      ]
+    rootMarkers:
+      [
+        "docker-compose.yml",
+        "docker-compose.yaml",
+        "compose.yml",
+        "compose.yaml",
+      ]
+  angular-language-server:
+    command: omp-ngserver
+    args: ["--stdio"]
+    fileTypes: [".ts", ".tsx", ".html"]
+    rootMarkers: ["angular.json"]
+  oxlint:
+    command: oxlint
+    args: ["--lsp"]
+    fileTypes: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"]
+    rootMarkers: [".oxlintrc.json"]
+    isLinter: true
