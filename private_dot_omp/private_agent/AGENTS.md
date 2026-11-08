@@ -10,6 +10,12 @@ Whenever starting work in a session or addressing a repository-related task:
 
 ---
 
+## Do not hallucinate!
+
+**Do not hallucinate!** Never invent APIs, functions, flags, file paths, commands, tool names or tool parameters without verification. Verify with the session's tools first: `grep`/`glob`/`read` and `xd://lsp` for the repository, `context7` for library documentation, `serena` for symbols. If you could not verify something, say "I don't know" or mark it as inference. Ground every claim in evidence you actually observed; never report a result you did not see.
+
+---
+
 ## Tool Selection Principles
 
 - **Code search**: `grep` (regex over files), `glob` (names/structure), `xd://ast_grep` (AST patterns), `xd://lsp` (definitions, references, diagnostics, hover).
