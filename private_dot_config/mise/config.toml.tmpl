@@ -1,6 +1,8 @@
 [tools]
 {{- if eq .chezmoi.os "linux" }}
-"github:can1357/oh-my-pi" = "latest"
+# omp do codigo-fonte (~/oh-my-pi-argon, local/argon-fix = main + PR #16106 antigravity-argon).
+# Voltar ao release: "github:can1357/oh-my-pi" = "latest"
+"github:can1357/oh-my-pi" = "path:{{ .chezmoi.homeDir }}/.local/share/omp-source"
 {{- end }}
 # Global tools always follow latest; projects pin versions in their own mise config.
 go = "latest"
