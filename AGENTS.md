@@ -71,7 +71,7 @@ Package sync scripts and the post-apply Antidote hook:
 | `run_onchange_after_40-pacman`             | `dot_Pacmanfile`| `~/.Pacmanfile` | `yay`/`paru`/`pacman` (Arch)  |
 | `run_after_45-zsh-completion-audit-pacman.sh.tmpl` | (bin script)    | `~/.cache/zsh/completion-system` | `zsh-completion-audit` (pacman database) |
 | `run_onchange_after_45-dock.sh.tmpl`       | (none)        | Dock            | dock layout reset            |
-| `run_onchange_after_46-zsh-tokens`         | (bin script)    | `~/.config/zsh/tokens.zsh` | Bitwarden `bw`     |
+| `run_after_46-zsh-tokens`                  | (bin script)    | `~/.config/zsh/tokens.zsh` | Bitwarden `bw`; roda todo apply, age só se o arquivo faltar ou o sync for mais novo |
 | `run_onchange_after_47-mise-install`       | `mise/config.toml`| `~/.config/mise`| `mise install`              |
 | `run_onchange_after_50-krew`               | `dot_Krewfile`  | `~/.Krewfile`   | `kubectl krew install`        |
 | `run_onchange_after_53-omp-plugins`        | `dot_OmpPlugins` | `~/.omp/plugins/` (npm plugins) | `omp plugin install` |

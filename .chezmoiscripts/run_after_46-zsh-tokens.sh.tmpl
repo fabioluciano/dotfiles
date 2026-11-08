@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Gera ~/.config/zsh/tokens.zsh a partir do Bitwarden. Roda em todo apply, mas só
+# age quando o arquivo falta/está vazio ou quando o sync é mais novo que ele.
+# Sem estado do chezmoi: um unlock cancelado ou um cofre bloqueado é refeito no
+# apply seguinte (o run_onchange marcava o hook como executado mesmo assim).
+# Cofre bloqueado sem terminal não derruba o apply.
+# Após rotacionar um token, rode `zsh-tokens-sync` à mão.
+set -euo pipefail
+
+sync="{{ .chezmoi.homeDir }}/.local/bin/zsh-tokens-sync"
+if [ ! -x "$sync" ]; then
+  exit 0
+fi
+
+out="{{ .chezmoi.homeDir }}/.config/zsh/tokens.zsh"
+if [ -s "$out" ] && [ ! "$sync" -nt "$out" ]; then
+  exit 0
+fi
+
+if ! command -v bw >/dev/null 2>&1; then
+  echo "Bitwarden CLI (bw) nao encontrado. Ele ja esta listado no Brewfile/Pacmanfile;" >&2
+  echo "instale-o pelo gerenciador de pacotes e re-execute 'chezmoi apply'." >&2
+  exit 0
+fi
+
+"$sync"

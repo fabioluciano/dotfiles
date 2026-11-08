@@ -40,7 +40,7 @@ chezmoi init --apply https://github.com/fabioluciano/dot.git
 Package installs run automatically on `chezmoi apply` via the
 `run_onchange_after_*` scripts in `.chezmoiscripts/` — they re-run only when the
 corresponding manifest changes (tracked by its content hash). Token sync
-(`run_onchange_after_46-zsh-tokens`) and `mise install`
+(`run_after_46-zsh-tokens`) and `mise install`
 (`run_onchange_after_47-mise-install`) run after the package hooks so that
 `bw`/`kubectl-argo-rollouts`/etc. already exist on first bootstrap; renaming
 the hooks means they will execute once more on the next apply. Separately,

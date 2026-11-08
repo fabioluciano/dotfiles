@@ -69,15 +69,14 @@ if ! printf '%s' "$item_json" | jq -e '
   exit 1
 fi
 
-if ! printf '%s' "$item_json" | jq -e '
-  all(.fields[]?; ((.value // "") | test("[\\u0000-\\u001f]") | not))
-' >/dev/null; then
-  echo "zsh-tokens-sync: valor com caractere de controle; mantendo tokens atuais." >&2
-  # Dados inválidos não devem substituir o arquivo válido nem impedir o
-  # restante do `chezmoi apply`. Corrija o campo no Bitwarden e execute este
-  # sincronizador novamente para atualizar os tokens.
-  exit 0
-fi
+# Remove espaços e quebras de linha nas pontas do valor (colar o token no
+# Bitwarden costuma deixar um \n ou \r no final). Não mexe no miolo.
+trim() {
+    local s=$1
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+}
 
 field_value() {
   local field=$1
@@ -103,8 +102,14 @@ _atomic_write_tokens() (
     echo "# Secrets resolved from Bitwarden item '$ITEM'."
     for pair in "${MAP[@]}"; do
       field="${pair%%=*}"; var="${pair#*=}"
-      val="$(field_value "$field")"
+      val="$(trim "$(field_value "$field")")"
       if [ -n "$val" ]; then
+        # Caractere de controle no miolo: ignora só este campo (sem imprimir o
+        # valor) em vez de abortar o item inteiro. Corrija-o no Bitwarden.
+        if [[ $val =~ [[:cntrl:]] ]]; then
+          echo "zsh-tokens-sync: campo '$field' tem caractere de controle; ignorado." >&2
+          continue
+        fi
         printf 'export %s=%s\n' "$var" "$(sq "$val")"
         export_count=$((export_count + 1))
       fi
