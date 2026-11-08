@@ -16,36 +16,36 @@ Use `question` when facing a user decision: trade-offs, approach choices, confli
 ## Built-in Tools (MANDATORY)
 
 - **Skills:** load with `skill` before specialized work. Not optional when a skill matches the task domain.
-- **webfetch/websearch:** fallback only — prefer `context7` for library docs, `ctx_fetch_and_index` for large pages.
+- **webfetch/websearch:** fallback only — prefer `context7` for library docs; for large local files use native `read` with `offset`/`limit` to slice the range you need.
 
 ## Do not hallucinate!
 
 **Do not hallucinate!** Never invent APIs, functions, file paths, or commands without verification. Look up via MCP tools (`serena`, `context7`) or say "I don't know." Ground every claim in evidence — agents that hallucinate waste time and erode trust.
 ## MCP-FIRST (mandatory, no exceptions for delegated work)
 
-Use the specialized MCP **before** generic tools (`rg`, grep, `Read`, shell, curl). Applies universally — every agent, subagent, and delegated child. Delegation is not an escape hatch: delegated prompts must explicitly restate this policy.
+Use the specialized MCP **before** generic tools (`read`, `grep`, `glob`, `shell`). Applies universally — every agent, subagent, and delegated child. Delegation is not an escape hatch: delegated prompts must explicitly restate this policy.
 
-`Read`/grep/shell findings without a corresponding MCP call = auxiliary evidence only, not authoritative.
+Findings from generic tools without the matching call in the table below = auxiliary evidence only, not authoritative.
 
-| Domain | Required MCP |
+| Domain | Required tool |
 |--------|-------------|
 | Code / symbols / impact analysis | `serena` — semantic retrieval, editing & refactoring |
 | External docs / libraries | `context7` (`resolve-library-id` → `query-docs`) |
 | GitHub / public code examples | `github` (ops) / `gh_grep` (public examples) |
 | Browser / UI / E2E / screenshots | `playwright` — never replace with curl |
-| Large output / logs / reusable docs | `context-mode` (`ctx_batch_execute`, `ctx_execute`, `ctx_search`) |
-| LSP / diagnostics / rename symbols | `lsp` — run `lsp_diagnostics` after editing |
-| Prior sessions / recall | `session` |
-| Media / PDFs / diagrams | `look_at` |
+| Large output / logs / reusable docs | native `shell` + `read` (`offset`/`limit` slices a big file) — no MCP |
+| LSP / diagnostics / rename symbols | `serena_repl` → `s.lsp.get_diagnostics_for_file`, `s.lsp.rename_symbol`, `s.lsp.find_referencing_symbols` (native `lsp` when the toolbox lists it) |
+| Prior sessions / recall | `ctx_search` — searches past sessions and archived messages |
+| Media / PDFs / diagrams | native `read` — reads images and PDFs directly |
 | Multi-step analysis / revisable planning | `sequential-thinking` |
-| Repository status, history, diffs and branches | `git` |
-| Orchestration / delegation / tasks | `skill`, `task_*`, `team_*` |
+| Repository status, history, diffs and branches | native `shell` (`git status`/`git diff`/`git log`) — not an MCP |
+| Orchestration / delegation / tasks | `skill`, `subagent`, `task_*` |
 | Generic web (last resort) | `webfetch` / `websearch` |
 
 **Examples:**
-- "What breaks if I change X?" → `serena_find_referencing_symbols`
+- "What breaks if I change X?" → `serena_repl` (facade `s.lsp.find_referencing_symbols`)
 - "How does Zod v4 define transforms?" → `context7_resolve-library-id` → `context7_query-docs`
-- "Summarize 10k-line log" → `ctx_execute_file`
+- "Summarize 10k-line log" → `shell` to locate the range, then `read` with `offset`/`limit`
 - "Verify page visually" → `playwright_browser_navigate` → `playwright_browser_snapshot`
 
 ## Language

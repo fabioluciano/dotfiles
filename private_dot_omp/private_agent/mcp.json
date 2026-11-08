@@ -1,20 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
+  "disabledServers": [
+    "github"
+  ],
   "mcpServers": {
-    "rea": {
-      "type": "stdio",
-      "command": "mise",
-      "args": [
-        "exec",
-        "node@26.12.1",
-        "--",
-        "npx",
-        "--yes",
-        "rea-agents@6.8.0",
-        "mcp"
-      ],
-      "timeout": 60000
-    },
     "serena": {
       "command": "serena",
       "args": [
@@ -29,28 +18,19 @@
     },
     "context7": {
       "command": "context7-mcp",
+      "env": {
+        "CONTEXT7_API_KEY": "!cat ~/.config/context7/api_key"
+      },
       "timeout": 8000
     },
     "sequential-thinking": {
       "command": "mcp-server-sequential-thinking",
       "timeout": 10000
     },
-    "git": {
-      "command": "mcp-server-git",
-      "timeout": 10000
-    },
     "gh_grep": {
       "type": "http",
       "url": "https://mcp.grep.app",
       "timeout": 8000
-    },
-    "terraform": {
-      "command": "terraform-mcp-server",
-      "timeout": 10000
-    },
-    "playwright": {
-      "command": "playwright-mcp",
-      "timeout": 15000
     },
     "github": {
       "command": "github-mcp-server",

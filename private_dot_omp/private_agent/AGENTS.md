@@ -22,49 +22,39 @@ Whenever starting work in a session or addressing a repository-related task:
 
 ## Configured MCP Servers & Exact Schemas
 
-### 1. `git`
-- Use only when MCP graph or structured output provides clear value over local terminal git. For ordinary status, diff, log, and local changes, prefer native `git` via `bash`.
+The names below are the exact invocable names in this runtime: `mcp__<server>_<tool>`, where both the server name and the tool name are normalised to lowercase with `-` replaced by `_` (so the `context7` tool `resolve-library-id` is invoked as `mcp__context7_resolve_library_id`, and `gh_grep`'s `searchGitHub` as `mcp__gh_grep_searchgithub`). The parameter names in the schemas are the server's own, untouched — those keep their original casing (`libraryName`, `pullNumber`, `perPage`).
+
+### 1. `serena`
+- Use for semantic code navigation over an indexed repository: symbol search, references, call graphs and code snippets.
 - **Exact Schemas**:
-  - `mcp__git_status`: `{ repo_path: string }`
-  - `mcp__git_diff_unstaged`: `{ repo_path: string }`
-  - `mcp__git_diff_staged`: `{ repo_path: string }`
-  - `mcp__git_log`: `{ repo_path: string, max_count?: number }`
+  - `mcp__serena_initial_instructions`: `{}` *(Call first to load the server usage manual)*
+  - `mcp__serena_repl`: `{ session: string, code: string }` *(required: session, code)*
 
 ### 2. `context7`
 - Use for retrieving current library and framework documentation when version details or API semantics matter. Prefer official upstream documentation.
 - **Exact Schemas**:
-  - `mcp__context7_resolve_library_id`: `{ libraryName: string, query: string }` *(Must be called first unless exact `/org/project` ID is already known)*
-  - `mcp__context7_query_docs`: `{ libraryId: string, query: string }`
+  - `mcp__context7_resolve_library_id`: `{ query: string, libraryName: string }` *(required: query, libraryName — must be called first unless exact `/org/project` ID is already known)*
+  - `mcp__context7_query_docs`: `{ libraryId: string, query: string, language?: string }` *(required: libraryId, query)*
 
-### 3. `gh_grep`
+### 3. `sequential-thinking`
+- Use to decompose ambiguous multi-step reasoning problems or strategic architecture trade-offs.
+- **Exact Schema**:
+  - `mcp__sequential_thinking_sequentialthinking`: `{ thought: string, nextThoughtNeeded: boolean | string, thoughtNumber: number, totalThoughts: number, isRevision?: boolean | string, revisesThought?: number, branchFromThought?: number, branchId?: string, needsMoreThoughts?: boolean | string }` *(required: thought, nextThoughtNeeded, thoughtNumber, totalThoughts)*
+
+### 4. `gh_grep`
 - Search real-world public GitHub code patterns when concrete usage examples are needed.
 - **Exact Schema**:
-  - `mcp__gh_grep_searchgithub`: `{ query: string, matchCase?: boolean, matchWholeWords?: boolean, useRegexp?: boolean, repo?: string, path?: string, language?: string[] }` *(Query must be literal code syntax, not natural language questions)*
-
-### 4. `terraform`
-- Use for inspecting Terraform registry providers, modules, and policies. Never execute apply or destroy without explicit user instruction.
-- **Exact Schemas**:
-  - `mcp__terraform_search_providers`: `{ query?: string, service_slug?: string, provider_document_type?: string }`
-  - `mcp__terraform_get_provider_details`: `{ provider_doc_id: string }`
-  - `mcp__terraform_search_modules`: `{ query: string, provider?: string }`
-  - `mcp__terraform_get_module_details`: `{ module_id: string }`
+  - `mcp__gh_grep_searchgithub`: `{ query: string, matchCase?: boolean, matchWholeWords?: boolean, useRegexp?: boolean, repo?: string, path?: string, language?: string[] }` *(required: query — query must be literal code syntax, not natural language questions)*
 
 ### 5. `github`
 - Use for GitHub platform operations. Creating issues/PRs, commenting, pushing code, or triggering workflows requires explicit user instruction.
+- The server exposes 46 tools in total; the common ones are: `create_pull_request`, `create_branch`, `search_code`, `search_commits`, `search_issues`, `search_pull_requests`, `search_repositories`, `create_or_update_file`, `push_files`, `merge_pull_request`, `list_commits`, `get_commit`, `get_file_contents`, `list_branches`, `issue_write`, `pull_request_review_write`, `add_comment_to_pending_review`, `add_issue_comment`, `fork_repository`, `create_repository`, `delete_file`, `list_tags`, `list_releases`, `get_latest_release`, `get_release_by_tag`, `get_team_members`, `get_teams`, `search_users`, `list_repository_collaborators`, `list_issue_types`, `list_issue_fields`, `get_label`, `sub_issue_write`, `update_issue_comment`, `update_pull_request`, `update_pull_request_branch`, `assign_copilot_to_issue`, `request_copilot_review`, `ui_get`, `list_pull_requests`.
 - **Exact Schemas**:
   - `mcp__github_get_me`: `{}`
-  - `mcp__github_issue_read`: `{ owner: string, repo: string, issue_number: number }`
-  - `mcp__github_pull_request_read`: `{ owner: string, repo: string, pull_number: number }`
-  - `mcp__github_list_issues`: `{ owner: string, repo: string, state?: "OPEN" | "CLOSED", limit?: number }`
-  - `mcp__github_list_pull_requests`: `{ owner: string, repo: string, state?: "OPEN" | "CLOSED" | "MERGED", limit?: number }`
-
-### 6. `sequential-thinking`
-- Use to decompose ambiguous multi-step reasoning problems or strategic architecture trade-offs.
-- **Exact Schema**:
-  - `mcp__sequential_thinking_sequentialthinking`: `{ thought: string, nextThoughtNeeded: boolean | string, thoughtNumber: number, totalThoughts: number, isRevision?: boolean | string, revisesThought?: number, branchFromThought?: number, branchId?: string, needsMoreThoughts?: boolean | string }`
-
-### 7. `playwright`
-- Use strictly for real browser rendering, UI interactions, snapshots, and E2E verification. Do not invent tools or capabilities based merely on a server name.
+  - `mcp__github_issue_read`: `{ owner: string, repo: string, issue_number: number, method: string, page?: number, perPage?: number }` *(required: owner, repo, issue_number, method)*
+  - `mcp__github_pull_request_read`: `{ owner: string, repo: string, pullNumber: number, method: string, page?: number, after?: string }` *(required: owner, repo, pullNumber, method)*
+  - `mcp__github_list_issues`: `{ owner: string, repo: string, state?: string, perPage?: number, after?: string, direction?: string, orderBy?: string, fields?: string[], field_filters?: string[], labels?: string[], since?: string }` *(required: owner, repo)*
+  - `mcp__github_list_pull_requests`: `{ owner: string, repo: string, state?: string, page?: number, perPage?: number, direction?: string, sort?: string, base?: string, head?: string, fields?: string[] }` *(required: owner, repo)*
 ---
 
 ## Skills

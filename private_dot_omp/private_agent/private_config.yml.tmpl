@@ -9,29 +9,29 @@ computer:
   enabled: true
   display: active
   maxHeight: 2400
+# --- Corte de imagem: a tool generate_image (text-to-image) fica desligada.
+#     Este e o gatilho real de uso; o role `image` sozinho nao desliga nada.
+generate_image:
+  enabled: false
 modelRoles:
-  # --- Raciocinio (cadeia R): queima primeiro a cota pequena do Antigravity
-  #     (claude sonnet/opus), depois Codex, depois Anthropic, MiniMax e Xiaomi.
-  #     OpenCode, NVIDIA e DeepSeek ficam fora das roles por decisao do usuario.
-  #     Esforco explicito por role (nada de :auto): o custo de saida do raciocinio
-  #     e proporcional ao esforco, e o auto deixa o modelo decidir sozinho.
-  default: google-antigravity/claude-sonnet-5-5:medium
-  task: google-antigravity/claude-sonnet-5-5:medium
-  slow: google-antigravity/claude-opus-5-5:high
-  plan: google-antigravity/claude-sonnet-5-5:high
-  advisor: openai-codex/gpt-6-luna:medium
-  judge: google-antigravity/claude-sonnet-5-5:medium
-  # --- Trabalho leve (cadeia C): Codex luna primeiro, depois gemini-3.8-flash,
-  #     Anthropic, MiniMax e Xiaomi. Primario = primeiro item da cadeia.
-  smol: openai-codex/gpt-6-luna:low
-  tiny: openai-codex/gpt-6-luna:low
-  memory: openai-codex/gpt-6-luna:low
-  commit: openai-codex/gpt-6-luna:low
-  vision: openai-codex/gpt-6-luna:low
-  image: google-antigravity/gemini-3.1-flash-image
+  # --- Primários: Anthropic direto para todas as roles de raciocínio e trabalho leve.
+  #     Esforço explícito por role.
+  default: anthropic/claude-sonnet-5-5:medium
+  task: anthropic/claude-sonnet-5-5:medium
+  slow: anthropic/claude-sonnet-5-5:high
+  plan: anthropic/claude-sonnet-5-5:high
+  advisor: anthropic/claude-haiku-5-5:medium
+  judge: anthropic/claude-sonnet-5-5:medium
+  smol: anthropic/claude-haiku-5-5:low
+  tiny: anthropic/claude-haiku-5-5:low
+  memory: anthropic/claude-haiku-5-5:low
+  commit: anthropic/claude-haiku-5-5:low
+  vision: anthropic/claude-haiku-5-5:low
   web: web/parallel
 advisor:
   enabled: true
+  # agent-end: revisa so a resposta final (default turn = uma chamada extra por turno).
+  reviewMode: agent-end
 retry:
   usageAwareFallback: true
   usageReservePct: 0
@@ -45,104 +45,94 @@ retry:
   maxRetries: 3
   rateLimitWalksChain: true
   fallbackChains:
-    # --- Cadeia R (raciocinio): Antigravity claude -> Codex -> ag gemini-4-argon
-    #     (so 2 contas, acaba antes) -> Anthropic -> ag gemini-3.8-flash ->
-    #     MiniMax -> Xiaomi. Um modelo por cota em cada
-    #     role: no AG, sonnet/opus/gpt-oss dividem o balde "Claude & GPT" de cada
-    #     conta (5-5 so em 2 contas, 4-6 em outras 3, por isso os dois entram);
-    #     na Anthropic, sonnet e opus dividem o 5h/7d. ag/claude-* aceitam ate high.
+    # Ordem: openai-codex -> anthropic no antigravity -> gemini-3.8-flash
+    # -> minimax -> mimo.
     default:
+      - "openai-codex/gpt-6.1-terra:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
       - "google-antigravity/claude-sonnet-4-6:medium"
-      - "openai-codex/gpt-6.1-terra:medium"
-      - "google-antigravity/gemini-4-argon:medium"
-      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     task:
+      - "openai-codex/gpt-6.1-terra:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
       - "google-antigravity/claude-sonnet-4-6:medium"
-      - "openai-codex/gpt-6.1-terra:medium"
-      - "google-antigravity/gemini-4-argon:medium"
-      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     slow:
-      - "google-antigravity/claude-opus-5-5:high"
-      - "google-antigravity/claude-opus-4-6:high"
       - "openai-codex/gpt-6.1-terra:high"
-      - "google-antigravity/gemini-4-argon:high"
-      - "anthropic/claude-opus-5-5:high"
+      - "google-antigravity/claude-sonnet-5-5:high"
+      - "google-antigravity/claude-sonnet-4-6:high"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     plan:
+      - "openai-codex/gpt-6.1-terra:high"
       - "google-antigravity/claude-sonnet-5-5:high"
       - "google-antigravity/claude-sonnet-4-6:high"
-      - "openai-codex/gpt-6.1-terra:high"
-      - "google-antigravity/gemini-4-argon:high"
-      - "anthropic/claude-sonnet-5-5:high"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     advisor:
       - "openai-codex/gpt-6-luna:medium"
+      - "google-antigravity/claude-sonnet-5-5:medium"
+      - "google-antigravity/claude-sonnet-4-6:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
-      - "anthropic/claude-haiku-5-5:medium"
       - "minimax-code/MiniMax-M3.1-Flash:medium"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
     judge:
+      - "openai-codex/gpt-6.1-terra:medium"
       - "google-antigravity/claude-sonnet-5-5:medium"
       - "google-antigravity/claude-sonnet-4-6:medium"
-      - "openai-codex/gpt-6.1-terra:medium"
-      - "google-antigravity/gemini-4-argon:medium"
-      - "anthropic/claude-sonnet-5-5:medium"
       - "google-antigravity/gemini-3.8-flash:medium"
       - "minimax-code/MiniMax-M3:high"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
-    # --- Cadeia C (leve): Codex luna -> Anthropic haiku -> ag gemini-3.8-flash ->
-    #     MiniMax -> Anthropic sonnet -> Xiaomi. Sem gpt-oss: ele gasta o balde
-    #     "Claude & GPT" do AG. O haiku tem janela de 100k e e pulado sem request
-    #     quando o contexto vivo nao cabe (subagentes ja nascem com ~87k); o
-    #     sonnet (1M) segura esse caso para o mimo ficar como ultimo recurso.
+    # --- Cadeia C (leve): openai-codex -> anthropic no antigravity ->
+    #     gemini-3.8-flash -> MiniMax -> Xiaomi.
     smol:
       - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
+      - "google-antigravity/claude-sonnet-5-5:low"
+      - "google-antigravity/claude-sonnet-4-6:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
-      - "anthropic/claude-sonnet-5-5:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     tiny:
       - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
+      - "google-antigravity/claude-sonnet-5-5:low"
+      - "google-antigravity/claude-sonnet-4-6:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     memory:
       - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
+      - "google-antigravity/claude-sonnet-5-5:low"
+      - "google-antigravity/claude-sonnet-4-6:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     commit:
       - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
+      - "google-antigravity/claude-sonnet-5-5:low"
+      - "google-antigravity/claude-sonnet-4-6:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
     # --- Visao: todos os itens aceitam input de imagem (verificado no catalogo).
     vision:
       - "openai-codex/gpt-6-luna:low"
-      - "anthropic/claude-haiku-5-5:low"
+      - "google-antigravity/claude-sonnet-5-5:low"
+      - "google-antigravity/claude-sonnet-4-6:low"
       - "google-antigravity/gemini-3.8-flash:low"
       - "minimax-code/MiniMax-M3.1-Flash:low"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
-    image:
-      - "google-antigravity/gemini-3.1-flash-image"
-      - "google-antigravity/gemini-3-pro-image"
-      - "openai-codex/gpt-image-2"
+    # --- Imagem: nenhum modelo de imagem configurado aqui. "[]" = sem fallback
+    #     (sem a chave, o OMP usa a lista padrao do catalogo). O primario do
+    #     role `image` tb cai nos defaults do catalogo (gpt-image-2,
+    #     gemini-3-pro-image) quando nao ha modelRoles.image — o corte real e
+    #     generate_image.enabled: false acima.
+    image: []
     web:
       - "web/parallel"
       - "web/duckduckgo"
@@ -156,16 +146,13 @@ compaction:
   # isso os modelos de 1M nao podem esperar os ~850k. Mesmo modelo = mesmo teto
   # em qualquer provider.
   modelThresholds:
-    "anthropic/claude-opus-5-5": "f250000"            # 1M janela
-    "google-antigravity/claude-opus-5-5": "f250000"   # 1M janela
     "anthropic/claude-sonnet-5-5": "f300000"          # 1M janela
     "google-antigravity/claude-sonnet-5-5": "f300000" # 1M janela
     "openai-codex/gpt-6.1-terra": "f300000"           # 500k janela
-    "google-antigravity/gemini-4-argon": "f300000"    # 1M janela
     "minimax-code/MiniMax-M3": "f300000"              # 512k janela
     "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, modelo leve
     "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, modelo leve
-    # Ficam no automatico: ag claude-*-4-6 (250k, ~212k) e codex gpt-6-luna
+    # Ficam no automatico: ag claude-sonnet-4-6 (250k, ~212k) e codex gpt-6-luna
     # (272k, ~231k) ja compactam abaixo dos tetos acima.
   idleEnabled: true
   # No topo da banda de trabalho: a compactacao ociosa a 200k descartaria
@@ -175,8 +162,9 @@ compaction:
   experimentalContextManagement: true
   handoffSaveToDisk: true
 snapcompact:
-  # Inclui AGENTS.md no snapshot para manter contexto de projeto após compactação.
-  systemPrompt: agents-md
+  # none = AGENTS.md segue como texto no system prompt. agents-md/all o renderizam
+  # como imagem transitoria; a descricao do setting diz que isso perde prompt cache.
+  systemPrompt: none
   # Experimental: resultados grandes como imagens; requer modelo com visão.
   toolResults: true
 branchSummary:
@@ -204,7 +192,7 @@ disabledProviders:
   - opencode
   - zai
 tools:
-  approvalMode: write
+  approvalMode: yolo
   approval:
     bash: allow
     browser: allow
@@ -216,7 +204,7 @@ bash:
   allowCompoundCommands: true
   gitGuard: true
 bashInterceptor:
-  enabled: true
+  enabled: false
 lsp:
   enabled: true
   diagnosticsOnEdit: true
@@ -224,11 +212,13 @@ lsp:
   formatOnWrite: true
   diagnosticsDeduplicate: true
 task:
-  maxConcurrency: 8
+  maxConcurrency: 15
+  # high: teto de thinking 16384 por subagente (max = 32768).
+  maxEffort: high
   maxRecursionDepth: 1
   enableLsp: true
   showResolvedModelBadge: true
-  prewalk: true
+  prewalk: false
   enableEffort: true
   structured: true
   # Desligado: cada "quanto falta?" em subagent custa um request extra; com 8
@@ -236,11 +226,6 @@ task:
   completionProbe: false
   isolation:
     enabled: true
-worktree:
-  # Inicio e fim: toda sessao nova nasce em worktree isolado e ele e removido
-  # ao sair (limpos saem direto; com mudancas nao commitadas o OMP pergunta).
-  onStart: create
-  onExit: remove
 memory:
   backend: mnemopi
 mnemopi:
@@ -248,8 +233,8 @@ mnemopi:
   embeddingVariant: multilingual
   # smol: usa openai-codex/gpt-6-luna para consolidar/sintetizar memórias.
   llmMode: smol
-  injectionTokenLimit: 4000
-  recallLimit: 12
+  injectionTokenLimit: 1500
+  recallLimit: 6
   recallContextTurns: 5
   polyphonicRecall: true
   proactiveLinking: true
@@ -285,7 +270,7 @@ contextPromotion:
   enabled: true
 autolearn:
   enabled: true
-  autoContinue: true
+  autoContinue: false
 edit:
   mode: hashline
   streamingAbort: true
@@ -323,6 +308,8 @@ providers:
   # Reenvia o ultimo request (1 token de saida) pouco antes do cache expirar,
   # so quando compensa o custo. Valores validos: off | streaming | idle.
   cacheWarming: idle
+  # Cache de 1h (auto = 1h so em OAuth, 5m com API key). Valores: auto | short | long | none.
+  cacheRetention: long
   maxInFlightRequests:
     xiaomi-token-plan-sgp: 2
   openai-codex:
