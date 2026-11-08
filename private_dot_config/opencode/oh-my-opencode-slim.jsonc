@@ -1,13 +1,33 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@3.0.6/oh-my-opencode-slim.schema.json",
   "autoUpdate": false,
-  // Model roles and fallback order mirror the managed OMP configuration.
+  // Model roles and fallback chains mirror the managed OMP configuration 1:1:
+  // each agent's `model` array is an OMP `retry.fallbackChains` entry, in the
+  // same order and composition. The OMP `:tier` suffix becomes an OpenCode
+  // `variant` (anthropic/openai) or a tier suffix baked into the id
+  // (antigravity).
   //
-  // Two tiers:
-  //   - reasoners (orchestrator, oracle, designer, council) start on the
-  //     strongest models and walk down only as models fail or run out.
-  //   - cheap lanes (explorer, fixer, observer) start on the free/cheap tier
-  //     and keep a strong model at the end of the chain as the last resort.
+  // `antigravity-claude-sonnet-5-5` and `antigravity-claude-sonnet-4-6` are
+  // distinct quota buckets (different Google accounts), so both are in the
+  // reasoning chains on purpose - do not drop either one.
+  //
+  // The cheap lanes also lead with the Zen free models the OMP cannot use:
+  // the OMP disables the `opencode` provider and has no catalog for it, so
+  // these entries are OpenCode-only. All of them cost 0:
+  //
+  //   deepseek-v4.1-flash-free   200k ctx, text+image
+  //   mimo-v2.6-flash-free       200k ctx, text+image+audio+video
+  //   crouton-alpha-free         1M ctx, text+image+video+pdf
+  //   beam-free                  1M ctx, text only
+  //   glm-5.3-flash-free         200k ctx, text+image+video
+  //
+  // `observer` needs image input, so it leads with `crouton-alpha-free` and
+  // keeps `beam-free` (text only) last.
+  //
+  // To check whether one of these still answers, use the runtime
+  // (`opencode run --model <id>`). A direct curl to the inference endpoint is
+  // not representative: it goes out through a different edge and can answer
+  // 429 FreeUsageLimitError while the same model works fine in a session.
   "disabled_agents": [],
   "backgroundJobs": {
     "concurrency": {}
@@ -22,11 +42,13 @@
   "agents": {
     "orchestrator": {
       "model": [
+        { "id": "anthropic/claude-sonnet-5-5", "variant": "medium" },
+        "google/antigravity-claude-sonnet-5-5-medium",
         "google/antigravity-claude-sonnet-4-6",
-        "openai/gpt-6.1-terra",
-        "anthropic/claude-sonnet-5-5",
-        "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        { "id": "openai/gpt-6.1-terra", "variant": "medium" },
+        "google/antigravity-gemini-3.8-flash-medium",
+        "minimax-coding-plan/MiniMax-M3",
+        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
       ],
       "skills": [
         "*"
@@ -34,11 +56,13 @@
     },
     "oracle": {
       "model": [
-        "google/antigravity-claude-sonnet-4-6",
-        "openai/gpt-6.1-terra",
-        "anthropic/claude-sonnet-5-5",
-        "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        { "id": "anthropic/claude-opus-5-5", "variant": "high" },
+        "google/antigravity-claude-opus-5-5-high",
+        "google/antigravity-claude-opus-4-6-thinking",
+        { "id": "openai/gpt-6.1-terra", "variant": "high" },
+        "google/antigravity-gemini-3.8-flash-medium",
+        "minimax-coding-plan/MiniMax-M3",
+        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
       ],
       "mcps": [
         "*"
@@ -46,11 +70,13 @@
     },
     "council": {
       "model": [
+        { "id": "anthropic/claude-sonnet-5-5", "variant": "medium" },
+        "google/antigravity-claude-sonnet-5-5-medium",
         "google/antigravity-claude-sonnet-4-6",
-        "openai/gpt-6.1-terra",
-        "anthropic/claude-sonnet-5-5",
-        "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        { "id": "openai/gpt-6.1-terra", "variant": "medium" },
+        "google/antigravity-gemini-3.8-flash-medium",
+        "minimax-coding-plan/MiniMax-M3",
+        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
       ],
       "mcps": [
         "*"
@@ -58,11 +84,13 @@
     },
     "designer": {
       "model": [
+        { "id": "anthropic/claude-sonnet-5-5", "variant": "medium" },
+        "google/antigravity-claude-sonnet-5-5-medium",
         "google/antigravity-claude-sonnet-4-6",
-        "openai/gpt-6.1-terra",
-        "anthropic/claude-sonnet-5-5",
-        "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        { "id": "openai/gpt-6.1-terra", "variant": "medium" },
+        "google/antigravity-gemini-3.8-flash-medium",
+        "minimax-coding-plan/MiniMax-M3",
+        "xiaomi-token-plan-sgp/mimo-v2.6-pro"
       ],
       "mcps": [
         "*"
@@ -70,10 +98,16 @@
     },
     "explorer": {
       "model": [
-        "anthropic/claude-haiku-5-5",
-        "openai/gpt-6-luna",
+        "opencode/deepseek-v4.1-flash-free",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/crouton-alpha-free",
+        "opencode/beam-free",
+        "opencode/glm-5.3-flash-free",
+        "google/antigravity-gemini-3.8-flash-low",
+        { "id": "anthropic/claude-sonnet-5-5", "variant": "low" },
+        { "id": "openai/gpt-6-luna", "variant": "low" },
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
       ],
       "mcps": [
         "*"
@@ -81,10 +115,16 @@
     },
     "fixer": {
       "model": [
-        "anthropic/claude-haiku-5-5",
-        "openai/gpt-6-luna",
+        "opencode/deepseek-v4.1-flash-free",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/crouton-alpha-free",
+        "opencode/beam-free",
+        "opencode/glm-5.3-flash-free",
+        "google/antigravity-gemini-3.8-flash-low",
+        { "id": "anthropic/claude-haiku-5-5", "variant": "low" },
+        { "id": "openai/gpt-6-luna", "variant": "low" },
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
       ],
       "mcps": [
         "*"
@@ -92,10 +132,16 @@
     },
     "observer": {
       "model": [
-        "anthropic/claude-haiku-5-5",
-        "openai/gpt-6-luna",
+        "opencode/crouton-alpha-free",
+        "opencode/deepseek-v4.1-flash-free",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/glm-5.3-flash-free",
+        "opencode/beam-free",
+        "google/antigravity-gemini-3.8-flash-low",
+        { "id": "anthropic/claude-haiku-5-5", "variant": "low" },
+        { "id": "openai/gpt-6-luna", "variant": "low" },
         "minimax-coding-plan/MiniMax-M3.1-Flash",
-        "google/antigravity-gemini-3.8-flash-high"
+        "xiaomi-token-plan-sgp/mimo-v2.6-flash"
       ],
       "mcps": [
         "*"

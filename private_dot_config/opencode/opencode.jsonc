@@ -1,9 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
+  "model": "anthropic/claude-sonnet-5-5",
   "agents": {
     "plan": {
-      "model": "google/antigravity-claude-sonnet-4-6"
+      "model": "anthropic/claude-sonnet-5-5"
     }
   },
   "mcp": {
@@ -44,42 +44,12 @@
           "catalog": 10000
         }
       },
-      "git": {
-        "type": "local",
-        "command": [
-          "mcp-server-git"
-        ],
-        "timeout": {
-          "startup": 10000,
-          "catalog": 10000
-        }
-      },
       "gh_grep": {
         "type": "remote",
         "url": "https://mcp.grep.app",
         "timeout": {
           "startup": 8000,
           "catalog": 8000
-        }
-      },
-      "kubernetes": {
-        "type": "local",
-        "command": [
-          "kubernetes-mcp-readonly"
-        ],
-        "timeout": {
-          "startup": 15000,
-          "catalog": 15000
-        }
-      },
-      "terraform": {
-        "type": "local",
-        "command": [
-          "terraform-mcp-server"
-        ],
-        "timeout": {
-          "startup": 10000,
-          "catalog": 10000
         }
       },
       "playwright": {
@@ -109,14 +79,6 @@
           "npx",
           "-y",
           "codebase-memory-mcp"
-        ]
-      },
-      "context-mode": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "context-mode"
         ]
       }
     }
@@ -254,6 +216,29 @@
         ".py",
         ".pyi"
       ]
+    },
+    "tinymist": {
+      "command": [
+        "tinymist",
+        "lsp"
+      ],
+      "extensions": [
+        ".typ"
+      ]
+    },
+    "oxlint": {
+      "command": [
+        "oxlint",
+        "--lsp"
+      ],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ]
     }
   },
   "plugins": [
@@ -266,7 +251,8 @@
     "@mohak34/opencode-notifier@latest",
     "superpowers@git+https://github.com/obra/superpowers.git",
     "@cortexkit/opencode-magic-context@latest",
-    "opencode-claude-auth@latest"
+    "opencode-claude-auth@latest",
+    "@dietrichgebert/ponytail@latest"
   ],
   "instructions": [
     "~/.config/opencode/plugin-workflow.md"
