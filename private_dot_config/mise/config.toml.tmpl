@@ -4,6 +4,17 @@
 # Voltar ao release: "github:can1357/oh-my-pi" = "latest"
 "github:can1357/oh-my-pi" = "path:{{ .chezmoi.homeDir }}/.local/share/omp-source"
 {{- end }}
+{{- if eq .chezmoi.os "darwin" }}
+# omp fixado no release 18.18.9. NAO use path: aqui: quando o diretorio nao
+# existe, o `mise install` falha (exit 1) e quebra o hook
+# run_onchange_after_47-mise-install, que roda com `set -euo pipefail` — ou seja,
+# um `chezmoi apply` em maquina nova ficaria sem aplicar.
+# Para usar o build local com o fix do Argon (can1357/oh-my-pi#16104, PR #18959),
+# sobrescreva em ~/.config/mise/config.local.toml (fora do chezmoi):
+#   [tools]
+#   "github:can1357/oh-my-pi" = "path:~/.local/share/omp-build"
+"github:can1357/oh-my-pi" = "18.18.9"
+{{- end }}
 # Global tools always follow latest; projects pin versions in their own mise config.
 go = "latest"
 java = "latest"
@@ -100,7 +111,7 @@ helm-ls = "latest"
 "pipx:cmake-language-server" = "latest"
 "pipx:cmakelint" = "latest"
 "npm:tree-sitter-cli" = { version = "latest", npm_args = "--ignore-scripts=false" }
-"npm:@mimo-ai/cli" = "0.1.16"
+"npm:@mimo-ai/cli" = "0.1.16"   # MiMo Code (Xiaomi) — binário `mimo`; mise pula o postinstall, o launcher baixa o binário nativo (FDS) na 1a execução
 
 [settings]
 # Enable version files for better compatibility
