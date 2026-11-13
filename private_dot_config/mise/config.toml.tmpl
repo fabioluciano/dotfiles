@@ -1,8 +1,8 @@
 [tools]
 {{- if eq .chezmoi.os "linux" }}
-# omp do codigo-fonte (~/oh-my-pi-argon, local/argon-fix = main + PR #16106 antigravity-argon).
-# Voltar ao release: "github:can1357/oh-my-pi" = "latest"
-"github:can1357/oh-my-pi" = "path:{{ .chezmoi.homeDir }}/.local/share/omp-source"
+# omp: release mais recente. O minimum_release_age do mise segura releases
+# recem-publicados por um tempo antes de "latest" resolver para eles.
+oh-my-pi = { version = "latest", rename_exe = "omp" }
 {{- end }}
 {{- if eq .chezmoi.os "darwin" }}
 # omp fixado no release 18.18.9. NAO use path: aqui: quando o diretorio nao
