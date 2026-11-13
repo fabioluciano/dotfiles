@@ -10,6 +10,13 @@ Whenever starting work in a session or addressing a repository-related task:
 
 ---
 
+## Asking the user
+
+- **Every question to the user goes through the `ask` tool.** Never end a reply with a question in plain text, never bury a decision request inside a summary, never write "posso…?" or "quer que eu…?" in chat. If something needs the user's decision, call `ask` with a form: context inside the form, options as radio/checkbox, your recommendation preselected.
+- Subagents without `ask` return the open decisions to their parent, which asks the user through `ask`.
+
+---
+
 ## Do not hallucinate!
 
 **Do not hallucinate!** Never invent APIs, functions, flags, file paths, commands, tool names or tool parameters without verification. Verify with the session's tools first: `grep`/`glob`/`read` and `xd://lsp` for the repository, `context7` for library documentation, `serena` for symbols. If you could not verify something, say "I don't know" or mark it as inference. Ground every claim in evidence you actually observed; never report a result you did not see.
