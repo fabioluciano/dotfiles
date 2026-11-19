@@ -12,17 +12,18 @@ computer:
 generate_image:
   enabled: false
 modelRoles:
-  default: anthropic/claude-sonnet-5-5:auto
-  task: anthropic/claude-sonnet-5-5:medium
-  smedium: anthropic/claude-opus-5-5:medium
-  plan: anthropic/claude-opus-5-5:medium
+  default: openai-codex/gpt-6.1-terra:medium
+  smol: openai-codex/gpt-6-luna:low
+  slow: openai-codex/gpt-6.1-terra:high
+  vision: openai-codex/gpt-6.1-terra:medium
+  plan: openai-codex/gpt-6.1-terra:high
+  designer: openai-codex/gpt-6.1-terra:medium
+  commit: openai-codex/gpt-6-luna:low
+  tiny: openai-codex/gpt-6-luna:low
+  task: openai-codex/gpt-6.1-terra:medium
+  advisor: openai-codex/gpt-6.1-terra:medium
+  memory: openai-codex/gpt-6-luna:low
   judge: opencode-zen/jev-1.13:auto
-  smol: anthropic/claude-haiku-5-5:auto
-  memory: anthropic/claude-haiku-5-5:low
-  advisor: anthropic/claude-haiku-5-5:low
-  tiny: anthropic/claude-haiku-5-5:low
-  commit: anthropic/claude-haiku-5-5:low
-  vision: anthropic/claude-sonnet-5-5:low
   web: web/parallel
 advisor:
   enabled: true
@@ -36,60 +37,65 @@ retry:
   rateLimitWalksChain: true
   fallbackChains:
     default:
-      - "kiro/gpt-5-6-terra:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-    task:
-      - "kiro/gpt-5-6-sol:auto"
-      - "openai-codex/gpt-6.2-sol:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-    slow:
-      - "kiro/gpt-5-6-terra:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-    plan:
-      - "kiro/gpt-5-6-terra:auto"
-      - "openai-codex/gpt-6.1-terra:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
-    judge:
-      - "kiro/gpt-5-6-sol:auto"
-      - "openai-codex/gpt-6.2-sol:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "kiro/gpt-5-6-terra:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "minimax-code/MiniMax-M3:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
     smol:
-      - "kiro/gpt-5-6-luna:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-    memory:
-      - "kiro/gpt-5-6-luna:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-    advisor:
-      - "kiro/gpt-5-6-luna:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-    tiny:
-      - "kiro/gpt-5-6-luna:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-    commit:
-      - "kiro/gpt-5-6-luna:auto"
-      - "openai-codex/gpt-6-luna:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
+      - "kiro/gpt-5-6-luna:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+    slow:
+      - "kiro/gpt-5-6-terra:high"
+      - "anthropic/claude-opus-5-5:high"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
     vision:
-      - "kiro/gpt-5-6-sol:auto"
-      - "openai-codex/gpt-6.2-sol:auto"
-      - "minimax-code/MiniMax-M3:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
+      - "kiro/gpt-5-6-terra:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "minimax-code/MiniMax-M3:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
+    plan:
+      - "kiro/gpt-5-6-terra:high"
+      - "anthropic/claude-opus-5-5:high"
+      - "minimax-code/MiniMax-M3:high"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:high"
+    designer:
+      - "kiro/gpt-5-6-terra:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "minimax-code/MiniMax-M3:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
+    commit:
+      - "kiro/gpt-5-6-luna:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+    tiny:
+      - "kiro/gpt-5-6-luna:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+    task:
+      - "kiro/gpt-5-6-terra:medium"
+      - "anthropic/claude-sonnet-5-5:medium"
+      - "minimax-code/MiniMax-M3:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
+    advisor:
+      - "kiro/gpt-5-6-terra:medium"
+      - "anthropic/claude-haiku-5-5:medium"
+      - "minimax-code/MiniMax-M3.1-Flash:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:medium"
+    memory:
+      - "kiro/gpt-5-6-luna:low"
+      - "anthropic/claude-haiku-5-5:low"
+      - "minimax-code/MiniMax-M3.1-Flash:low"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:low"
+    judge:
+      - "kiro/gpt-5-6-terra:medium"
+      - "openai-codex/gpt-6.1-terra:medium"
+      - "minimax-code/MiniMax-M3:medium"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:medium"
     image: []
     web:
       - "web/parallel"
