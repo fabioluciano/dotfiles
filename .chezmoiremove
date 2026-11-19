@@ -5,6 +5,9 @@
 .Zerobrewfile
 .caveman
 .caveman-cloud
+.omp/.caveman-active
+.omp/.caveman-mode-log.jsonl
+.pi/agent/caveman.json
 .cc-safety-net/policy.json
 .codewhale/.active_provider
 .codewhale/config.toml

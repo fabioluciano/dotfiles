@@ -9,99 +9,87 @@ computer:
   enabled: true
   display: active
   maxHeight: 2400
-# --- Corte de imagem: a tool generate_image (text-to-image) fica desligada.
-#     Este e o gatilho real de uso; o role `image` sozinho nao desliga nada.
 generate_image:
   enabled: false
 modelRoles:
-  default: openai-codex/gpt-6.1-terra:auto
-  task: openai-codex/gpt-6.1-terra:auto
-  slow: openai-codex/gpt-6.1-sol:auto
-  plan: openai-codex/gpt-6.1-sol:auto
-  # Judge nativo (System One) gratis no OpenCode Zen; exige OPENCODE_API_KEY
-  # (tokens.zsh). Sem thinking: model-kind judge nao usa sufixo.
-  judge: opencode-zen/jev-1.13-free
-  smol: openai-codex/gpt-6-luna:auto
-  memory: openai-codex/gpt-6-luna:auto
-  advisor: openai-codex/gpt-6-luna:auto
-  tiny: openai-codex/gpt-6-luna:auto
-  commit: openai-codex/gpt-6-luna:auto
-  vision: openai-codex/gpt-6-luna:auto
+  default: anthropic/claude-sonnet-5-5:auto
+  task: anthropic/claude-sonnet-5-5:medium
+  smedium: anthropic/claude-opus-5-5:medium
+  plan: anthropic/claude-opus-5-5:medium
+  judge: opencode-zen/jev-1.13:auto
+  smol: anthropic/claude-haiku-5-5:auto
+  memory: anthropic/claude-haiku-5-5:low
+  advisor: anthropic/claude-haiku-5-5:low
+  tiny: anthropic/claude-haiku-5-5:low
+  commit: anthropic/claude-haiku-5-5:low
+  vision: anthropic/claude-sonnet-5-5:low
   web: web/parallel
 advisor:
   enabled: true
-  # agent-end: revisa so a resposta final (default turn = uma chamada extra por turno).
   reviewMode: agent-end
 retry:
   usageAwareFallback: true
   usageReservePct: 0
   usageReservePolicy: auto
-  # Desligado: com a cadeia de fallback configurada, esperar o reset da cota
-  # travaria a sessao (o reset semanal do Anthropic pode demorar dias).
   waitForUsageReset: false
-  # Limita as tentativas no mesmo modelo: com cota esgotada, o OMP alterna
-  # entre contas do mesmo provider (ag/claude-*-5-5 so existe em 2 contas) e
-  # so anda na cadeia quando acaba o maxRetries. 3 ~= 1 min em vez de ~3 min.
   maxRetries: 3
   rateLimitWalksChain: true
   fallbackChains:
     default:
-      - "antigravity-cli/gemini-4-hydrogen:auto"
-      - "anthropic/claude-sonnet-5-5:auto"
+      - "kiro/gpt-5-6-terra:auto"
+      - "openai-codex/gpt-6.1-terra:auto"
       - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     task:
-      - "antigravity-cli/gemini-4-hydrogen:auto"
-      - "anthropic/claude-sonnet-5-5:auto"
+      - "kiro/gpt-5-6-sol:auto"
+      - "openai-codex/gpt-6.2-sol:auto"
       - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     slow:
-      - "antigravity-cli/gemini-4-hydrogen:auto"
-      - "anthropic/claude-opus-5-5:auto"
+      - "kiro/gpt-5-6-terra:auto"
+      - "openai-codex/gpt-6.1-terra:auto"
       - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     plan:
-      - "antigravity-cli/gemini-4-hydrogen:auto"
-      - "anthropic/claude-opus-5-5:auto"
+      - "kiro/gpt-5-6-terra:auto"
+      - "openai-codex/gpt-6.1-terra:auto"
       - "minimax-code/MiniMax-M3:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     judge:
-      - "opencode-zen/jev-1.13"
+      - "kiro/gpt-5-6-sol:auto"
+      - "openai-codex/gpt-6.2-sol:auto"
+      - "minimax-code/MiniMax-M3:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     smol:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "kiro/gpt-5-6-luna:auto"
+      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
     memory:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "kiro/gpt-5-6-luna:auto"
+      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
     advisor:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "kiro/gpt-5-6-luna:auto"
+      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
     tiny:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "kiro/gpt-5-6-luna:auto"
+      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
     commit:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
+      - "kiro/gpt-5-6-luna:auto"
+      - "openai-codex/gpt-6-luna:auto"
       - "minimax-code/MiniMax-M3.1-Flash:auto"
       - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
     vision:
-      - "antigravity-cli/gemini-3.8-flash:auto"
-      - "anthropic/claude-haiku-5-5:auto"
-      - "minimax-code/MiniMax-M3.1-Flash:auto"
-      - "xiaomi-token-plan-sgp/mimo-v2.6-flash:auto"
-    # --- Imagem: nenhum modelo de imagem configurado aqui. "[]" = sem fallback
-    #     (sem a chave, o OMP usa a lista padrao do catalogo). O primario do
-    #     role `image` tb cai nos defaults do catalogo (gpt-image-2,
-    #     gemini-3-pro-image) quando nao ha modelRoles.image — o corte real e
-    #     generate_image.enabled: false acima.
+      - "kiro/gpt-5-6-sol:auto"
+      - "openai-codex/gpt-6.2-sol:auto"
+      - "minimax-code/MiniMax-M3:auto"
+      - "xiaomi-token-plan-sgp/mimo-v2.6-pro:auto"
     image: []
     web:
       - "web/parallel"
@@ -109,48 +97,33 @@ retry:
       - "web/exa"
       - "web/firecrawl"
 compaction:
-  # thresholdPercent não definido → modo automático: compacta na janela menos a
-  # reserva (max(16384, 15% da janela)), ~850k numa janela de 1M.
-  # Tetos fixos por modelo: "f<digitos>" dispara no ponto exato. Nas assinaturas
-  # cada request reenvia o contexto inteiro e gasta cota proporcional a ele, por
-  # isso os modelos de 1M nao podem esperar os ~850k. Mesmo modelo = mesmo teto
-  # em qualquer provider.
   modelThresholds:
-    # Opus: teto menor que os 1M, pois cada request reenvia o contexto.
     "anthropic/claude-opus-5-5": "f200000"
-    "google-antigravity/claude-opus-5-5": "f200000"
     "anthropic/claude-sonnet-5-5": "f300000"          # 1M janela
-    "google-antigravity/claude-sonnet-5-5": "f300000" # 1M janela
     "openai-codex/gpt-6.1-terra": "f300000"           # 500k janela
+    "openai-codex/gpt-6.2-sol": "f300000"             # 500k janela
+    "kiro/gpt-5-6-terra": "f300000"                   # 986k janela
+    "kiro/gpt-5-6-sol": "f300000"                     # 986k janela
+    "kiro/gpt-5-6-luna": "f300000"                    # 986k janela
     "minimax-code/MiniMax-M3": "f300000"              # 512k janela
-    "google-antigravity/gemini-3.8-flash": "f400000"  # 1M janela, modelo leve
     "xiaomi-token-plan-sgp/mimo-v2.6-pro": "f400000"  # 1M janela, modelo leve
     "minimax-code/MiniMax-M3.1-Flash": "f400000"      # 1M janela, modelo leve
     "xiaomi-token-plan-sgp/mimo-v2.6-flash": "f400000" # 1M janela, modelo leve
-    # Ficam no automatico: ag claude-opus-4-6 e claude-sonnet-4-6 (250k, ~212k),
-    # anthropic claude-haiku-5-5 (100k) e codex gpt-6-luna (272k, ~231k) ja
-    # compactam abaixo dos tetos acima.
+    "openai-codex/gpt-6-luna": "f60000"               # janela pequena (100K visto em subagente)
+    "anthropic/claude-haiku-5-5": "f60000"            # 100K janela
   idleEnabled: true
-  # No topo da banda de trabalho: a compactacao ociosa a 200k descartaria
-  # contexto que o teto do modelo ainda permitiria usar.
   idleThresholdTokens: 400000
-  # Experimental: notas persistentes e histórico pesquisável entre janelas.
   experimentalContextManagement: true
   handoffSaveToDisk: true
 snapcompact:
-  # none = AGENTS.md segue como texto no system prompt. agents-md/all o renderizam
-  # como imagem transitoria; a descricao do setting diz que isso perde prompt cache.
   systemPrompt: none
-  # Experimental: resultados grandes como imagens; requer modelo com visão.
   toolResults: true
 branchSummary:
   enabled: true
 composer:
   tokenRate: true
-  # Ate 4 predicoes por request; Tab de novo alterna entre elas.
   predictionAlternatives: true
 btw:
-  # /btw rascunha um prompt de steering em <inject>; Alt+I envia para a sessao.
   inject: true
 terminal:
   showProgress: true
@@ -178,6 +151,8 @@ tools:
     browser: allow
     eval: allow
     task: allow
+  speculativeExecution:
+    enabled: true
 bash:
   autoBackground:
     enabled: true
@@ -192,8 +167,7 @@ lsp:
   formatOnWrite: true
   diagnosticsDeduplicate: true
 task:
-  maxConcurrency: 15
-  # high: teto de thinking 16384 por subagente (max = 32768).
+  maxConcurrency: 20
   maxEffort: high
   maxRecursionDepth: 1
   enableLsp: true
@@ -201,25 +175,18 @@ task:
   prewalk: false
   enableEffort: true
   structured: true
-  # Desligado: cada "quanto falta?" em subagent custa um request extra; com 8
-  # concorrentes isso soma. A preview das ferramentas continua visivel.
+  perCallModel: "on"
   completionProbe: false
   isolation:
     enabled: true
-  # Judge (role judge, Jev nativo) aponta o que do prompt pode rodar em
-  # paralelo; so sugere. Exige judge nativo no topo do role (hasNativeJudge).
   autoParallel: suggest
-  # Subagentes recebem `steps` ordenados; o resultado e o do ultimo passo.
   steps: true
 memory:
   backend: mnemopi
 mnemopi:
   scoping: per-project-tagged
   embeddingVariant: multilingual
-  # smol: usa o role tiny (hoje google-antigravity/gemini-3.8-flash:low; cai no
-  # smol se o tiny faltar) para consolidar/sintetizar memórias.
   llmMode: smol
-  # Pinados para que mudança de default no omp não altere o comportamento.
   autoRecall: true
   autoRetain: true
   retainEveryNTurns: 4
@@ -254,7 +221,6 @@ startup:
   quiet: true
 update:
   channel: canary
-  # Instala updates em segundo plano; o proximo launch ja roda a versao nova.
   auto: true
 features:
   unexpectedStopDetection: none
@@ -290,31 +256,33 @@ secrets:
 dev:
   autoqaConsent: granted
 codexResets:
-  # Desligado: o OMP nao gasta automaticamente resets de cota salvos do Codex.
   autoRedeem5h: "no"
   autoRedeemWeekly: "no"
 claudeResets:
-  # Desligado: resgate automatico queima reset salvo so porque a janela de 5h
-  # acabou. Resgatar manualmente quando o mensal/semanal estiver baixo.
   autoRedeem5h: "no"
   autoRedeemWeekly: "no"
   autoRedeemFable: "no"
 providers:
-  # Reenvia o ultimo request (1 token de saida) pouco antes do cache expirar,
-  # so quando compensa o custo. Valores validos: off | streaming | idle.
   cacheWarming: idle
-  # Cache de 1h (auto = 1h so em OAuth, 5m com API key). Valores: auto | short | long | none.
   cacheRetention: long
+  webKeyless: true
+  openaiLiveSteering: true
+  {{- if eq .chezmoi.os "darwin" }}
+  tinyModelDevice: mlx
+  {{- end }}
   maxInFlightRequests:
-    xiaomi-token-plan-sgp: 2
+    xiaomi-token-plan-sgp: 10
   openai-codex:
-    # Desligado: nao participar do Daybreak Blue (a OpenAI pode usar conteudo
-    # das sessoes elegiveis).
     daybreak: false
-# Desligado: o hand-off do prewalk para @smol tirava subagentes de um modelo
-# saudavel (ex.: anthropic sonnet) e os jogava na cadeia smol, que com o Codex
-# esgotado descia ate o mimo mesmo com Anthropic/Antigravity ainda com cota.
+textVerbosity: medium
+worktree:
+  onExit: "Force Remove"
+tui:
+  renderEmbeds: true
 prewalk:
   enabled: false
 checkpoint:
   enabled: true
+spotlight:
+  experiment:
+    enabled: true
